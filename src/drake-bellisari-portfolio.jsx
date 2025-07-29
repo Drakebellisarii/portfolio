@@ -1,280 +1,196 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Mail, 
   ExternalLink, 
-  Camera, 
-  Hammer, 
+  Camera,
   BookOpen, 
   Code, 
   Search
 } from 'lucide-react';
 
 export default function Portfolio() {
-  const [gameStarted, setGameStarted] = useState(true);
-  const [ballPosition, setBallPosition] = useState({ x: 165, y: 300 });
-  const [ballVelocity, setBallVelocity] = useState({ x: 0, y: 0 });
-  const [ballInHole, setBallInHole] = useState(false);
   const [showWebsite, setShowWebsite] = useState(false);
-  const [ballFalling, setBallFalling] = useState(false);
-  const [fallProgress, setFallProgress] = useState(0);
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    contactMethod: '',
+    contactValue: '',
+    subject: '',
+    message: ''
+  });
   
-  // New swipe-based aiming system
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [dragCurrent, setDragCurrent] = useState({ x: 0, y: 0 });
-  const [showAimLine, setShowAimLine] = useState(false);
+  // Auto-transition to website after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWebsite(true);
+    }, 5500); // Increased to 8 seconds since video will be slower
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Handle video speed
+  const handleVideoLoad = (e) => {
+    e.target.playbackRate = 0.75; // Play at 75% speed (slower)
+  };
+
+  // Handle email click
+  const handleEmailClick = () => {
+    setShowContactForm(true);
+  };
   
-  const animationRef = useRef(null);
-  const physicsRef = useRef(null);
-  const gameRef = useRef(null);
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Only validate @ sign if user chose email as contact method
+    if (formData.contactMethod === 'email' && !formData.contactValue.includes('@')) {
+      alert('Please enter a valid email address with an @ sign.');
+      return;
+    }
+    
+    try {
+      // Create FormData object for Formspree
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('contactMethod', formData.contactMethod);
+      formDataToSend.append('contactValue', formData.contactValue);
+      formDataToSend.append('subject', formData.subject);
+      formDataToSend.append('message', formData.message);
+      
+      // Send to Formspree
+      const response = await fetch('https://formspree.io/f/mzzvglrd', {
+        method: 'POST',
+        body: formDataToSend,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        alert('Thank you for your message! I\'ll get back to you soon.');
+        setShowContactForm(false);
+        setFormData({ name: '', contactMethod: '', contactValue: '', subject: '', message: '' });
+      } else {
+        alert('Oops! There was a problem sending your message. Please try again.');
+      }
+    } catch (error) {
+      alert('Oops! There was a problem sending your message. Please try again.');
+    }
+  };
 
-  const holePosition = { x: 650, y: 350 };
-  const ballRadius = 8;
-  const holeRadius = 25;
-  const maxPower = 150; // Maximum drag distance for full power
-  const friction = 0.75; // Much lower friction for straight movement
-  const bounceDamping = 0.8; // Higher bounce retention
-
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
   const projects = [
     {
       title: 'AI-Powered Movie Selector',
       description: 'Designed a cloud native movie selection platform to minimize the time it takes to select a title for movie night. Make an account or browse as a guest if you would like to check out my work',
       tech: ['Javascript', 'Python', 'SQL', 'HTML/CSS', 'API Integration', 'Credential Managment'],
       image: '/api/placeholder/400/250',
+      link: 'https://flickfinda.onrender.com/'
     },
     {
       title: 'Central Point Partners',
       description: 'Developed a professional website for my mom who needed to filter her clients through one place providing an ease of communication to allow for seamless scheduling integrated directly with her calendar',
       tech: ['Python', 'TensorFlow', 'Matplotlib'],
       image: '/api/placeholder/400/250',
+      link: 'https://flickfinda.onrender.com/'
     },
     {
       title: 'Garden Reading tracker',
       description: 'Created an application where garden lovers can track their reading progress through an interactive garden',
       tech: ['React', 'Javascript', 'Web3'],
       image: '/api/placeholder/400/250',
+      link: 'https://flickfinda.onrender.com/'
     },
     {
       title: 'Cloud native realesate predictor',
       description: 'Designed a realestate prediction service that utilizes Zillows Api to predict realestate prices in the 500 most populous cities around the world',
       tech: ['Docker', 'AWS', 'Kubernetes'],
       image: '/api/placeholder/400/250',
+      link: 'https://flickfinda.onrender.com/'
     },
   ];
 
   const books = [
-    'A Mans Search For Meaning - Robert Martin',
-    'Outliers - Malcolm Gladwell',
-    'Tuesdays With Morrie - Mitch Albom',
-    'Flowers For Algernon - James Clear',
-    'My Brilliant Friend - Elena Ferrante',
-    'The Life of a Hermit - ',
-    'The Great Alone - Kristin Hannah',
-    'Remarkably Bright Creatures - ',
-    'The Sun Also Rises - Ernst Hemmingway',
-    'The Tattoist of Auschwitz - ',
-    'Tommorow and Tommorow and Tommorow - ',
-    'Just Kids - Patti Smith',
+    {
+      title: 'A Mans Search For Meaning',
+      author: 'Robert Martin',
+      cover: '/Book-Images/mans_search_fm.jpg'
+    },
+    {
+      title: 'Outliers',
+      author: 'Malcolm Gladwell',
+      cover: '/Book-Images/outliers.jpg'
+    },
+    {
+      title: 'Tuesdays With Morrie',
+      author: 'Mitch Albom',
+      cover: '/Book-Images/tuesdays_with_morrie.jpg'
+    },
+    {
+      title: 'Flowers For Algernon',
+      author: 'Daniel Keyes',
+      cover: '/Book-Images/flowers_for_algernon.jpg'
+    },
+    {
+      title: 'My Brilliant Friend',
+      author: 'Elena Ferrante',
+      cover: '/Book-Images/my_brilliant_friend.jpg'
+    },
+    {
+      title: 'The way of the Hermit',
+      author: 'Ken Smith',
+      cover: '/Book-Images/the_way_of_the_hermit.jpg'
+    },
+    {
+      title: 'The Great Alone',
+      author: 'Kristin Hannah',
+      cover: '/Book-Images/the_great_alone.jpg'
+    },
+    {
+      title: 'Remarkably Bright Creatures',
+      author: 'Shelby Van Pelt',
+      cover: '/Book-Images/remarkably_bright.jpg'
+    },
+    {
+      title: 'Algorithims to live by',
+      author: 'Brian Christian and Tom Griffiths',
+      cover: '/Book-Images/algorithms_to_live_by.jpg'
+    },
+    {
+      title: 'Steve Jobs',
+      author: 'Walter Issacson',
+      cover: '/Book-Images/steve_jobs.jpg'
+    },
+    {
+      title: 'Scar Tissue',
+      author: 'Anthony Kiedis',
+      cover: '/Book-Images/scar_tissue.jpg'
+    },
+    {
+      title: 'Anything You Want',
+      author: 'Derek Sivers',
+      cover: '/Book-Images/anything_you_want.jpeg'
+    },
   ];
 
-  const photography = new Array(6).fill('/api/placeholder/300/200');
-  const woodworking = new Array(4).fill('/api/placeholder/300/200');
+  const photography = [
+    { image: '/sailboat.JPG' },
+    { image: '/bridge.jpeg' },
+    { image: '/car.JPG' },
+    { image: '/country.jpeg' },
+    { image: '/flag.JPG' },
+    { image: '/rome.jpeg' }
+  ];
 
-  // Check if ball is in hole
-const checkBallInHole = (ballPos) => {
-    const distance = Math.sqrt(
-      Math.pow(ballPos.x - holePosition.x, 2) + 
-      Math.pow(ballPos.y - holePosition.y+45, 2)
-    );
-    return distance < holeRadius;
+  // Function to handle project clicks
+  const handleProjectClick = (projectLink) => {
+    window.open(projectLink, '_blank');
   };
-  
-    // Physics update loop
-    useEffect(() => {
-      if (ballInHole || ballFalling) return;
-      
-      const updatePhysics = () => {
-        // Apply friction to velocity first
-        setBallVelocity(prev => ({
-          x: prev.x * friction,
-          y: prev.y * friction
-        }));
-        
-        setBallPosition(prevPos => {
-          // Calculate next position
-          let newX = prevPos.x + ballVelocity.x;
-          let newY = prevPos.y + ballVelocity.y;
-          
-          // Handle wall collisions
-          if (newX - ballRadius <= 0) {
-            newX = ballRadius;
-            setBallVelocity(v => ({ ...v, x: Math.abs(v.x) * bounceDamping }));
-          } else if (newX + ballRadius >= 750) {
-            newX = 750 - ballRadius;
-            setBallVelocity(v => ({ ...v, x: -Math.abs(v.x) * bounceDamping }));
-          }
-          
-          if (newY - ballRadius <= 0) {
-            newY = ballRadius;
-            setBallVelocity(v => ({ ...v, y: Math.abs(v.y) * bounceDamping }));
-          } else if (newY + ballRadius >= 500) {
-            newY = 500 - ballRadius;
-            setBallVelocity(v => ({ ...v, y: -Math.abs(v.y) * bounceDamping }));
-          }
-          
-          const newPos = { x: newX, y: newY };
-          
-          // Check if ball is in hole
-          if (checkBallInHole(newPos)) {
-            setBallInHole(true);
-            setBallFalling(true);
-            startFallingAnimation();
-          }
-          
-          // Stop ball when very slow
-          if (Math.abs(ballVelocity.x) < 0.5 && Math.abs(ballVelocity.y) < 0.5) {
-            setBallVelocity({ x: 0, y: 0 });
-          }
-          
-          return newPos;
-        });
-      };
-      
-      physicsRef.current = setInterval(updatePhysics, 16); // ~60fps
-      
-      return () => {
-        if (physicsRef.current) {
-          clearInterval(physicsRef.current);
-        }
-      };
-    }, [ballInHole, ballFalling, ballVelocity.x, ballVelocity.y]);
-  
-
-    const getPosition = (e) => {
-      const rect = gameRef.current.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-      };
-    };
-  
-    // Calculate drag distance and power
-    const calculatePower = (start, current) => {
-      const dx = current.x - start.x;
-      const dy = current.y - start.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      return Math.min(distance / maxPower, 1); // Normalize to 0-1
-    };
-  
-    // Handle drag start
-    const handleDragStart = (e) => {
-      if (ballInHole || ballFalling) return;
-      
-      const pos = getPosition(e);
-      // Check if clicking/touching near the ball
-      const ballDistance = Math.sqrt(
-        Math.pow(pos.x - ballPosition.x, 2) + 
-        Math.pow(pos.y - ballPosition.y, 2)
-      );
-      
-      if (ballDistance < 30) { // 30px radius around ball for easier interaction
-        setIsDragging(true);
-        setDragStart(pos);
-        setDragCurrent(pos);
-        setShowAimLine(true);
-        e.preventDefault();
-      }
-    };
-  
-    // Handle drag move
-    const handleDragMove = (e) => {
-      if (!isDragging) return;
-      
-      const pos = getPosition(e);
-      setDragCurrent(pos);
-      e.preventDefault();
-    };
-  
-    // Handle drag end
-    const handleDragEnd = (e) => {
-      if (!isDragging) return;
-      
-      setIsDragging(false);
-      setShowAimLine(false);
-      
-      const power = calculatePower(dragStart, dragCurrent);
-      if (power > 0.1) { // Minimum power threshold
-        hitBall(dragStart, dragCurrent, power);
-      }
-      
-      e.preventDefault();
-    };
-  
-    // Hit the ball with swipe direction and power
-    const hitBall = (start, end, power) => {
-      // Calculate direction (inverted because we drag away from target)
-      const dx = start.x - end.x;
-      const dy = start.y - end.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance < 5) return; // Too small movement
-      
-      // Normalize direction and apply power - much higher multiplier for proper movement
-      const velocity = {
-        x: (dx / distance) * power * 40, // Increased from 20 to 40
-        y: (dy / distance) * power * 40
-      };
-      
-      setBallVelocity(velocity);
-    };
-  
-    // Start falling animation
-    const startFallingAnimation = () => {
-      let progress = 0;
-      const animate = () => {
-        progress += 0.8;
-        setFallProgress(progress);
-        
-        if (progress >= 100) {
-          setTimeout(() => {
-            setShowWebsite(true);
-          }, 1000);
-        } else {
-          animationRef.current = requestAnimationFrame(animate);
-        }
-      };
-      animate();
-    };
-  
-    // Calculate aim line properties
-    const getAimLineProps = () => {
-      if (!showAimLine) return null;
-      
-      const dx = dragCurrent.x - dragStart.x;
-      const dy = dragCurrent.y - dragStart.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance < 5) return null;
-      
-      const power = calculatePower(dragStart, dragCurrent);
-      const lineLength = Math.min(distance, maxPower);
-      
-      // Calculate line end point (opposite direction of drag)
-      const lineEndX = ballPosition.x - (dx / distance) * lineLength;
-      const lineEndY = ballPosition.y - (dy / distance) * lineLength;
-      
-      return {
-        x1: ballPosition.x,
-        y1: ballPosition.y,
-        x2: lineEndX,
-        y2: lineEndY,
-        power: power
-      };
-    };
-  
-    const aimLineProps = getAimLineProps();
   
   if (showWebsite) {
     return (
@@ -294,115 +210,93 @@ const checkBallInHole = (ballPos) => {
         </header>
 
         <section id="about" className="relative h-screen w-full overflow-hidden pt-20">
-          <video
-            autoPlay
-            muted
-            loop
-            style={{
-              width: '100%',
-              height: '100vh',
-              objectFit: 'cover',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              zIndex: -1,
-            }}
-          >
-            <source src="/About-vid.mp4" type="video/mp4" />
-          </video>
+  <video
+    autoPlay
+    muted
+    loop
+    style={{
+      width: '100%',
+      height: '100vh',
+      objectFit: 'cover',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      zIndex: -1,
+    }}
+  >
+    <source src="/About-vid.mp4" type="video/mp4" />
+  </video>
 
-          <style jsx>{`
-            @keyframes bounceHorizontal {
-              0% {
-                transform: translateX(100vw) translateY(-10px);
-                animation-timing-function: ease-in;
-              }
-              15% {
-              
-                            }
-              30% {
-                transform: translateX(50vw) translateY(-15px);
-                animation-timing-function: ease-in;
-              }
-              45% {
-                transform: translateX(15vw) translateY(0px);
-                animation-timing-function: ease-out;
-              }
-              60% {
-                transform: translateX(10vw) translateY(-12px);
-                animation-timing-function: ease-in;
-              }
-              75% {
-                transform: translateX(-5vw) translateY(0px);
-                animation-timing-function: ease-out;
-              }
-              85% {
-                transform: translateX(5vw) translateY(-8px);
-                animation-timing-function: ease-in;
-              }
-              95% {
-                transform: translateX(-2vw) translateY(0px);
-                animation-timing-function: ease-out;
-              }
-              100% {
-                transform: translateX(0vw) translateY(0px);
-              }
-            }
-            
-            .animate-bounce-horizontal {
-              animation: bounceHorizontal 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-            }
+  <style jsx>{`
+    @keyframes slideInFade {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0px);
+      }
+    }
+    
+    .animate-slide-in {
+      animation: slideInFade 1.2s ease-out forwards;
+    }
 
-            @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(-20px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            
-            .animate-fade-in {
-              animation: fadeIn 1s ease-out;
-            }
-          `}</style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 1s ease-out;
+    }
+  `}</style>
 
-          <div className="relative z-10 h-full flex items-center justify-start px-6 lg:px-16">
-            <div className="backdrop-blur-20xl bg-white/10 border border-white/20 rounded-3xl p-8 lg:p-12 max-w-2xl shadow-2xl animate-bounce-horizontal">
-              <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-                <div className="flex-shrink-0">
-                  <div className="w-88 h-60 lg:w-40 lg:h-52 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl">
-                    <img
-                      src="/Headshot.png"
-                      alt="Drake Bellisari"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-700"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex-1 text-white">
-                  <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                    Drake Bellisari
-                  </h1>
-                  <h2 className="text-xl lg:text-2xl font-light mb-6 text-blue-100">
-                    B.S. Computer Science - Trinity College 
-                  </h2>
-                  <p className="text-base lg:text-lg leading-relaxed text-white/90 mb-6">
-                    I'm a 21-year-old computer science major at Trinity College in Hartford, Connecticut. 
-                    I am deeply passionate about evolving technology and eager to gain hands-on experience 
-                    wherever I can make an impact. All of the images/videos are property of myself if you would like to purchase any please let me know.
-                    I value the importance of maintaining the intersection of art and technology through software development and I try to reflect this importance in all of my projects and would appreciate any feedback you want to provide.
-                  </p>
-                  <p className="text-base lg:text-lg leading-relaxed text-white/90 mb-8">
-                    With experience in Java, Python, Kotlin, React, Assembly, JavaScript, and C, 
-                    I enjoy blending logic and creativity in my work.
-                  </p>
-                  
-                  <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                    Let's Connect
-                  </button>
-                </div>
-              </div>
-            </div>
+  <div className="relative z-10 h-full flex items-center justify-center px-6 lg:px-16">
+    <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 lg:p-10 max-w-4xl w-full shadow-2xl animate-slide-in">
+      <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 lg:gap-8">
+        <div className="flex-shrink-0">
+          <div className="w-38 h-48 lg:w-38 lg:h-56 rounded-xl overflow-hidden border-2 border-white/30 shadow-xl">
+            <img
+              src="/Headshot.png"
+              alt="Drake Bellisari"
+              className="w-full h-full object-contain grayscale hover:grayscale-0 transition duration-700"
+            />
           </div>
-        </section>
-        
+        </div>
+
+        <div className="flex-1 text-white text-center lg:text-left">
+          <h1 className="text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+            Drake Bellisari
+          </h1>
+          <h2 className="text-lg lg:text-xl font-light mb-5 text-blue-100">
+            B.S. Computer Science - Trinity College 
+          </h2>
+          <p className="text-sm lg:text-base leading-relaxed text-white/90 mb-4">
+            I'm a 21-year-old computer science major at Trinity College in Hartford, Connecticut. 
+            I am deeply passionate about evolving technology and eager to gain hands-on experience 
+            wherever I can make an impact. All of the images/videos are property of myself if you would like to purchase any please let me know.
+          </p>
+          <p className="text-sm lg:text-base leading-relaxed text-white/90 mb-4">
+            I value the importance of maintaining the intersection of art and technology through software development and I try to reflect this importance in all of my projects and would appreciate any feedback you want to provide.
+          </p>
+          <p className="text-sm lg:text-base leading-relaxed text-white/90 mb-6">
+            With experience in Java, Python, Kotlin, React, Assembly, JavaScript, and C, 
+            I enjoy blending logic and creativity in my work.
+          </p>
+          
+          <button 
+            onClick={() => window.open('https://www.linkedin.com/in/drake-bellisari/', '_blank')}
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            Let's Connect
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Work Experience */}
 <section id="experience" className="py-20 bg-gray-50">
@@ -435,9 +329,10 @@ const checkBallInHole = (ballPos) => {
                  Manged outsourced design talent, and set up communication channels of exterior applications providing secure data store.
               </p>
               <div className="mt-4 flex gap-2">
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">React</span>
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">UI/UX</span>
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Web Design</span>
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Production</span>
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Database Managment</span>
               </div>
             </div>
           </div>
@@ -473,8 +368,8 @@ const checkBallInHole = (ballPos) => {
   </div>
 </section>
 
-      {/* Projects Section */}
-      <section id="projects" className="py-20">
+     {/* Projects Section */}
+     <section id="projects" className="py-20">
         <div className="container mx-auto px-6">
           <h2 className="text-5xl font-bold text-center mb-16 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
             Featured Projects
@@ -484,7 +379,8 @@ const checkBallInHole = (ballPos) => {
             {projects.map((project, index) => (
               <div
                 key={index}
-                className="group bg-gray-800/50 backdrop-blur-lg rounded-2xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:scale-105"
+                onClick={() => handleProjectClick(project.link)}
+                className="group bg-gray-800/50 backdrop-blur-lg rounded-2xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 <div className="relative overflow-hidden">
                   <div className="w-full h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
@@ -580,20 +476,37 @@ const checkBallInHole = (ballPos) => {
               <BookOpen className="text-pink-400 mr-4" size={32} />
               <h3 className="text-3xl font-bold">Favorite Books</h3>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {books.map((book, index) => (
                 <div
                   key={index}
-                  className="bg-gray-800/50 backdrop-blur-lg rounded-lg p-4 border border-gray-700 hover:border-pink-500 transition-all duration-300 hover:scale-105"
+                  className="bg-gray-800/50 backdrop-blur-lg rounded-lg overflow-hidden border border-gray-700 hover:border-pink-500 transition-all duration-300 hover:scale-105 group"
                 >
-                  <p className="text-gray-300 text-sm text-center">{book}</p>
+                  <div className="aspect-[3/4] relative overflow-hidden">
+                    <img
+                      src={book.cover}
+                      alt={`${book.title} cover`}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        // Fallback to placeholder if image fails to load
+                        e.target.src = '/api/placeholder/200/300';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+                  </div>
+                  <div className="p-4">
+                    <h4 className="text-white font-semibold text-sm mb-1 line-clamp-2">{book.title}</h4>
+                    {book.author && (
+                      <p className="text-gray-400 text-xs">{book.author}</p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Photography */}
-          <div className="mb-16">
+           {/* Photography */}
+           <div className="mb-16">
             <div className="flex items-center justify-center mb-8">
               <Camera className="text-blue-400 mr-4" size={32} />
               <h3 className="text-3xl font-bold">Photography</h3>
@@ -601,7 +514,17 @@ const checkBallInHole = (ballPos) => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {photography.map((photo, index) => (
                 <div key={index} className="relative group overflow-hidden rounded-xl">
-                  <div className="w-full h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                  <img
+                    src={photo.image}
+                    alt={`Photography ${index + 1}`}
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                    onError={(e) => {
+                      // Fallback if image doesn't load
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-full h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 items-center justify-center hidden">
                     <Camera size={48} className="text-blue-400 opacity-50" />
                   </div>
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300"></div>
@@ -610,7 +533,7 @@ const checkBallInHole = (ballPos) => {
             </div>
           </div>
 
-          {/* Woodworking */}
+          {/* Woodworking... change to more relevant section
           <div>
             <div className="flex items-center justify-center mb-8">
               <Hammer className="text-orange-400 mr-4" size={32} />
@@ -626,25 +549,171 @@ const checkBallInHole = (ballPos) => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
       {/* Footer */}
       <footer className="py-12 bg-gray-900 border-t border-gray-800">
         <div className="container mx-auto px-6 text-center">
-          <p className="text-gray-400 mb-4">Let's build something amazing together</p>
+          <p className="text-gray-400 mb-4">I hope you enjoy, please feel free to reach out about anything</p>
           <div className="flex justify-center space-x-6">
-            <a className="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+            <button 
+              onClick={handleEmailClick}
+              className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+            >
               <Mail size={24} />
-            </a>
+            </button>
           </div>
-          <p className="text-gray-500 text-sm mt-6">© 2025 Your Name. All rights reserved.</p>
+          <p className="text-gray-500 text-sm mt-6">© 2025 Drake Bellisari. All rights reserved.</p>
         </div>
       </footer>
+
+  {/* Contact Form Modal */}
+  {showContactForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+            {/* Security Message */}
+            <div className="bg-yellow-50 border-b border-yellow-200 p-6">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <div className="w-6 h-6 text-yellow-500 text-xl">⚠️</div>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-lg font-medium text-yellow-800 mb-2">
+                    Why I use a contact form instead of displaying my email
+                  </h3>
+                  <p className="text-sm text-yellow-700 leading-relaxed">
+                    Publicly displaying email addresses makes them vulnerable to spam bots and automated harvesting. 
+                    This contact form protects my inbox while keeping communication open. You can also connect with me on 
+                    <strong> LinkedIn</strong> or through my project platforms!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">Get In Touch</h2>
+                <button 
+                  onClick={() => setShowContactForm(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form onSubmit={handleFormSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Preferred Contact Method *
+                    </label>
+                    <select
+                      name="contactMethod"
+                      value={formData.contactMethod}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Choose how to reach you</option>
+                      <option value="email">Email</option>
+                      <option value="linkedin">LinkedIn</option>
+                      <option value="phone">Phone</option>
+                      <option value="discord">Discord</option>
+                      <option value="twitter">Twitter/X</option>
+                      <option value="instagram">Instagram</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Contact Details *
+                  </label>
+                  <input
+                    type="text"
+                    name="contactValue"
+                    value={formData.contactValue}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder={
+                      formData.contactMethod === 'email' ? 'your.email@example.com' :
+                      formData.contactMethod === 'linkedin' ? 'LinkedIn profile URL or username' :
+                      formData.contactMethod === 'phone' ? 'Your phone number' :
+                      formData.contactMethod === 'discord' ? 'Discord username' :
+                      formData.contactMethod === 'twitter' ? 'Twitter/X handle' :
+                      formData.contactMethod === 'instagram' ? 'Instagram handle' :
+                      formData.contactMethod === 'other' ? 'How can I reach you?' :
+                      'Your contact information'
+                    }
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Subject *
+                  </label>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="What's this about?"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Message *
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    rows={5}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Tell me what you'd like to discuss..."
+                  />
+                </div>
+                
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Send Message
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 return (
     <div className="min-h-screen relative overflow-hidden">
@@ -657,125 +726,38 @@ return (
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/Golf-bd.MP4" type="video/mp4" />
-          {/* Fallback for browsers that don't support video */}
           Your browser does not support the video tag.
         </video>
 
         <div className="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm" />
 
-
-    {/* ADD THIS CENTERING WRAPPER */}
-    <div className="relative min-h-screen flex items-center justify-center p-4">
-      <div className="backdrop-blur-2xl bg-white/10 border shadow-2xl p-8 max-w-4xl w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Hello Friend</h1>
-          <p className="text-gray-600 text-lg mb-6">
-            Sink this put to view my portfolio...No pressure
-          </p>
-          {!gameStarted && (
-            <button
-              onClick={() => setGameStarted(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Start Game
-            </button>
-          )}
-        </div>
-
-        {gameStarted && (
-          <div className="relative">
-            <div
-              ref={gameRef}
-              className="relative w-full h-96 bg-gradient-to-b from-green-300 to-green-500 rounded-lg overflow-hidden cursor-crosshair"
-              onMouseDown={handleDragStart}
-              onMouseMove={handleDragMove}
-              onMouseUp={handleDragEnd}
-              onTouchStart={handleDragStart}
-              onTouchMove={handleDragMove}
-              onTouchEnd={handleDragEnd}
-            >
-              {/* Golf course elements */}
-              <div className="absolute inset-0">
-                <div className="absolute top-4 right-4 text-white font-bold">
-                  Drag the ball to aim!
-                </div>
-              </div>
-
-              {/* Hole */}
-              <div
-                className="absolute w-6 h-6 bg-black rounded-full border-4 border-gray-800 flex items-center justify-center"
-                style={{
-                  left: `${holePosition.x - holeRadius}px`,
-                  top: `${holePosition.y - holeRadius-51}px`,
-                }}
-              >
-                <div className="w-6 h-6 bg-gray-900 rounded-full"></div>
-              </div>
-
-             {/* Aim line */}
-            {aimLineProps && (
-              <svg
-                className="absolute inset-0 pointer-events-none"
-                style={{ width: '750px', height: '500px' }}
-              >
-                <line
-                  x1={aimLineProps.x1}
-                  y1={aimLineProps.y1}
-                  x2={aimLineProps.x2}
-                  y2={aimLineProps.y2}
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeDasharray="5,5"
-                  opacity={0.8}
-                />
-                <line
-                  x1={aimLineProps.x1}
-                  y1={aimLineProps.y1}
-                  x2={aimLineProps.x2}
-                  y2={aimLineProps.y2}
-                  stroke={`rgba(255, ${255 - aimLineProps.power * 255}, 0, 0.8)`}
-                  strokeWidth="4"
-                  strokeDasharray="5,5"
-                  opacity={0.4}
-                />
-              </svg>
-            )}
-
-              {/* Ball */}
-              <div
-                className={`absolute w-4 h-4 bg-white rounded-full border-2 border-gray-300 shadow-lg transition-all duration-300 ${
-                  isDragging ? 'scale-110 shadow-xl' : ''
-                } ${ballFalling ? 'animate-pulse' : ''}`}
-                style={{
-                  left: `${ballPosition.x - ballRadius}px`,
-                  top: `${ballPosition.y - ballRadius}px`,
-                  transform: ballFalling ? `translateY(${fallProgress * 2}px) scale(${1 - fallProgress / 200})` : 'none',
-                }}
-              >
-                <div className="absolute inset-0.5 bg-gradient-to-br from-white to-gray-200 rounded-full"></div>
-              </div>
-
-              {/* Power indicator */}
-              {isDragging && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full">
-                  Power: {Math.round(calculatePower(dragStart, dragCurrent) * 100)}%
-                </div>
-              )}
-
-              {/* Success message */}
-              {ballInHole && !ballFalling && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-green-600 text-white px-8 py-4 rounded-lg font-bold text-2xl animate-bounce">
-                    🎉 Hole in One! 🎉
-                  </div>
-                </div>
-              )}
+        {/* Video Intro Frame */}
+        <div className="relative min-h-screen flex items-center justify-center p-4">
+          <div className="backdrop-blur-2xl bg-white/10 border shadow-2xl p-8 w-9/10 h-9/10" style={{width: '90%', height: '90vh'}}>
+            <div className="text-center mb-6">
+              <h1 className="text-6xl font-bold text-gray-800 mb-4">Hello Friend</h1>
+              <p className="text-gray-600 text-2xl mb-6">
+                Welcome to my portfolio
+              </p>
             </div>
 
+            {/* Video Container */}
+            <div className="relative h-full">
+              <div className="relative w-full h-4/5 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg overflow-hidden flex items-center justify-center">
+                <video
+                  autoPlay
+                  muted
+                  playsInline
+                  onLoadedData={handleVideoLoad}
+                  className="w-full h-full object-cover rounded-lg"
+                >
+                  <source src="/port_entrance.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
     </div>
-</div>
   );
 }
