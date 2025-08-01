@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Analytics } from "@vercel/analytics/react"
 import { 
   Mail, 
   ExternalLink, 
@@ -408,18 +409,18 @@ const EducationSection = () => {
       link: 'https://flickfinda.onrender.com/'
     },
     {
-      title: 'Central Point Partners',
+      title: 'Guided peak potential',
       description: 'Developed a professional website for my mom who needed to filter her clients through one place providing an ease of communication to allow for seamless scheduling integrated directly with her calendar',
-      tech: ['Python', 'TensorFlow', 'Matplotlib'],
+      tech: ['React', 'Javascript', 'HTML/CSS'],
       image: '/api/placeholder/400/250',
-      link: 'https://flickfinda.onrender.com/'
+      link: 'https://cpp-website-six.vercel.app/'
     },
     {
-      title: 'Garden Reading tracker',
-      description: 'Created an application where garden lovers can track their reading progress through an interactive garden',
-      tech: ['React', 'Javascript', 'Web3'],
+      title: 'Queralt Inc.',
+      description: 'Was the sole web developer of our companies commercial website, from everything from market research to wireframes to deployment',
+      tech: ['UI/UX', 'HTML/CSS', 'Miro'],
       image: '/api/placeholder/400/250',
-      link: 'https://flickfinda.onrender.com/'
+      link: 'https://bobcat-buffalo-f8tf.squarespace.com/'
     },
     {
       title: 'Cloud native realesate predictor',
@@ -508,6 +509,7 @@ const EducationSection = () => {
   
   if (showWebsite) {
     return (
+      <>
       <div className="text-gray-900 min-h-screen">
         {/* Navigation Header */}
         <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50 animate-fade-in">
@@ -1000,6 +1002,8 @@ const EducationSection = () => {
           </div>
         )}
       </div>
+      <Analytics />
+      </>
     );
   }
 
