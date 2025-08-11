@@ -16,10 +16,88 @@ import {
   X
 } from 'lucide-react';
 
+// Creative grid layout system
+const PhotoCard = ({ photo, index }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleClick = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const getCardClass = () => {
+    const baseClass = "cursor-pointer transition-all duration-500 transform-gpu";
+    
+    // Create a variety of sizes for visual interest using valid Tailwind classes
+    const sizeVariations = [
+      'col-span-1 row-span-1', // Small square
+      'col-span-2 row-span-1', // Wide
+      'col-span-1 row-span-2', // Tall
+      'col-span-2 row-span-2', // Large square
+      'col-span-2 row-span-1', // Wide (replacing col-span-3)
+      'col-span-1 row-span-2', // Tall (replacing row-span-3)
+    ];
+    
+    // Use index to create a pattern that looks random but is predictable
+    const sizeIndex = index % sizeVariations.length;
+    const sizeClass = sizeVariations[sizeIndex];
+    
+    // Add some rotation for visual interest
+    const rotationClass = index % 3 === 0 ? 'rotate-1' : index % 3 === 1 ? '-rotate-1' : '';
+    
+    return `${baseClass} ${sizeClass} ${rotationClass}`;
+  };
+
+
+  return (
+    <div className={getCardClass()} onClick={handleClick}>
+      <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
+        {/* Front of card - Image */}
+        <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
+          <img 
+            src={photo.image} 
+            alt={photo.title}
+            className="w-full h-full object-cover rounded-lg shadow-lg"
+            onError={(e) => {
+              console.error(`Failed to load image: ${photo.image}`);
+              e.target.style.display = 'none';
+              // Show a fallback div with the image path for debugging
+              const fallback = document.createElement('div');
+              fallback.className = 'w-full h-full bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 text-xs p-2';
+              fallback.innerHTML = `Image not found:<br/>${photo.image}`;
+              e.target.parentNode.appendChild(fallback);
+            }}
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
+            <div className="text-white text-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <p className="text-sm font-semibold">{photo.title}</p>
+              <p className="text-xs">{photo.location}</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Back of card - Text Information */}
+        <div 
+          className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg shadow-lg flex flex-col items-center justify-center text-white p-4 text-center"
+          style={{ 
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)'
+          }}
+        >
+          <h3 className="text-lg font-bold mb-2">{photo.title}</h3>
+          <p className="text-sm mb-1">{photo.location}</p>
+          <p className="text-xs mb-3">{photo.date}</p>
+          <p className="text-xs opacity-75">Click to flip back</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Portfolio() {
   const [showWebsite, setShowWebsite] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     contactMethod: '',
@@ -27,12 +105,133 @@ export default function Portfolio() {
     subject: '',
     message: ''
   });
+
+  const photography = [
+    { 
+      image: '/sailboat.JPG', 
+      title: 'Sailboat at Sunset',
+      location: 'Hudson River, NJ',
+      date: 'Summer 2025',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/bridge.jpeg', 
+      title: 'Austrian Bridge',
+      location: 'Murau, Austria',
+      date: 'Spring 2025',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/car.JPG', 
+      title: 'Classic Car',
+      location: 'St Augustine, FL',
+      date: 'Summer 2024',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/country.jpeg', 
+      title: 'Countryside of Austria',
+      location: 'Murau, Austria',
+      date: 'Spring 2025',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/flag.JPG', 
+      title: 'American Flag',
+      location: 'Fair Haven, NJ',
+      date: 'Independence Day 2025',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/Sunset.jpeg', 
+      title: 'Florida Evening',
+      location: 'Fernandina Beach, FL',
+      date: 'Winter 2024',
+      orientation: 'vertical'
+    },
+    { 
+      image: '/Gunnar.JPG', 
+      title: 'Good Boy',
+      location: 'Burt Lake, MI',
+      date: 'Summer 2022',
+      orientation: 'vertical'
+    },
+    { 
+      image: '/Cod.PNG', 
+      title: 'Clean Living',
+      location: 'Cape Cod, MA',
+      date: 'Summer 2023',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/Lil-boat.PNG', 
+      title: 'Lil Boat',
+      location: 'Burt Lake, MI',
+      date: 'Spring 2023',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/Breakfast.jpeg', 
+      title: 'Breakfast over flame',
+      location: 'Athens, OH',
+      date: 'Summer 2023',
+      orientation: 'vertical'
+    },
+    { 
+      image: '/cabin.PNG', 
+      title: 'Cabin In the woods',
+      location: 'Burt Lake, MI',
+      date: 'Summer 2023',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/Colorado-river.jpeg', 
+      title: 'River ',
+      location: 'Vail, CO',
+      date: 'Winter 2023',
+      orientation: 'vertical'
+    },
+    { 
+      image: '/Newyork.jpg', 
+      title: 'New York Illumination',
+      location: 'New York, NY',
+      date: 'Summer 2023',
+      orientation: 'vertical'
+    },
+    { 
+      image: '/trin-chap.jpeg', 
+      title: 'Trinity Chapel',
+      location: 'Oxford, UK',
+      date: 'Summer 2023',
+      orientation: 'vertical'
+    },
+    { 
+      image: '/utah.jpeg', 
+      title: 'Utah Landscape',
+      location: 'Moab, UT',
+      date: 'Summer 2023',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/Island.JPG', 
+      title: 'Island View',
+      location: 'Burt Lake, MI',
+      date: 'Summer 2023',
+      orientation: 'horizontal'
+    },
+    { 
+      image: '/Train.jpeg', 
+      title: 'Beach Sunset',
+      location: 'New Haven, CT',
+      date: 'Spring 2023',
+      orientation: 'horizontal'
+    }
+  ];
   
-  // Auto-transition to website after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowWebsite(true);
-    }, 5500);
+    }, 4200);
     
     return () => clearTimeout(timer);
   }, []);
@@ -86,54 +285,12 @@ export default function Portfolio() {
   };
 
 const EducationSection = () => {
-  const [selectedCategory, setSelectedCategory] = useState('core');
   const [animatedGPA, setAnimatedGPA] = useState(0);
-  const [visibleCourses, setVisibleCourses] = useState([]);
   const [isVisible, setIsVisible] = useState(false);  
   const sectionRef = useRef(null);                     
 
   const actualGPA = 3.45;
   const maxGPA = 4.0;
-
-  const courseCategories = {
-    core: {
-      title: 'Core Computer Science',
-      icon: Code,
-      color: 'blue',
-      courses: [
-        { name: 'Data Structures & Algorithms', grade: 'A-', credits: 4, difficulty: 'High' },
-        { name: 'Object-Oriented Programming', grade: 'A', credits: 4, difficulty: 'Medium' },
-        { name: 'Computer Systems Organization', grade: 'B+', credits: 4, difficulty: 'High' },
-        { name: 'Database Systems', grade: 'A-', credits: 3, difficulty: 'Medium' },
-        { name: 'Software Engineering', grade: 'A', credits: 4, difficulty: 'Medium' },
-        { name: 'Programming Languages', grade: 'B+', credits: 3, difficulty: 'High' }
-      ]
-    },
-    math: {
-      title: 'Mathematics & Theory',
-      icon: Brain,
-      color: 'purple',
-      courses: [
-        { name: 'Discrete Mathematics', grade: 'A-', credits: 4, difficulty: 'High' },
-        { name: 'Calculus I & II', grade: 'B+', credits: 8, difficulty: 'Medium' },
-        { name: 'Linear Algebra', grade: 'A', credits: 3, difficulty: 'Medium' },
-        { name: 'Statistics & Probability', grade: 'A-', credits: 3, difficulty: 'Medium' },
-        { name: 'Algorithm Analysis', grade: 'B+', credits: 3, difficulty: 'High' }
-      ]
-    },
-    electives: {
-      title: 'Specialized Electives',
-      icon: Star,
-      color: 'orange',
-      courses: [
-        { name: 'Machine Learning', grade: 'A', credits: 4, difficulty: 'High' },
-        { name: 'Web Development', grade: 'A', credits: 3, difficulty: 'Medium' },
-        { name: 'Mobile App Development', grade: 'A-', credits: 3, difficulty: 'Medium' },
-        { name: 'Artificial Intelligence', grade: 'B+', credits: 4, difficulty: 'High' },
-        { name: 'Human-Computer Interaction', grade: 'A', credits: 3, difficulty: 'Low' }
-      ]
-    }
-  };
 
   // Intersection Observer to trigger animation when section comes into view
   useEffect(() => {
@@ -180,68 +337,28 @@ const EducationSection = () => {
     }
   }, [isVisible, actualGPA]);
 
-  // Animate course visibility when category changes or section becomes visible
-  useEffect(() => {
-    if (isVisible) {
-      const courses = courseCategories[selectedCategory].courses;
-      setVisibleCourses([]);
-      
-      courses.forEach((_, index) => {
-        setTimeout(() => {
-          setVisibleCourses(prev => [...prev, index]);
-        }, index * 150);
-      });
-    }
-  }, [selectedCategory, isVisible]);
-
-  const getGradeColor = (grade) => {
-    if (grade.startsWith('A')) return 'text-green-600 bg-green-100';
-    if (grade.startsWith('B')) return 'text-blue-600 bg-blue-100';
-    if (grade.startsWith('C')) return 'text-yellow-600 bg-yellow-100';
-    return 'text-gray-600 bg-gray-100';
-  };
-
-  const getDifficultyColor = (difficulty) => {
-    switch(difficulty) {
-      case 'High': return 'bg-red-100 text-red-700';
-      case 'Medium': return 'bg-yellow-100 text-yellow-700';
-      case 'Low': return 'bg-green-100 text-green-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
-
-  const getCategoryButtonClass = (category) => {
-    const baseClass = "flex items-center px-2 sm:px-3 py-2 sm:py-3 rounded-lg transition-all duration-300 hover:scale-105 text-xs sm:text-sm";
-    const colors = {
-      blue: selectedCategory === category ? 'bg-blue-500 text-white shadow-lg' : 'bg-blue-100 text-blue-700 hover:bg-blue-200',
-      purple: selectedCategory === category ? 'bg-purple-500 text-white shadow-lg' : 'bg-purple-100 text-purple-700 hover:bg-purple-200',
-      orange: selectedCategory === category ? 'bg-orange-500 text-white shadow-lg' : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-    };
-    
-    return `${baseClass} ${colors[courseCategories[category].color]}`;
-  };
-
   return (
     <section id="education" className="py-12 sm:py-20" ref={sectionRef}>
       <div className="container mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-16">
-          <h2 className="text-3xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-5xl font-bold mb-4 text-gray-800">
             Education
           </h2>
           <p className="text-lg sm:text-xl text-gray-600">Building a strong foundation in computer science</p>
         </div>
 
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border border-gray-200">
             
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 sm:p-8 text-white">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 sm:p-8 text-white">
               <div className="flex flex-col items-center text-center space-y-6">
                 <div className="flex items-center">
-                  <GraduationCap size={32} className="mr-3 sm:mr-4" />
+                  <GraduationCap size={32} className="mr-4" />
                   <div>
-                    <h3 className="text-xl sm:text-3xl font-bold">Trinity College</h3>
-                    <p className="text-blue-100 text-sm sm:text-lg">Bachelor of Science in Computer Science</p>
-                    <div className="flex items-center justify-center mt-2 text-blue-200 text-xs sm:text-base">
+                    <h3 className="text-2xl sm:text-3xl font-bold">Trinity College</h3>
+                    <p className="text-gray-300 text-sm sm:text-lg">Bachelor of Science in Computer Science</p>
+                    <div className="flex items-center justify-center mt-2 text-gray-400 text-sm">
                       <Calendar size={14} className="mr-2" />
                       <span>Expected Graduation: May 2026</span>
                     </div>
@@ -250,110 +367,84 @@ const EducationSection = () => {
 
                 <div className="text-center">
                   <div className="mb-4">
-                    <span className="text-3xl sm:text-5xl font-bold">{animatedGPA.toFixed(2)}</span>
-                    <span className="text-lg sm:text-2xl text-blue-200">/{maxGPA}</span>
+                    <span className="text-4xl sm:text-5xl font-bold">{animatedGPA.toFixed(2)}</span>
+                    <span className="text-xl sm:text-2xl text-gray-300">/{maxGPA}</span>
                   </div>
                   
-                  <div className="w-48 sm:w-64 bg-white/20 rounded-full h-3 sm:h-4 overflow-hidden mx-auto">
+                  <div className="w-48 sm:w-64 bg-gray-700 rounded-full h-3 sm:h-4 overflow-hidden mx-auto">
                     <div 
-                      className="h-full bg-gradient-to-r from-yellow-400 to-green-400 rounded-full transition-all duration-1000 ease-out"
+                      className="h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full transition-all duration-1000 ease-out"
                       style={{ width: `${(animatedGPA / maxGPA) * 100}%` }}
                     />
                   </div>
-                  <p className="text-blue-200 text-xs sm:text-sm mt-2">Major GPA</p>
+                  <p className="text-gray-400 text-sm mt-2">Major GPA</p>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 sm:p-8">
-              <h4 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center">
-                <BookOpen className="mr-3 text-blue-600" size={20} />
-                Coursework by Category
+            {/* Coursework Overview */}
+            <div className="p-6 sm:p-8">
+              <h4 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <BookOpen className="mr-3 text-gray-600" size={20} />
+                Academic Focus Areas
               </h4>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8">
-                {Object.entries(courseCategories).map(([key, category]) => {
-                  const Icon = category.icon;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setSelectedCategory(key)}
-                      className={getCategoryButtonClass(key)}
-                    >
-                      <Icon size={16} className="mr-2" />
-                      <span className="font-medium">{category.title}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <div className="flex items-center mb-4">
+                    <Code className="text-gray-600 mr-3" size={20} />
+                    <h5 className="text-lg font-semibold text-gray-800">Core Computer Science</h5>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Strong foundation in data structures, algorithms, software engineering, and systems programming. 
+                    Completed advanced coursework in object-oriented programming and database systems.
+                  </p>
+                </div>
 
-              <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6">
-                <h5 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center">
-                  {React.createElement(courseCategories[selectedCategory].icon, { 
-                    size: 20, 
-                    className: `mr-3 text-${courseCategories[selectedCategory].color}-600` 
-                  })}
-                  {courseCategories[selectedCategory].title}
-                </h5>
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <div className="flex items-center mb-4">
+                    <Brain className="text-gray-600 mr-3" size={20} />
+                    <h5 className="text-lg font-semibold text-gray-800">Mathematics & Theory</h5>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Comprehensive mathematical background including discrete mathematics, calculus, linear algebra, 
+                    and statistics. Strong analytical and problem-solving skills.
+                  </p>
+                </div>
 
-                <div className="grid gap-3">
-                  {courseCategories[selectedCategory].courses.map((course, index) => (
-                    <div
-                      key={course.name}
-                      className={`bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200 hover:shadow-lg transition-all duration-300 transform ${
-                        visibleCourses.includes(index) 
-                          ? 'translate-x-0 opacity-100' 
-                          : 'translate-x-8'
-                      }`}
-                      style={{ 
-                        transitionDelay: visibleCourses.includes(index) ? '0ms' : `${index * 150}ms` 
-                      }}
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-                        <div className="flex-1 mb-3 sm:mb-0">
-                          <h6 className="font-semibold text-gray-800 text-sm sm:text-lg">{course.name}</h6>
-                          <div className="flex flex-wrap items-center mt-2 gap-2 sm:space-x-4 sm:gap-0">
-                            <span className="text-xs sm:text-sm text-gray-600">
-                              {course.credits} Credits
-                            </span>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(course.difficulty)}`}>
-                              {course.difficulty} Difficulty
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between sm:justify-end">
-                          <span className={`px-3 py-1 rounded-full font-bold text-sm ${getGradeColor(course.grade)}`}>
-                            {course.grade}
-                          </span>
-                          <ChevronRight size={16} className="ml-2 text-gray-400" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <div className="flex items-center mb-4">
+                    <Star className="text-gray-600 mr-3" size={20} />
+                    <h5 className="text-lg font-semibold text-gray-800">Specialized Electives</h5>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Advanced coursework in machine learning, artificial intelligence, web development, 
+                    and mobile app development. Focus on emerging technologies and practical applications.
+                  </p>
                 </div>
               </div>
 
-              <div className="mt-6 sm:mt-8 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-yellow-200">
-                <h5 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 flex items-center">
-                  <Award className="mr-3 text-yellow-600" size={20} />
+              {/* Key Achievements */}
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                <h5 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                  <Award className="mr-3 text-gray-600" size={20} />
                   Academic Achievements
                 </h5>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center">
-                    <Trophy className="text-yellow-600 mr-3" size={16} />
-                    <span className="text-gray-700 text-sm sm:text-base">Member of the Dean's List</span>
+                    <Trophy className="text-gray-600 mr-3" size={16} />
+                    <span className="text-gray-700 text-sm sm:text-base">Dean's List Member</span>
                   </div>
                   <div className="flex items-center">
-                    <Star className="text-yellow-600 mr-3" size={16} />
+                    <Star className="text-gray-600 mr-3" size={16} />
                     <span className="text-gray-700 text-sm sm:text-base">CS Department Honor Roll</span>
                   </div>
                   <div className="flex items-center">
-                    <Award className="text-yellow-600 mr-3" size={16} />
+                    <Award className="text-gray-600 mr-3" size={16} />
                     <span className="text-gray-700 text-sm sm:text-base">Academic Excellence Scholarship</span>
                   </div>
                   <div className="flex items-center">
-                    <BookOpen className="text-yellow-600 mr-3" size={16} />
+                    <BookOpen className="text-gray-600 mr-3" size={16} />
                     <span className="text-gray-700 text-sm sm:text-base">Phi Beta Kappa Eligible</span>
                   </div>
                 </div>
@@ -460,14 +551,7 @@ const EducationSection = () => {
     },
   ];
 
-  const photography = [
-    { image: '/sailboat.JPG' },
-    { image: '/bridge.jpeg' },
-    { image: '/car.JPG' },
-    { image: '/country.jpeg' },
-    { image: '/flag.JPG' },
-    { image: '/rome.jpeg' }
-  ];
+
 
   const handleProjectClick = (projectLink) => {
     window.open(projectLink, '_blank');
@@ -482,8 +566,16 @@ const EducationSection = () => {
   };
   
   if (showWebsite) {
-    return (
-      <div className="text-gray-900 min-h-screen">
+      return (
+    <div className="text-gray-900 min-h-screen">
+      <style jsx>{`
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+        .transform-gpu {
+          transform-style: preserve-3d;
+        }
+      `}</style>
         {/* Navigation Header - Mobile Optimized */}
         <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
           <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
@@ -546,11 +638,11 @@ const EducationSection = () => {
             <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-10 max-w-4xl w-full shadow-2xl">
               <div className="flex flex-col items-center gap-4 sm:gap-6 lg:gap-8">
                 <div className="flex-shrink-0">
-                  <div className="w-32 h-40 sm:w-36 sm:h-44 lg:w-38 lg:h-48 rounded-lg sm:rounded-xl overflow-hidden border-2 border-white/30 shadow-xl">
+                  <div className="w-38 h-40 sm:w-36 sm:h-44 lg:w-38 lg:h-48 rounded-lg sm:rounded-xl overflow-hidden border-2 border-white/30 shadow-xl">
                     <img
                       src="/Headshot.png"
                       alt="Drake Bellisari"
-                      className="w-full h-full object-contain grayscale hover:grayscale-0 transition duration-700"
+                      className="w-56 h-50 object-contain grayscale hover:grayscale-0 transition duration-700"
                     />
                   </div>
                 </div>
@@ -705,21 +797,21 @@ const EducationSection = () => {
         {/* Interests Section - Mobile Optimized */}
         <section id="interests" className="py-12 sm:py-20">
           <div className="container mx-auto px-4 sm:px-6">
-            <h2 className="text-3xl sm:text-5xl font-bold text-center mb-8 sm:mb-16 bg-gradient-to-r from-pink-400 to-orange-500 bg-clip-text text-transparent">
+            <h2 className="text-3xl sm:text-5xl font-bold text-center mb-8 sm:mb-16 bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">
               Interests & Hobbies
             </h2>
 
             {/* Books - Mobile Optimized */}
             <div className="mb-12 sm:mb-16">
               <div className="flex items-center justify-center mb-6 sm:mb-8">
-                <BookOpen className="text-pink-400 mr-3 sm:mr-4" size={24} />
-                <h3 className="text-2xl sm:text-3xl font-bold">Favorite Books</h3>
+                <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
+                <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Books</h3>
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4 lg:gap-6 max-w-6xl mx-auto">
+              <div className="grid grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
                 {books.map((book, index) => (
                   <div
                     key={index}
-                    className="bg-gray-800/50 backdrop-blur-lg rounded-lg overflow-hidden border border-gray-700 hover:border-pink-500 transition-all duration-300 hover:scale-105 group"
+                    className="bg-gray-800/50 backdrop-blur-lg rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:scale-105 group"
                   >
                     <div className="aspect-[3/4] relative overflow-hidden">
                       <img
@@ -732,10 +824,10 @@ const EducationSection = () => {
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
                     </div>
-                    <div className="p-2 sm:p-3 lg:p-4">
-                      <h4 className="text-white font-semibold text-xs sm:text-sm mb-1 line-clamp-2">{book.title}</h4>
+                    <div className="p-3 sm:p-4">
+                      <h4 className="text-white font-semibold text-sm sm:text-base mb-1 line-clamp-2">{book.title}</h4>
                       {book.author && (
-                        <p className="text-gray-400 text-xs">{book.author}</p>
+                        <p className="text-gray-400 text-xs sm:text-sm">{book.author}</p>
                       )}
                     </div>
                   </div>
@@ -743,31 +835,27 @@ const EducationSection = () => {
               </div>
             </div>
 
-            {/* Photography - Mobile Optimized */}
+           {/* Photography - Creative Grid Layout */}
             <div className="mb-8 sm:mb-16">
               <div className="flex items-center justify-center mb-6 sm:mb-8">
                 <Camera className="text-blue-400 mr-3 sm:mr-4" size={24} />
-                <h3 className="text-2xl sm:text-3xl font-bold">Photography</h3>
+                <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">
+                  Photography
+                </h3>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 max-w-6xl mx-auto">
-                {photography.map((photo, index) => (
-                  <div key={index} className="relative group overflow-hidden rounded-lg sm:rounded-xl">
-                    <img
-                      src={photo.image}
-                      alt={`Photography ${index + 1}`}
-                      className="w-full h-32 sm:h-40 lg:h-48 object-cover group-hover:scale-110 transition-transform duration-300"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
-                      }}
+              <p className="text-center text-gray-600 mb-4 text-sm">💡 Click the images to flip them!</p>
+              
+              <div className="max-w-7xl mx-auto">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-[120px] sm:auto-rows-[140px] md:auto-rows-[160px]">
+                  {console.log('Photography array:', photography)}
+                  {photography.map((photo, index) => (
+                    <PhotoCard 
+                      key={index}
+                      photo={photo}
+                      index={index}
                     />
-                    <div className="w-full h-32 sm:h-40 lg:h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 items-center justify-center hidden">
-                      <Camera size={32} className="sm:hidden text-blue-400 opacity-50" />
-                      <Camera size={48} className="hidden sm:block text-blue-400 opacity-50" />
-                    </div>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300"></div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -800,14 +888,6 @@ const EducationSection = () => {
                     <div className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 text-lg sm:text-xl">⚠️</div>
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-base sm:text-lg font-medium text-yellow-800 mb-2">
-                      Why I use a contact form instead of displaying my email
-                    </h3>
-                    <p className="text-sm text-yellow-700 leading-relaxed">
-                      Publicly displaying email addresses makes them vulnerable to spam bots and automated harvesting. 
-                      This contact form protects my inbox while keeping communication open. You can also connect with me on 
-                      <strong> LinkedIn</strong> or through my project platforms!
-                    </p>
                   </div>
                 </div>
               </div>
@@ -981,7 +1061,7 @@ const EducationSection = () => {
                   minHeight: '100%',
                 }}
               >
-                <source src="/port_entrance.mp4" type="video/mp4" />
+                <source src="/port_ent.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
