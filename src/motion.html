@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Letter T</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #1e293b, #7c3aed, #1e293b);
+            font-family: Arial, sans-serif;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+        
+        .content {
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            height: 300vh;
+        }
+        
+        .section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .instructions {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: white;
+            z-index: 10;
+            background: rgba(0,0,0,0.5);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <p>Scroll to rotate the T</p>
+        <p>Drag to orbit around</p>
+    </div>
+    
+    <div id="canvas-container"></div>
+    
+    <div class="content">
+        <div class="section">
+            <div>
+                <h1 style="font-size: 4rem; margin-bottom: 1rem;">Trinity College</h1>
+                <p style="font-size: 1.5rem;">Scroll down to see the 3D T rotate</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div>
+                <h2 style="font-size: 3rem;">Interactive 3D</h2>
+                <p style="font-size: 1.2rem;">Built with Three.js - Perfect for portfolios</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div>
+                <h2 style="font-size: 3rem;">Keep Scrolling</h2>
+                <p style="font-size: 1.2rem;">The T continues to respond to your scroll position</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+        
+        const pointLight1 = new THREE.PointLight(0xff6b6b, 0.8);
+        pointLight1.position.set(-5, 5, 5);
+        scene.add(pointLight1);
+        
+        const pointLight2 = new THREE.PointLight(0x4ecdc4, 0.6);
+        pointLight2.position.set(5, -5, -5);
+        scene.add(pointLight2);
+
+        // Create 3D T shape
+        const tGroup = new THREE.Group();
+        
+        // Material for the T
+        const material = new THREE.MeshStandardMaterial({ 
+            color: 0xDAA520,
+            metalness: 0.8,
+            roughness: 0.2
+        });
+        
+        // Horizontal bar (top of T)
+        const horizontalGeometry = new THREE.BoxGeometry(3.5, .75, 1);
+        const horizontalBar = new THREE.Mesh(horizontalGeometry, material);
+        horizontalBar.position.set(0, 1, 0);
+        
+        // Vertical bar (stem of T)
+        const verticalGeometry = new THREE.BoxGeometry(1, 3, 1);
+        const verticalBar = new THREE.Mesh(verticalGeometry, material);
+        verticalBar.position.set(0, -0.25, 0);
+        
+        // Bottom box (base of T)
+        const bottomBoxGeometry = new THREE.BoxGeometry(2.2, .8, 1);
+        const bottomBox = new THREE.Mesh(bottomBoxGeometry, material);
+        bottomBox.position.set(0, -1.4, 0);
+        
+        // Left side line going down from horizontal bar
+        const leftLineGeometry = new THREE.BoxGeometry(0.8, 1.0, 1);
+        const leftLine = new THREE.Mesh(leftLineGeometry, material);
+        leftLine.position.set(-1.5, 0.5, 0);
+        
+        // Right side line going down from horizontal bar
+        const rightLineGeometry = new THREE.BoxGeometry(0.8, 1.0, 1);
+        const rightLine = new THREE.Mesh(rightLineGeometry, material);
+        rightLine.position.set(1.5, 0.5, 0);
+        
+        // Add all parts to the T group
+        tGroup.add(horizontalBar);
+        tGroup.add(verticalBar);
+        tGroup.add(bottomBox);
+        tGroup.add(leftLine);
+        tGroup.add(rightLine);
+        scene.add(tGroup);
+
+        // Position camera
+        camera.position.z = 6;
+
+        // Mouse controls
+        let mouseX = 0;
+        let mouseY = 0;
+        let isMouseDown = false;
+
+        document.addEventListener('mousedown', () => isMouseDown = true);
+        document.addEventListener('mouseup', () => isMouseDown = false);
+        document.addEventListener('mousemove', (event) => {
+            if (isMouseDown) {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            }
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Get scroll progress
+            const scrollProgress = window.pageYOffset / Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+            
+            // Rotate based on scroll
+            tGroup.rotation.y = scrollProgress * Math.PI * 4;
+            tGroup.rotation.x = Math.sin(scrollProgress * Math.PI) * 0.3;
+            
+            // Floating animation
+            const time = Date.now() * 0.001;
+            tGroup.position.y = Math.sin(time * 0.5) * 0.2;
+            
+            // Mouse orbit effect
+            if (isMouseDown) {
+                camera.position.x = mouseX * 3;
+                camera.position.y = mouseY * 3;
+                camera.lookAt(scene.position);
+            }
+            
+            // Color shift based on scroll
+            const hue = (scrollProgress * 360) % 360;
+            material.color.setHSL(hue / 360, 0.7, 0.5);
+            
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
