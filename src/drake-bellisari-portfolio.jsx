@@ -1165,7 +1165,7 @@ const EducationSection = () => {
                   Check out my GitHub for additional projects and contributions.
                 </p>
                 <button 
-                  onClick={() => window.open('https://github.com/yourusername', '_blank')}
+                  onClick={() => window.open('https://github.com/DrakeBellisarii', '_blank')}
                   className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-medium transition-colors duration-300 text-sm sm:text-base"
                 >
                   <Code size={16} className="mr-2" />
