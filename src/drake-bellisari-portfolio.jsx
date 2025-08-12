@@ -48,6 +48,8 @@ const PhotoCard = ({ photo, index }) => {
   };
 
 
+
+
   return (
     <div className={getCardClass()} onClick={handleClick}>
       <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
@@ -86,6 +88,69 @@ const PhotoCard = ({ photo, index }) => {
           <h3 className="text-lg font-bold mb-2">{photo.title}</h3>
           <p className="text-sm mb-1">{photo.location}</p>
           <p className="text-xs mb-3">{photo.date}</p>
+          <p className="text-xs opacity-75">Click to flip back</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BookCard = ({ book, index }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleClick = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <Star
+          key={i}
+          size={16}
+          className={`${i <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+        />
+      );
+    }
+    return stars;
+  };
+
+  return (
+    <div className="cursor-pointer transition-all duration-500 transform-gpu w-full h-full" onClick={handleClick}>
+      <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
+        {/* Front of card - Book Cover */}
+        <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
+          <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-gray-800">
+            <img
+              src={book.cover}
+              alt={`${book.title} cover`}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.src = '/api/placeholder/200/300';
+              }}
+            />
+            <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-all duration-300 rounded-lg flex items-center justify-center">
+              <div className="text-white text-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                <p className="text-sm font-semibold">Click to flip</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Back of card - Book Details */}
+        <div 
+          className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex flex-col items-center justify-center text-white p-4 text-center"
+          style={{ 
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)'
+          }}
+        >
+          <h3 className="text-lg font-bold mb-2">{book.title}</h3>
+          <p className="text-sm mb-3 text-blue-100">{book.author}</p>
+          <div className="flex items-center space-x-1 mb-3">
+            {renderStars(book.rating)}
+          </div>
           <p className="text-xs opacity-75">Click to flip back</p>
         </div>
       </div>
@@ -368,15 +433,13 @@ const EducationSection = () => {
           >
             {/* Trinity Seal Background Element - Top Right */}
             <div 
-              className="absolute top-6 right-6 opacity-80 transition-all duration-300 cursor-pointer hover:opacity-100"
+              className="absolute top-2 right-2 sm:top-6 sm:right-6 opacity-80 transition-all duration-300 cursor-pointer hover:opacity-100 w-16 h-16 sm:w-[140px] sm:h-[140px]"
               style={{
                 backgroundImage: `url('/Trinity-seal.svg')`,
-                backgroundSize: '140px 140px',
+                backgroundSize: 'contain',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
-                filter: 'grayscale(100%) brightness(1.5) contrast(1.3)',
-                width: '140px',
-                height: '140px'
+                filter: 'grayscale(100%) brightness(1.5) contrast(1.3)'
               }}
               onMouseEnter={(e) => {
                 e.target.style.filter = 'grayscale(0%) brightness(1.2) contrast(1.1)';
@@ -393,7 +456,7 @@ const EducationSection = () => {
                   <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4">Trinity College</h3>
                   <div className="flex items-center mb-4">
                     <GraduationCap size={32} className="text-blue-400 mr-3" />
-                    <p className="text-gray-300 text-base sm:text-lg lg:text-xl">Bachelor of Science in Computer Science</p>
+                    <p className="text-gray-300 text-sm sm:text-lg lg:text-xl">Bachelor of Science in Computer Science</p>
                   </div>
                   <div className="flex items-center text-gray-400 text-sm sm:text-base">
                     <Calendar size={18} className="mr-3 text-blue-400" />
@@ -759,62 +822,74 @@ const EducationSection = () => {
     {
       title: 'A Man\'s Search For Meaning',
       author: 'Viktor Frankl',
-      cover: '/Book-Images/mans_search_fm.jpg'
+      cover: '/Book-Images/mans_search_fm.jpg',
+      rating: 5
     },
     {
       title: 'Outliers',
       author: 'Malcolm Gladwell',
-      cover: '/Book-Images/outliers.jpg'
+      cover: '/Book-Images/outliers.jpg',
+      rating: 4
     },
     {
       title: 'Tuesdays With Morrie',
       author: 'Mitch Albom',
-      cover: '/Book-Images/tuesdays_with_morrie.jpg'
+      cover: '/Book-Images/tuesdays_with_morrie.jpg',
+      rating: 5
     },
     {
       title: 'Flowers For Algernon',
       author: 'Daniel Keyes',
-      cover: '/Book-Images/flowers_for_algernon.jpg'
+      cover: '/Book-Images/flowers_for_algernon.jpg',
+      rating: 4
     },
     {
       title: 'My Brilliant Friend',
       author: 'Elena Ferrante',
-      cover: '/Book-Images/my_brilliant_friend.jpg'
+      cover: '/Book-Images/my_brilliant_friend.jpg',
+      rating: 4
     },
     {
       title: 'The way of the Hermit',
       author: 'Ken Smith',
-      cover: '/Book-Images/the_way_of_the_hermit.jpg'
+      cover: '/Book-Images/the_way_of_the_hermit.jpg',
+      rating: 3
     },
     {
       title: 'The Great Alone',
       author: 'Kristin Hannah',
-      cover: '/Book-Images/the_great_alone.jpg'
+      cover: '/Book-Images/the_great_alone.jpg',
+      rating: 4
     },
     {
       title: 'Remarkably Bright Creatures',
       author: 'Shelby Van Pelt',
-      cover: '/Book-Images/remarkably_bright.jpg'
+      cover: '/Book-Images/remarkably_bright.jpg',
+      rating: 5
     },
     {
       title: 'Algorithms to live by',
       author: 'Brian Christian and Tom Griffiths',
-      cover: '/Book-Images/algorithms_to_live_by.jpg'
+      cover: '/Book-Images/algorithms_to_live_by.jpg',
+      rating: 4
     },
     {
       title: 'Steve Jobs',
       author: 'Walter Isaacson',
-      cover: '/Book-Images/steve_jobs.jpg'
+      cover: '/Book-Images/steve_jobs.jpg',
+      rating: 5
     },
     {
       title: 'Scar Tissue',
       author: 'Anthony Kiedis',
-      cover: '/Book-Images/scar_tissue.jpg'
+      cover: '/Book-Images/scar_tissue.jpg',
+      rating: 4
     },
     {
       title: 'Anything You Want',
       author: 'Derek Sivers',
-      cover: '/Book-Images/anything_you_want.jpeg'
+      cover: '/Book-Images/anything_you_want.jpeg',
+      rating: 4
     },
   ];
 
@@ -885,7 +960,7 @@ const EducationSection = () => {
         </header>
 
         {/* Hero Section - Mobile Optimized */}
-        <section id="about" className="relative min-h-screen w-full overflow-hidden pt-16 sm:pt-20">
+        <section id="about" className="relative min-h-screen w-full overflow-hidden pt-12 sm:pt-16">
           {/* Background Video - Fixed for Mobile */}
           <div className="absolute inset-0 w-full h-full overflow-hidden">
             <video
@@ -911,11 +986,11 @@ const EducationSection = () => {
             <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-10 max-w-4xl w-full shadow-2xl">
               <div className="flex flex-col items-center gap-4 sm:gap-6 lg:gap-8">
                 <div className="flex-shrink-0">
-                  <div className="w-38 h-40 sm:w-36 sm:h-44 lg:w-38 lg:h-48 rounded-lg sm:rounded-xl overflow-hidden border-2 border-white/30 shadow-xl">
+                  <div className="w-32 h-40 sm:w-36 sm:h-44 lg:w-40 lg:h-48 rounded-lg sm:rounded-xl overflow-hidden border-2 border-white/30 shadow-xl">
                     <img
                       src="/Headshot.png"
                       alt="Drake Bellisari"
-                      className="w-56 h-50 object-contain grayscale hover:grayscale-0 transition duration-700"
+                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-700"
                     />
                   </div>
                 </div>
@@ -971,9 +1046,9 @@ const EducationSection = () => {
                     {/* Enhanced Timeline Dot */}
                     <div className="absolute left-6 sm:left-8 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full -translate-x-1/2 ring-4 ring-white shadow-xl border-2 border-blue-300"></div>
                     
-                    {/* Enhanced Date on Timeline */}
-                    <div className="absolute left-6 sm:left-8 top-20 sm:top-24 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-lg border border-blue-400">
+                    {/* Enhanced Date on Timeline - Hidden on Mobile */}
+                    <div className="hidden sm:block absolute left-8 top-24 transform -translate-x-1/2">
+                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-lg border border-blue-400">
                         Summer 2025
                       </div>
                     </div>
@@ -997,19 +1072,22 @@ const EducationSection = () => {
                     >
                       {/* Queralt Logo - Top Right */}
                       <div 
-                        className="absolute top-0 right-4 opacity-25 pointer-events-none transition-all duration-300 company-logo"
+                        className="absolute -top-2 right-4 opacity-25 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
                         style={{
                           backgroundImage: `url('/queralt-logo.svg')`,
                           backgroundSize: 'contain',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
-                          width: '180px',
-                          height: '120px',
                           filter: 'grayscale(100%)'
                         }}
                       />
                       
                       <div className="relative z-10">
+                        {/* Mobile Date - Visible on Mobile Only */}
+                        <div className="sm:hidden mb-3">
+                          <span className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full font-medium">Summer 2025</span>
+                        </div>
+                        
                         <div className="mb-3">
                           <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">Web Development Intern</h3>
                           <p className="text-blue-600 font-medium">Queralt Inc.</p>
@@ -1033,9 +1111,9 @@ const EducationSection = () => {
                     {/* Enhanced Timeline Dot */}
                     <div className="absolute left-6 sm:left-8 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full -translate-x-1/2 ring-4 ring-white shadow-xl border-2 border-purple-300"></div>
                     
-                    {/* Enhanced Date on Timeline */}
-                    <div className="absolute left-6 sm:left-8 top-20 sm:top-24 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-lg border border-purple-400">
+                    {/* Enhanced Date on Timeline - Hidden on Mobile */}
+                    <div className="hidden sm:block absolute left-8 top-24 transform -translate-x-1/2">
+                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-lg border border-purple-400">
                         Summer 2024
                       </div>
                     </div>
@@ -1059,19 +1137,22 @@ const EducationSection = () => {
                     >
                       {/* Atlantic Logo - Top Right */}
                       <div 
-                        className="absolute top-0 right-4 opacity-25 pointer-events-none transition-all duration-300 company-logo"
+                        className="absolute -top-2 right-4 opacity-25 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
                         style={{
                           backgroundImage: `url('/atlantic-logo.svg')`,
                           backgroundSize: 'contain',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
-                          width: '180px',
-                          height: '120px',
                           filter: 'grayscale(100%)'
                         }}
                       />
                       
                       <div className="relative z-10">
+                        {/* Mobile Date - Visible on Mobile Only */}
+                        <div className="sm:hidden mb-3">
+                          <span className="text-xs bg-purple-500 text-white px-3 py-1 rounded-full font-medium">Summer 2024</span>
+                        </div>
+                        
                         <div className="mb-3">
                           <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">Field Engineering Intern</h3>
                           <p className="text-purple-600 font-medium">Atlantic Security</p>
@@ -1189,29 +1270,13 @@ const EducationSection = () => {
                 <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
                 <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Books</h3>
               </div>
-              <div className="grid grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-8 max-w-6xl mx-auto">
                 {books.map((book, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-800/50 backdrop-blur-lg rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:scale-105 group"
-                  >
-                    <div className="aspect-[3/4] relative overflow-hidden">
-                      <img
-                        src={book.cover}
-                        alt={`${book.title} cover`}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                          e.target.src = '/api/placeholder/200/300';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
-                    </div>
-                    <div className="p-3 sm:p-4">
-                      <h4 className="text-white font-semibold text-sm sm:text-base mb-1 line-clamp-2">{book.title}</h4>
-                      {book.author && (
-                        <p className="text-gray-400 text-xs sm:text-sm">{book.author}</p>
-                      )}
-                    </div>
+                  <div key={index} className="w-full h-64 sm:h-72">
+                    <BookCard 
+                      book={book}
+                      index={index}
+                    />
                   </div>
                 ))}
               </div>
