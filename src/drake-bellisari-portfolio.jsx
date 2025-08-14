@@ -1275,9 +1275,9 @@ const EducationSection = () => {
                 <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
                 <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Books</h3>
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-8 max-w-6xl mx-auto">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-5 sm:gap-10 max-w-6xl mx-auto px-2 sm:px-4">
                 {books.map((book, index) => (
-                  <div key={index} className="w-full h-64 sm:h-72">
+                  <div key={index} className="w-full h-64 sm:h-72 p-2 sm:p-3">
                     <BookCard 
                       book={book}
                       index={index}
