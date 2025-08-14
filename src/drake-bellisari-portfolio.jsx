@@ -121,11 +121,11 @@ const BookCard = ({ book, index }) => {
       <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
         {/* Front of card - Book Cover */}
         <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
-          <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-gray-800">
+          <div className="aspect-[3/4] relative overflow-hidden rounded-lg h-full">
             <img
               src={book.cover}
               alt={`${book.title} cover`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-lg shadow-lg"
               onError={(e) => {
                 e.target.src = '/api/placeholder/200/300';
               }}
@@ -140,18 +140,48 @@ const BookCard = ({ book, index }) => {
         
         {/* Back of card - Book Details */}
         <div 
-          className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex flex-col items-center justify-center text-white p-4 text-center"
+          className="absolute inset-0 w-full h-full rounded-lg flex flex-col items-center justify-center text-white shadow-lg overflow-hidden"
           style={{ 
             backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
+            transform: 'rotateY(180deg)',
+            background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
           }}
         >
-          <h3 className="text-lg font-bold mb-2">{book.title}</h3>
-          <p className="text-sm mb-3 text-blue-100">{book.author}</p>
-          <div className="flex items-center space-x-1 mb-3">
-            {renderStars(book.rating)}
+          {/* Top subtle glow */}
+          <div className="absolute top-0 left-0 right-0 h-1/5 overflow-hidden opacity-20">
+            <div className="w-full h-full bg-gradient-to-r from-blue-400 to-cyan-400 blur-xl transform -translate-y-1/2"></div>
           </div>
-          <p className="text-xs opacity-75">Click to flip back</p>
+          
+          {/* Content container with minimal glass effect */}
+          <div className="relative z-10 w-[90%] h-[85%] flex flex-col justify-between p-5">
+            {/* Book title - larger and more prominent */}
+            <div className="text-center">
+              <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight">{book.title}</h3>
+            </div>
+            
+            {/* Author name - larger and positioned separately */}
+            <div className="text-center mt-2">
+              <p className="text-base sm:text-lg text-blue-100 font-medium">by {book.author}</p>
+            </div>
+            
+            {/* Rating stars */}
+            <div className="flex items-center justify-center space-x-2 my-3">
+              {renderStars(book.rating)}
+            </div>
+            
+
+            
+            {/* Flip button at bottom */}
+            <button className="mt-3 py-1.5 px-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-xs font-medium transition-all duration-300 group flex items-center justify-center mx-auto">
+              <span className="mr-1">Flip Back</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 transition-transform duration-300 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Subtle corner accent */}
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-400/5 rounded-tl-full"></div>
         </div>
       </div>
     </div>
@@ -1072,7 +1102,7 @@ const EducationSection = () => {
                     >
                       {/* Queralt Logo - Top Right */}
                       <div 
-                        className="absolute -top-2 right-4 opacity-25 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
+                        className="absolute top-2 right-4 opacity-50 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
                         style={{
                           backgroundImage: `url('/queralt-logo.svg')`,
                           backgroundSize: 'contain',
@@ -1137,7 +1167,7 @@ const EducationSection = () => {
                     >
                       {/* Atlantic Logo - Top Right */}
                       <div 
-                        className="absolute -top-2 right-4 opacity-25 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
+                        className="absolute top-2 right-4 opacity-50 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
                         style={{
                           backgroundImage: `url('/atlantic-logo.svg')`,
                           backgroundSize: 'contain',
@@ -1264,26 +1294,40 @@ const EducationSection = () => {
               Interests & Hobbies
             </h2>
 
-            {/* Books - Mobile Optimized */}
-            <div className="mb-12 sm:mb-16">
-              <div className="flex items-center justify-center mb-6 sm:mb-8">
-                <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
-                <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Books</h3>
-              </div>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-8 max-w-6xl mx-auto">
+            <div className="flex items-center justify-center mb-8 sm:mb-10">
+              <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
+              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Reads</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto px-4 sm:px-6 mb-8">
                 {books.map((book, index) => (
-                  <div key={index} className="w-full h-64 sm:h-72">
-                    <BookCard 
-                      book={book}
-                      index={index}
-                    />
+                  <div key={index} className="group w-full h-56 sm:h-72 md:h-80 p-1 sm:p-2">
+                    <div className="relative w-full h-full transition-all duration-300 hover:scale-105">                    
+                      <BookCard book={book} index={index} />
+                    </div>
                   </div>
                 ))}
-              </div>
+            </div>
+            
+            <div className="flex justify-center mb-16 sm:mb-24">
+              <a 
+                href="https://www.goodreads.com/user/show/YOUR_GOODREADS_ID" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center bg-white hover:bg-gray-50 text-gray-800 py-2.5 px-6 rounded-lg text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg border border-gray-200"
+              >
+                <svg className="w-6 h-6 mr-2" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M24 4C12.95 4 4 12.95 4 24C4 35.05 12.95 44 24 44C35.05 44 44 35.05 44 24C44 12.95 35.05 4 24 4Z" fill="#F4F4F4"/>
+                  <path d="M30.956 33.662C29.432 33.662 28.124 33.092 27.032 31.952C25.94 30.812 25.394 29.444 25.394 27.848C25.394 26.252 25.94 24.884 27.032 23.744C28.124 22.604 29.432 22.034 30.956 22.034C32.48 22.034 33.788 22.604 34.88 23.744C35.972 24.884 36.518 26.252 36.518 27.848C36.518 29.444 35.972 30.812 34.88 31.952C33.788 33.092 32.48 33.662 30.956 33.662ZM30.956 24.094C30.032 24.094 29.27 24.436 28.67 25.12C28.07 25.804 27.77 26.708 27.77 27.83C27.77 28.952 28.07 29.864 28.67 30.566C29.27 31.268 30.032 31.619 30.956 31.619C31.88 31.619 32.642 31.268 33.242 30.566C33.842 29.864 34.142 28.952 34.142 27.83C34.142 26.708 33.842 25.804 33.242 25.12C32.642 24.436 31.88 24.094 30.956 24.094Z" fill="#372213"/>
+                  <path d="M24 33.662C22.476 33.662 21.168 33.092 20.076 31.952C18.984 30.812 18.438 29.444 18.438 27.848C18.438 26.252 18.984 24.884 20.076 23.744C21.168 22.604 22.476 22.034 24 22.034C25.524 22.034 26.832 22.604 27.924 23.744C29.016 24.884 29.562 26.252 29.562 27.848C29.562 29.444 29.016 30.812 27.924 31.952C26.832 33.092 25.524 33.662 24 33.662ZM24 24.094C23.076 24.094 22.314 24.436 21.714 25.12C21.114 25.804 20.814 26.708 20.814 27.83C20.814 28.952 21.114 29.864 21.714 30.566C22.314 31.268 23.076 31.619 24 31.619C24.924 31.619 25.686 31.268 26.286 30.566C26.886 29.864 27.186 28.952 27.186 27.83C27.186 26.708 26.886 25.804 26.286 25.12C25.686 24.436 24.924 24.094 24 24.094Z" fill="#372213"/>
+                  <path d="M17.044 33.662C15.52 33.662 14.212 33.092 13.12 31.952C12.028 30.812 11.482 29.444 11.482 27.848C11.482 26.252 12.028 24.884 13.12 23.744C14.212 22.604 15.52 22.034 17.044 22.034C18.568 22.034 19.876 22.604 20.968 23.744C22.06 24.884 22.606 26.252 22.606 27.848C22.606 29.444 22.06 30.812 20.968 31.952C19.876 33.092 18.568 33.662 17.044 33.662ZM17.044 24.094C16.12 24.094 15.358 24.436 14.758 25.12C14.158 25.804 13.858 26.708 13.858 27.83C13.858 28.952 14.158 29.864 14.758 30.566C15.358 31.268 16.12 31.619 17.044 31.619C17.968 31.619 18.73 31.268 19.33 30.566C19.93 29.864 20.23 28.952 20.23 27.83C20.23 26.708 19.93 25.804 19.33 25.12C18.73 24.436 17.968 24.094 17.044 24.094Z" fill="#372213"/>
+                </svg>
+                See what I'm reading on Goodreads
+              </a>
             </div>
 
            {/* Photography - Creative Grid Layout */}
-            <div className="mb-8 sm:mb-16">
+            <div className="mt-16 sm:mt-24 mb-8 sm:mb-16">
               <div className="flex items-center justify-center mb-6 sm:mb-8">
                 <Camera className="text-blue-400 mr-3 sm:mr-4" size={24} />
                 <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">
@@ -1331,7 +1375,7 @@ const EducationSection = () => {
             <div className="bg-white rounded-xl sm:rounded-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
               
               <div className="p-4 sm:p-6">
-                <div className="flex justify-between items-center mb-4 sm:mb-6">
+             <div className="flex justify-between items-center mb-4 sm:mb-6">
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Get In Touch</h2>
                   <button 
                     onClick={() => setShowContactForm(false)}
