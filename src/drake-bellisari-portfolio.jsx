@@ -121,11 +121,11 @@ const BookCard = ({ book, index }) => {
       <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
         {/* Front of card - Book Cover */}
         <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
-          <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-gray-800">
+          <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-gray-800 shadow-md border border-gray-700 p-1 sm:p-2">
             <img
               src={book.cover}
               alt={`${book.title} cover`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-md"
               onError={(e) => {
                 e.target.src = '/api/placeholder/200/300';
               }}
@@ -140,18 +140,23 @@ const BookCard = ({ book, index }) => {
         
         {/* Back of card - Book Details */}
         <div 
-          className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex flex-col items-center justify-center text-white p-4 text-center"
+          className="absolute inset-0 w-full h-full rounded-lg flex flex-col items-center justify-center text-white p-4 text-center shadow-lg"
           style={{ 
             backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
+            transform: 'rotateY(180deg)',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #7e22ce 100%)',
+            boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
           }}
         >
-          <h3 className="text-lg font-bold mb-2">{book.title}</h3>
-          <p className="text-sm mb-3 text-blue-100">{book.author}</p>
-          <div className="flex items-center space-x-1 mb-3">
-            {renderStars(book.rating)}
+          <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm w-full max-w-[90%] border border-white/20">
+            <h3 className="text-lg font-bold mb-2">{book.title}</h3>
+            <p className="text-sm mb-3 text-blue-100">{book.author}</p>
+            <div className="flex items-center justify-center space-x-1 mb-3">
+              {renderStars(book.rating)}
+            </div>
+            <p className="text-xs mt-4 py-1 px-3 bg-white/20 rounded-full w-fit mx-auto">Click to flip back</p>
           </div>
-          <p className="text-xs opacity-75">Click to flip back</p>
         </div>
       </div>
     </div>
@@ -1270,9 +1275,9 @@ const EducationSection = () => {
                 <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
                 <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Books</h3>
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-8 max-w-6xl mx-auto">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-5 sm:gap-10 max-w-6xl mx-auto px-2 sm:px-4">
                 {books.map((book, index) => (
-                  <div key={index} className="w-full h-64 sm:h-72">
+                  <div key={index} className="w-full h-64 sm:h-72 p-2 sm:p-3">
                     <BookCard 
                       book={book}
                       index={index}
