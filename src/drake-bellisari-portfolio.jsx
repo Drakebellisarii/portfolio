@@ -13,7 +13,9 @@ import {
   ChevronRight,
   Star,
   Menu,
-  X
+  X,
+  Dumbbell,
+  ChevronDown
 } from 'lucide-react';
 
 // Creative grid layout system
@@ -188,6 +190,149 @@ const BookCard = ({ book, index }) => {
   );
 };
 
+const InterestsDropdown = ({ books, photography }) => {
+  const [activeTab, setActiveTab] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Films and music data removed
+
+  // Toggle dropdown
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+    if (isDropdownOpen) {
+      setActiveTab(null);
+    }
+  };
+
+  // Set active tab
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    setIsDropdownOpen(false);
+  };
+
+  // Render stars for ratings
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <Star
+          key={i}
+          size={16}
+          className={`${i <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+        />
+      );
+    }
+    return stars;
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      {/* Dropdown Button */}
+      <div className="flex flex-col items-center justify-center mb-10">
+        <button
+          onClick={toggleDropdown}
+          className="flex items-center justify-center space-x-2 text-blue-400 hover:text-blue-300 py-2 transition-all duration-300 group border-b border-transparent hover:border-blue-400/30"
+        >
+          <span className="text-lg font-medium">Learn More About Me</span>
+          <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {/* Dropdown Menu */}
+        {isDropdownOpen && (
+          <div className="mt-4 bg-white rounded-lg shadow-2xl border border-gray-200 p-2 w-full max-w-md animate-fadeIn">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleTabClick('books')}
+                className="flex flex-col items-center justify-center p-4 rounded-lg hover:text-blue-500 transition-colors duration-300"
+              >
+                <BookOpen className="h-8 w-8 text-blue-400 mb-2" />
+                <span className="text-gray-800 font-medium">Favorite Books</span>
+              </button>
+              <button
+                onClick={() => handleTabClick('photography')}
+                className="flex flex-col items-center justify-center p-4 rounded-lg hover:text-blue-500 transition-colors duration-300"
+              >
+                <Camera className="h-8 w-8 text-blue-400 mb-2" />
+                <span className="text-gray-800 font-medium">My Photography</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Content Areas */}
+      <div className="mt-8">
+        {/* Books Section */}
+        {activeTab === 'books' && (
+          <div className="animate-fadeIn">
+            <div className="flex items-center justify-center mb-8 sm:mb-10">
+              <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
+              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Reads</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto px-4 sm:px-6 mb-8">
+              {books.map((book, index) => (
+                <div key={index} className="group w-full h-56 sm:h-72 md:h-80 p-1 sm:p-2">
+                  <div className="relative w-full h-full transition-all duration-300 hover:scale-105">                    
+                    <BookCard book={book} index={index} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex justify-center mb-16 sm:mb-24">
+              <a 
+                href="https://www.goodreads.com/user/show/145474773" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center bg-[#f4f1ea] hover:bg-[#ede6d6] text-[#382110] py-3 px-6 rounded-lg text-base font-medium transition-all duration-300 shadow-md hover:shadow-lg border border-[#d6d0c4]"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 448 512" 
+                  className="w-5 h-5 mr-3 fill-current"
+                  aria-hidden="true"
+                > 
+                  <path d="M299.9 191.2c5.1 37.3-4.7 79-35.9 100.7-22.3 15.5-52.8 14.1-70.8 5.7-37.1-17.3-49.5-58.6-46.8-97.2 4.3-60.9 40.9-87.9 75.3-87.5 46.9-.2 71.8 31.8 78.2 78.3zM448 88v336c0 30.9-25.1 56-56 56H56c-30.9 0-56-25.1-56-56V88c0-30.9 25.1-56 56-56h336c30.9 0 56 25.1 56 56zM330 313.2s-.1-34-.1-217.3h-29v40.3c-.8.3-1.2-.5-1.6-1.2-9.6-20.7-35.9-46.3-76-46-51.9.4-87.2 31.2-100.6 77.8-4.3 14.9-5.8 30.1-5.5 45.6 1.7 77.9 45.1 117.8 112.4 115.2 28.9-1.1 54.5-17 69-45.2.5-1 1.1-1.9 1.7-2.9.2.1.4.1.6.2.3 3.8.2 30.7.1 34.5-.2 14.8-2 29.5-7.2 43.5-7.8 21-22.3 34.7-44.5 39.5-17.8 3.9-35.6 3.8-53.2-1.2-21.5-6.1-36.5-19-41.1-41.8-.3-1.6-1.3-1.3-2.3-1.3h-26.8c.8 10.6 3.2 20.3 8.5 29.2 24.2 40.5 82.7 48.5 128.2 37.4 49.9-12.3 67.3-54.9 67.4-106.3z"/>
+                </svg>
+                See what I'm reading on Goodreads
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Photography Section */}
+        {activeTab === 'photography' && (
+          <div className="animate-fadeIn">
+            <div className="flex items-center justify-center mb-6 sm:mb-8">
+              <Camera className="text-blue-400 mr-3 sm:mr-4" size={24} />
+              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">
+                Photography
+              </h3>
+            </div>
+            <p className="text-center text-gray-600 mb-4 text-sm">💡 Click the images to flip them!</p>
+            
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-[120px] sm:auto-rows-[140px] md:auto-rows-[160px]">
+                {photography.map((photo, index) => (
+                  <PhotoCard 
+                    key={index}
+                    photo={photo}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Default state when no tab is selected */}
+        {!activeTab && null}
+      </div>
+    </div>
+  );
+};
+
 export default function Portfolio() {
   const [showWebsite, setShowWebsite] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
@@ -331,6 +476,31 @@ export default function Portfolio() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Effect to handle headshot spinning animation
+  useEffect(() => {
+    if (showWebsite) {
+      // Set a timeout to allow DOM to be fully ready
+      const animationTimer = setTimeout(() => {
+        const desktopHeadshot = document.getElementById('spinning-headshot');
+        const mobileHeadshot = document.getElementById('mobile-spinning-headshot');
+        
+        // Stop animation after 2 seconds
+        const stopTimer = setTimeout(() => {
+          if (desktopHeadshot) {
+            desktopHeadshot.classList.remove('animate-coin-spin-initial');
+          }
+          if (mobileHeadshot) {
+            mobileHeadshot.classList.remove('animate-coin-spin-initial');
+          }
+        }, 2000);
+        
+        return () => clearTimeout(stopTimer);
+      }, 500);
+      
+      return () => clearTimeout(animationTimer);
+    }
+  }, [showWebsite]);
+
   // Handle email click
   const handleEmailClick = () => {
     setShowContactForm(true);
@@ -420,42 +590,47 @@ const EducationSection = () => {
   return (
           <section id="education" className="py-12 sm:py-20 relative overflow-hidden" ref={sectionRef}>
         
-        {/* Subtle Red Grid Background */}
+        {/* Trinity College Background Image - Blurred */}
         <div 
-          className="absolute inset-0 pointer-events-none opacity-35"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url('/Trin.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(1px) brightness(0.25) saturate(0.2)',
+            opacity: 0.98
+          }}
+        />
+        
+        {/* Overlay with subtle grid */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-15"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(239, 68, 68, 0.15) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(239, 68, 68, 0.15) 1px, transparent 1px)
+              linear-gradient(rgba(239, 68, 68, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(239, 68, 68, 0.1) 1px, transparent 1px)
             `,
             backgroundSize: '40px 40px'
           }}
         />
         
-        {/* Moving Glowing Animation Background */}
+        {/* Subtle gradient overlay */}
         <div 
-          className="absolute inset-0 pointer-events-none opacity-20"
-          style={{
-            background: `
-              radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)
-            `,
-            animation: 'pulse 4s ease-in-out infinite'
-          }}
+          className="absolute inset-0 pointer-events-none bg-gradient-to-b from-gray-500/40 to-gray-800/60"
         />
         
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto" style={{ perspective: '1000px' }}>
           <div 
-            className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl overflow-hidden border border-gray-200/50 transition-all duration-500 ease-out hover:scale-[1.02] hover:rotate-1 hover:shadow-2xl relative"
+            className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 ease-out hover:scale-[1.02] hover:rotate-1 hover:shadow-2xl relative transform-gpu"
             style={{
               boxShadow: `
-                0 20px 25px -5px rgba(0, 0, 0, 0.1),
-                0 10px 10px -5px rgba(0, 0, 0, 0.04),
-                0 0 0 1px rgba(59, 130, 246, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8)
+                0 15px 20px -5px rgba(0, 0, 0, 0.1),
+                0 8px 8px -5px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8),
+                0 0 15px 3px rgba(59, 130, 246, 0.08),
+                0 20px 40px -15px rgba(59, 130, 246, 0.07)
               `,
               transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',
               opacity: isVisible ? 1 : 0
@@ -481,8 +656,8 @@ const EducationSection = () => {
             
             {/* Header Section */}
             <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 sm:p-8 text-white">
-              <div className="flex flex-col items-start space-y-8">
-                <div className="flex flex-col items-start">
+              <div className="flex flex-col items-start space-y-6">
+                <div className="flex flex-col items-start w-full">
                   <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4">Trinity College</h3>
                   <div className="flex items-center mb-4">
                     <GraduationCap size={32} className="text-blue-400 mr-3" />
@@ -498,24 +673,24 @@ const EducationSection = () => {
 
             {/* Coursework Overview */}
             <div className="p-6 sm:p-8">
-              <h4 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <BookOpen className="mr-3 text-gray-600" size={20} />
-                Academic Focus Areas
-              </h4>
+                              <h4 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                  <BookOpen className="mr-3 text-blue-600" size={20} />
+                  Academic Focus Areas
+                </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                 <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <div className="flex items-center mb-6">
-                    <div className="flex-shrink-0">
-                      <Code className="text-gray-600 mr-3" size={24} />
+                                      <div className="flex items-center mb-6">
+                      <div className="flex-shrink-0">
+                        <Code className="text-blue-600 mr-3" size={24} />
+                      </div>
+                      <h5 className="text-lg font-semibold text-gray-800 leading-tight">Core Computer Science</h5>
                     </div>
-                    <h5 className="text-lg font-semibold text-gray-800 leading-tight">Core Computer Science</h5>
-                  </div>
                   
                   {/* Course Blocks */}
                   <div className="space-y-3">
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('ds-algos')}
                     >
                       <div className="p-4">
@@ -530,18 +705,18 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['ds-algos'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-blue-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Mastered fundamental algorithms and data structure implementations</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-blue-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Developed efficient problem-solving strategies and run-time optimization</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('computer-systems')}
                     >
                       <div className="p-4">
@@ -556,18 +731,18 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['computer-systems'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-blue-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Understanding of computer architecture and system-level programming</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-blue-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Memory management and process control concepts</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('python-fundamentals')}
                     >
                       <div className="p-4">
@@ -582,11 +757,11 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['python-fundamentals'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-blue-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Core Python syntax and object-oriented programming principles</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-blue-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Data manipulation and basic algorithmic implementations</span>
                           </div>
                         </div>
@@ -596,17 +771,17 @@ const EducationSection = () => {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <div className="flex items-center mb-6">
-                    <div className="flex-shrink-0">
-                      <Brain className="text-gray-600 mr-3" size={24} />
+                                      <div className="flex items-center mb-6">
+                      <div className="flex-shrink-0">
+                        <Brain className="text-blue-600 mr-3" size={24} />
+                      </div>
+                      <h5 className="text-lg font-semibold text-gray-800 leading-tight">Mathematics & Theory</h5>
                     </div>
-                    <h5 className="text-lg font-semibold text-gray-800 leading-tight">Mathematics & Theory</h5>
-                  </div>
                   
                   {/* Course Blocks */}
                   <div className="space-y-3">
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-purple-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('discrete-math')}
                     >
                       <div className="p-4">
@@ -621,18 +796,18 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['discrete-math'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-purple-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Logic, set theory, and mathematical proof techniques</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-purple-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Combinatorics and probability fundamentals</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-purple-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('calculus')}
                     >
                       <div className="p-4">
@@ -647,18 +822,18 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['calculus'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-purple-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Differential and integral calculus concepts</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-purple-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Applications to real-world problem solving</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-purple-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('linear-algebra')}
                     >
                       <div className="p-4">
@@ -673,11 +848,11 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['linear-algebra'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-purple-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Vector spaces, matrices, and linear transformations</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-purple-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Eigenvalues and applications in computer science</span>
                           </div>
                         </div>
@@ -687,17 +862,17 @@ const EducationSection = () => {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                  <div className="flex items-center mb-6">
-                    <div className="flex-shrink-0">
-                      <Star className="text-gray-600 mr-3" size={24} />
+                                      <div className="flex items-center mb-6">
+                      <div className="flex-shrink-0">
+                        <Star className="text-blue-600 mr-3" size={24} />
+                      </div>
+                      <h5 className="text-lg font-semibold text-gray-800 leading-tight">Specialized Electives</h5>
                     </div>
-                    <h5 className="text-lg font-semibold text-gray-800 leading-tight">Specialized Electives</h5>
-                  </div>
                   
                   {/* Course Blocks */}
                   <div className="space-y-3">
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-green-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('cloud-native')}
                     >
                       <div className="p-4">
@@ -712,18 +887,18 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['cloud-native'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-green-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Microservices architecture and containerization technologies</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-green-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Cloud platform deployment and scaling strategies</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-green-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('software-design')}
                     >
                       <div className="p-4">
@@ -738,18 +913,18 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['software-design'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-green-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Design patterns and software architecture principles</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-green-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>User experience and interface design methodologies</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-green-300 transition-all duration-300 cursor-pointer overflow-hidden"
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
                       onClick={() => toggleCourse('computer-security')}
                     >
                       <div className="p-4">
@@ -764,11 +939,11 @@ const EducationSection = () => {
                       <div className={`transition-all duration-300 ease-in-out ${expandedCourses['computer-security'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                           <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-green-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Cryptography and secure communication protocols</span>
                           </div>
                           <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-green-500 mr-2 mt-1 flex-shrink-0">•</span>
+                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
                             <span>Vulnerability assessment and security best practices</span>
                           </div>
                         </div>
@@ -782,14 +957,14 @@ const EducationSection = () => {
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
                 <h5 className="text-lg sm:text-xl font-semibold text-gray-800 mb-6 flex items-center justify-center">
                   <div className="flex-shrink-0 mr-3">
-                    <Award className="text-gray-600" size={24} />
+                    <Award className="text-blue-600" size={24} />
                   </div>
                   <span className="text-center">  Collegiate Achievements</span>
                 </h5>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
                   <div className="flex items-center justify-start">
                     <div className="flex-shrink-0 mr-3">
-                      <Trophy className="text-yellow-500" size={18} />
+                      <Trophy className="text-blue-500" size={18} />
                     </div>
                     <span className="text-gray-700 text-sm sm:text-base font-medium">Dean's List Member</span>
                   </div>
@@ -801,13 +976,13 @@ const EducationSection = () => {
                   </div>
                   <div className="flex items-center justify-start">
                     <div className="flex-shrink-0 mr-3">
-                      <Award className="text-green-500" size={18} />
+                      <Dumbbell className="text-blue-500" size={18} />
                     </div>
                     <span className="text-gray-700 text-sm sm:text-base font-medium">4 year varsity athlete</span>
                   </div>
                   <div className="flex items-center justify-start">
                     <div className="flex-shrink-0 mr-3">
-                      <BookOpen className="text-purple-500" size={18} />
+                      <BookOpen className="text-blue-500" size={18} />
                     </div>
                     <span className="text-gray-700 text-sm sm:text-base font-medium">3.5+ Computer Science GPA</span>
                   </div>
@@ -953,45 +1128,104 @@ const EducationSection = () => {
           50% { transform: translateX(100%); }
           100% { transform: translateX(100%); }
         }
+        
+        @keyframes fadeIn {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes spinCoin {
+          0% { 
+            transform: rotateY(0deg) translateZ(0); 
+            filter: brightness(1);
+          }
+          25% { 
+            transform: rotateY(90deg) translateZ(0); 
+            filter: brightness(0.85);
+          }
+          50% { 
+            transform: rotateY(180deg) translateZ(0); 
+            filter: brightness(0.7);
+          }
+          75% { 
+            transform: rotateY(270deg) translateZ(0);
+            filter: brightness(0.85); 
+          }
+          100% { 
+            transform: rotateY(360deg) translateZ(0);
+            filter: brightness(1); 
+          }
+        }
+        
+        .animate-coin-spin {
+          animation: spinCoin 4s linear 1;
+          transform-style: preserve-3d;
+          perspective: 1000px;
+          will-change: transform;
+          backface-visibility: visible;
+        }
+        
+        .animate-coin-spin-initial {
+          animation-play-state: running;
+        }
+        
+        .animate-coin-spin:hover {
+          animation: spinCoin 2s linear infinite;
+          animation-play-state: running;
+        }
       `}</style>
-        {/* Navigation Header - Mobile Optimized */}
-        <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
-          <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
-            <h1 className="text-xl sm:text-2xl font-bold text-blue-600" style={{ fontFamily: "'Libertinus Serif', serif" }}>Drake Bellisari</h1>
+        {/* Professional Navigation Header */}
+        <header className="fixed top-0 left-0 w-full bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg z-50 border-b border-gray-700">
+          <div className="container mx-auto px-4 sm:px-8 py-4 sm:py-5 flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden border border-blue-400/30">
+                <span className="text-white font-bold text-lg sm:text-xl">DB</span>
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-white tracking-wide" style={{ fontFamily: "'Libertinus Serif', serif" }}>Drake Bellisari</h1>
+                <p className="text-xs text-blue-300 hidden sm:block">Computer Science @ Trinity College</p>
+              </div>
+            </div>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-6 text-sm font-medium">
-              <button onClick={() => scrollToSection('about')} className="text-gray-700 hover:text-blue-500">About</button>
-              <button onClick={() => scrollToSection('experience')} className="text-gray-700 hover:text-blue-500">Experience</button>
-              <button onClick={() => scrollToSection('education')} className="text-gray-700 hover:text-blue-500">Education</button>
-              <button onClick={() => scrollToSection('projects')} className="text-gray-700 hover:text-blue-500">Projects</button>
+            <nav className="hidden md:flex">
+              <div className="flex space-x-1">
+                <button onClick={() => scrollToSection('about')} className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">About</button>
+                <button onClick={() => scrollToSection('experience')} className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Experience</button>
+                <button onClick={() => scrollToSection('education')} className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Education</button>
+                <button onClick={() => scrollToSection('projects')} className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Projects</button>
+              </div>
             </nav>
 
             {/* Mobile Menu Button */}
             <button 
-              className="md:hidden p-2"
+              className="md:hidden p-2 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
 
           {/* Mobile Navigation Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
-              <nav className="flex flex-col space-y-1 p-4">
-                <button onClick={() => scrollToSection('about')} className="text-left py-2 text-gray-700 hover:text-blue-500">About</button>
-                <button onClick={() => scrollToSection('experience')} className="text-left py-2 text-gray-700 hover:text-blue-500">Experience</button>
-                <button onClick={() => scrollToSection('education')} className="text-left py-2 text-gray-700 hover:text-blue-500">Education</button>
-                <button onClick={() => scrollToSection('projects')} className="text-left py-2 text-gray-700 hover:text-blue-500">Projects</button>
+            <div className="md:hidden bg-gray-800 border-t border-gray-700 shadow-lg">
+              <nav className="flex flex-col p-3">
+                <button onClick={() => scrollToSection('about')} className="text-left py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">About</button>
+                <button onClick={() => scrollToSection('experience')} className="text-left py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Experience</button>
+                <button onClick={() => scrollToSection('education')} className="text-left py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Education</button>
+                <button onClick={() => scrollToSection('projects')} className="text-left py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Projects</button>
               </nav>
             </div>
           )}
         </header>
 
-        {/* Hero Section - Mobile Optimized */}
-        <section id="about" className="relative min-h-screen w-full overflow-hidden pt-12 sm:pt-16">
-          {/* Background Video - Fixed for Mobile */}
+        {/* Professional Hero Section */}
+        <section id="about" className="relative min-h-screen w-full overflow-hidden pt-16 sm:pt-20">
+          {/* Background Video */}
           <div className="absolute inset-0 w-full h-full overflow-hidden">
             <video
               autoPlay
@@ -1010,50 +1244,129 @@ const EducationSection = () => {
             >
               <source src="/About-vid.mp4" type="video/mp4" />
             </video>
+            
+            {/* Overlay for better readability */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-gray-900/70 to-black/60"></div>
+            
+            {/* Subtle overlay accents */}
+            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-400/5 rounded-full blur-3xl"></div>
           </div>
 
-          <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-16">
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-10 max-w-4xl w-full shadow-2xl">
-              <div className="flex flex-col items-center gap-4 sm:gap-6 lg:gap-8">
-                <div className="flex-shrink-0">
-                  <div className="w-32 h-40 sm:w-36 sm:h-44 lg:w-40 lg:h-48 rounded-lg sm:rounded-xl overflow-hidden border-2 border-white/30 shadow-xl">
-                    <img
-                      src="/Headshot.png"
-                      alt="Drake Bellisari"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-700"
-                    />
+          <div className="relative z-10 min-h-[calc(100vh-80px)] flex items-center px-4 sm:px-6 lg:px-8 py-16">
+            <div className="container mx-auto max-w-5xl">
+              {/* Unified hero container with layered design */}
+              <div className="relative overflow-hidden">
+                {/* Main content container */}
+                <div className="backdrop-blur-md bg-black/40 rounded-xl border border-white/10 shadow-2xl overflow-hidden">
+                  {/* Content area with improved layout */}
+                  <div className="p-8 lg:p-12">
+                    {/* Combined header section with integrated photo */}
+                    <div className="flex flex-col lg:flex-row items-center mb-8 lg:mb-12">
+                      {/* Photo integrated with header */}
+                      <div className="lg:mr-8 mb-6 lg:mb-0 relative flex-shrink-0">
+                        <div className="w-40 h-40 lg:w-44 lg:h-44 rounded-full border-4 border-blue-500/20 overflow-hidden">
+                          <img
+                            src="/Headshot.png"
+                            alt="Drake Bellisari"
+                            className="w-full h-full object-cover"
+                            style={{ objectPosition: "center 30%" }}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Header text content */}
+                      <div className="flex-grow">
+                        <div className="space-y-2 text-center lg:text-left">
+                          {/* Professional Headline */}
+                          <div className="inline-flex items-center justify-center lg:justify-start">
+                            <span className="text-blue-400 font-medium tracking-wider uppercase text-sm py-1 px-3 border border-blue-500/30 rounded-full bg-blue-900/20">Software Developer</span>
+                          </div>
+                          
+                          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
+                            Drake Bellisari
+                          </h1>
+                          <h2 className="text-lg sm:text-xl font-light text-blue-100">
+                            B.S. Computer Science - Trinity College
+                          </h2>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Content divider */}
+                    <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent my-6"></div>
+                    
+                    {/* Two-column content layout */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      {/* Main content column */}
+                      <div className="lg:col-span-2">
+                        <div className="text-base leading-relaxed text-gray-200 space-y-4">
+                          <p>
+                            I'm a computer science major at Trinity College with a passion for creating innovative 
+                            technology solutions that make a meaningful impact.
+                          </p>
+                          <p>
+                            I specialize in combining technical precision with creative thinking, developing software 
+                            that bridges the gap between functionality and user experience.
+                          </p>
+                          <p>
+                            My expertise spans multiple programming languages and frameworks, allowing me to approach 
+                            challenges with versatility and deliver elegant, efficient solutions.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Stats/highlights column */}
+                      <div className="lg:col-span-1 bg-white/5 rounded-lg border border-white/10 p-4">
+                        <h3 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">Expertise</h3>
+                        <div className="space-y-3">
+                          <div className="flex items-start">
+                            <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
+                            <p className="text-sm text-gray-300">Full Stack Development</p>
+                          </div>
+                          <div className="flex items-start">
+                            <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
+                            <p className="text-sm text-gray-300">Cloud Native Solutions</p>
+                          </div>
+                          <div className="flex items-start">
+                            <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
+                            <p className="text-sm text-gray-300">UI/UX Design Principles</p>
+                          </div>
+                          <div className="flex items-start">
+                            <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
+                            <p className="text-sm text-gray-300">Algorithm Development</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Tech stack and CTA section */}
+                    <div className="mt-8 flex flex-col space-y-6">
+                      {/* Tech Stack */}
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <h3 className="text-xs font-semibold text-gray-400 mr-2 uppercase tracking-wider bg-white/5 px-2 py-1 rounded">Tech Stack:</h3>
+                        {['Java', 'Python', 'React', 'JavaScript', 'C', 'HTML', 'CSS'].map((tech, index) => (
+                          <span key={index} className="px-3 py-1 bg-blue-900/20 text-blue-100 text-xs rounded-sm border border-blue-500/20 hover:border-blue-400/40 transition-colors">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      {/* Action button without background */}
+                      <div className="flex flex-wrap gap-4 justify-center lg:justify-start mt-2">
+                        <a 
+                          href="https://www.linkedin.com/in/drake-bellisari/" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-md font-medium transition-all duration-300 hover:translate-y-[-2px] shadow-md text-sm flex items-center gap-2 border border-blue-500/50"
+                        >
+                          <span>Connect on LinkedIn</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
+                        </a>
+                        
+                      </div>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex-1 text-white text-center">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                    Drake Bellisari
-                  </h1>
-                  <h2 className="text-base sm:text-lg lg:text-xl font-light mb-3 sm:mb-4 lg:mb-5 text-blue-100">
-                    B.S. Computer Science - Trinity College 
-                  </h2>
-                  
-                  <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed text-white/90">
-                    <p>
-                      I'm a 21-year-old computer science major at Trinity College in Hartford, Connecticut. 
-                      I am deeply passionate about evolving technology and eager to gain hands-on experience 
-                      wherever I can make an impact.
-                    </p>
-                    <p>
-                      I value the importance of maintaining the intersection of art and technology through software development and I try to reflect this importance in all of my projects.
-                    </p>
-                    <p>
-                      With experience in Java, Python, Kotlin, React, Assembly, JavaScript, and C, 
-                      I enjoy blending logic and creativity in my work.
-                    </p>
-                  </div>
-                  
-                  <button 
-                    onClick={() => window.open('https://www.linkedin.com/in/drake-bellisari/', '_blank')}
-                    className="mt-4 sm:mt-6 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm sm:text-base"
-                  >
-                    Let's Connect
-                  </button>
                 </div>
               </div>
             </div>
@@ -1061,24 +1374,42 @@ const EducationSection = () => {
         </section>
 
         {/* Work Experience - Mobile Optimized */}
-        <section id="experience" className="py-12 sm:py-20 bg-gray-50">
-          <div className="container mx-auto px-4 sm:px-6">
-            <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-12">
+        <section id="experience" className="py-12 sm:py-20 relative overflow-hidden">
+          {/* Topography Background */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: `url('/topography.jpg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'blur(0.5px) brightness(1) contrast(1.1)',
+              opacity: 0.3
+            }}
+          />
+          
+          {/* Content overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-gray-100/85 pointer-events-none"></div>
+          
+          <div className="container mx-auto px-4 sm:px-6 relative z-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-12" style={{ fontFamily: "'Libertinus Serif', serif" }}>
               Work Experience
             </h2>
             <div className="max-w-4xl mx-auto">
               <div className="relative">
                 {/* Enhanced Timeline Design */}
-                <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-1.5 bg-gradient-to-b from-blue-600 via-purple-500 to-green-500 rounded-full shadow-lg"></div>
+                <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-1 bg-blue-600 rounded-none shadow-none" style={{ 
+                  boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
+                  background: 'linear-gradient(to bottom, #3b82f6, #2563eb)'
+                }}></div>
                 
                 <div className="space-y-8 sm:space-y-12">
                   <div className="relative flex items-start">
                     {/* Enhanced Timeline Dot */}
-                    <div className="absolute left-6 sm:left-8 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full -translate-x-1/2 ring-4 ring-white shadow-xl border-2 border-blue-300"></div>
+                    <div className="absolute left-6 sm:left-8 w-4 h-4 sm:w-5 sm:h-5 bg-white border-2 border-blue-600 rounded-full -translate-x-1/2 shadow-md" style={{ boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)' }}></div>
                     
                     {/* Enhanced Date on Timeline - Hidden on Mobile */}
                     <div className="hidden sm:block absolute left-8 top-24 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-lg border border-blue-400">
+                      <div className="bg-blue-600 text-white text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-md">
                         Summer 2025
                       </div>
                     </div>
@@ -1139,11 +1470,11 @@ const EducationSection = () => {
 
                   <div className="relative flex items-start">
                     {/* Enhanced Timeline Dot */}
-                    <div className="absolute left-6 sm:left-8 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full -translate-x-1/2 ring-4 ring-white shadow-xl border-2 border-purple-300"></div>
+                    <div className="absolute left-6 sm:left-8 w-4 h-4 sm:w-5 sm:h-5 bg-white border-2 border-blue-600 rounded-full -translate-x-1/2 shadow-md" style={{ boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)' }}></div>
                     
                     {/* Enhanced Date on Timeline - Hidden on Mobile */}
                     <div className="hidden sm:block absolute left-8 top-24 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-lg border border-purple-400">
+                      <div className="bg-blue-600 text-white text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-md">
                         Summer 2024
                       </div>
                     </div>
@@ -1266,87 +1597,28 @@ const EducationSection = () => {
               ))}
             </div>
 
-            {/* Call to Action */}
-            <div className="mt-8 sm:mt-12 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg sm:rounded-xl border border-blue-200">
-              <div className="text-center sm:text-left">
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
-                  Want to see more?
-                </h3>
-                <p className="text-gray-600 text-sm sm:text-base mb-4">
-                  Check out my GitHub for additional projects and contributions.
-                </p>
-                <button 
-                  onClick={() => window.open('https://github.com/DrakeBellisarii', '_blank')}
-                  className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-medium transition-colors duration-300 text-sm sm:text-base"
-                >
-                  <Code size={16} className="mr-2" />
-                  View GitHub
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Interests Section - Mobile Optimized */}
-        <section id="interests" className="py-12 sm:py-20">
-          <div className="container mx-auto px-4 sm:px-6">
-            <h2 className="text-3xl sm:text-5xl font-bold text-center mb-8 sm:mb-16 bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">
-              Interests & Hobbies
-            </h2>
-
-            <div className="flex items-center justify-center mb-8 sm:mb-10">
-              <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
-              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Reads</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto px-4 sm:px-6 mb-8">
-                {books.map((book, index) => (
-                  <div key={index} className="group w-full h-56 sm:h-72 md:h-80 p-1 sm:p-2">
-                    <div className="relative w-full h-full transition-all duration-300 hover:scale-105">                    
-                      <BookCard book={book} index={index} />
-                    </div>
-                  </div>
-                ))}
-            </div>
-            
-            <div className="flex justify-center mb-16 sm:mb-24">
-              <a 
-                href="https://www.goodreads.com/user/show/YOUR_GOODREADS_ID" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center bg-white hover:bg-gray-50 text-gray-800 py-2.5 px-6 rounded-lg text-sm font-medium transition-all duration-300 shadow-md hover:shadow-lg border border-gray-200"
-              >
-                <svg className="w-6 h-6 mr-2" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M24 4C12.95 4 4 12.95 4 24C4 35.05 12.95 44 24 44C35.05 44 44 35.05 44 24C44 12.95 35.05 4 24 4Z" fill="#F4F4F4"/>
-                  <path d="M30.956 33.662C29.432 33.662 28.124 33.092 27.032 31.952C25.94 30.812 25.394 29.444 25.394 27.848C25.394 26.252 25.94 24.884 27.032 23.744C28.124 22.604 29.432 22.034 30.956 22.034C32.48 22.034 33.788 22.604 34.88 23.744C35.972 24.884 36.518 26.252 36.518 27.848C36.518 29.444 35.972 30.812 34.88 31.952C33.788 33.092 32.48 33.662 30.956 33.662ZM30.956 24.094C30.032 24.094 29.27 24.436 28.67 25.12C28.07 25.804 27.77 26.708 27.77 27.83C27.77 28.952 28.07 29.864 28.67 30.566C29.27 31.268 30.032 31.619 30.956 31.619C31.88 31.619 32.642 31.268 33.242 30.566C33.842 29.864 34.142 28.952 34.142 27.83C34.142 26.708 33.842 25.804 33.242 25.12C32.642 24.436 31.88 24.094 30.956 24.094Z" fill="#372213"/>
-                  <path d="M24 33.662C22.476 33.662 21.168 33.092 20.076 31.952C18.984 30.812 18.438 29.444 18.438 27.848C18.438 26.252 18.984 24.884 20.076 23.744C21.168 22.604 22.476 22.034 24 22.034C25.524 22.034 26.832 22.604 27.924 23.744C29.016 24.884 29.562 26.252 29.562 27.848C29.562 29.444 29.016 30.812 27.924 31.952C26.832 33.092 25.524 33.662 24 33.662ZM24 24.094C23.076 24.094 22.314 24.436 21.714 25.12C21.114 25.804 20.814 26.708 20.814 27.83C20.814 28.952 21.114 29.864 21.714 30.566C22.314 31.268 23.076 31.619 24 31.619C24.924 31.619 25.686 31.268 26.286 30.566C26.886 29.864 27.186 28.952 27.186 27.83C27.186 26.708 26.886 25.804 26.286 25.12C25.686 24.436 24.924 24.094 24 24.094Z" fill="#372213"/>
-                  <path d="M17.044 33.662C15.52 33.662 14.212 33.092 13.12 31.952C12.028 30.812 11.482 29.444 11.482 27.848C11.482 26.252 12.028 24.884 13.12 23.744C14.212 22.604 15.52 22.034 17.044 22.034C18.568 22.034 19.876 22.604 20.968 23.744C22.06 24.884 22.606 26.252 22.606 27.848C22.606 29.444 22.06 30.812 20.968 31.952C19.876 33.092 18.568 33.662 17.044 33.662ZM17.044 24.094C16.12 24.094 15.358 24.436 14.758 25.12C14.158 25.804 13.858 26.708 13.858 27.83C13.858 28.952 14.158 29.864 14.758 30.566C15.358 31.268 16.12 31.619 17.044 31.619C17.968 31.619 18.73 31.268 19.33 30.566C19.93 29.864 20.23 28.952 20.23 27.83C20.23 26.708 19.93 25.804 19.33 25.12C18.73 24.436 17.968 24.094 17.044 24.094Z" fill="#372213"/>
-                </svg>
-                See what I'm reading on Goodreads
-              </a>
-            </div>
-
-           {/* Photography - Creative Grid Layout */}
-            <div className="mt-16 sm:mt-24 mb-8 sm:mb-16">
-              <div className="flex items-center justify-center mb-6 sm:mb-8">
-                <Camera className="text-blue-400 mr-3 sm:mr-4" size={24} />
-                <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">
-                  Photography
-                </h3>
-              </div>
-              <p className="text-center text-gray-600 mb-4 text-sm">💡 Click the images to flip them!</p>
-              
-              <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-[120px] sm:auto-rows-[140px] md:auto-rows-[160px]">
-                  {console.log('Photography array:', photography)}
-                  {photography.map((photo, index) => (
-                    <PhotoCard 
-                      key={index}
-                      photo={photo}
-                      index={index}
-                    />
-                  ))}
+            {/* Professional GitHub Call to Action */}
+            <div className="mt-8 sm:mt-12 p-6 sm:p-8 bg-gradient-to-r from-gray-900 to-gray-800 rounded-md sm:rounded-lg border border-gray-700 shadow-xl">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="text-center sm:text-left">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
+                    Discover More Projects
+                  </h3>
+                  <p className="text-gray-300 text-sm sm:text-base">
+                    Explore additional projects, code samples, and development work on my GitHub.
+                  </p>
                 </div>
+                <a 
+                  href="https://github.com/DrakeBellisarii"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-all duration-300 text-sm sm:text-base whitespace-nowrap border border-blue-500/50 shadow-md hover:translate-y-[-2px]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2.5">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                  </svg>
+                  GitHub Profile
+                </a>
               </div>
             </div>
           </div>
@@ -1356,6 +1628,15 @@ const EducationSection = () => {
         <footer className="py-8 sm:py-12 bg-gray-900 border-t border-gray-800">
           <div className="container mx-auto px-4 sm:px-6 text-center">
             <p className="text-gray-400 mb-4 text-sm sm:text-base">I hope you enjoy, please feel free to reach out about anything</p>
+            
+            {/* Learn More About Me dropdown */}
+            <div className="mb-8">
+              <InterestsDropdown 
+                books={books} 
+                photography={photography} 
+              />
+            </div>
+            
             <div className="flex justify-center space-x-6">
               <button 
                 onClick={handleEmailClick}
