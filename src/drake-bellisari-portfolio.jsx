@@ -55,42 +55,82 @@ const PhotoCard = ({ photo, index }) => {
   return (
     <div className={getCardClass()} onClick={handleClick}>
       <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
-        {/* Front of card - Image */}
+        {/* Front of card - Image with improved design */}
         <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
-          <img 
-            src={photo.image} 
-            alt={photo.title}
-            className="w-full h-full object-cover rounded-lg shadow-lg"
-            onError={(e) => {
-              console.error(`Failed to load image: ${photo.image}`);
-              e.target.style.display = 'none';
-              // Show a fallback div with the image path for debugging
-              const fallback = document.createElement('div');
-              fallback.className = 'w-full h-full bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 text-xs p-2';
-              fallback.innerHTML = `Image not found:<br/>${photo.image}`;
-              e.target.parentNode.appendChild(fallback);
-            }}
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
-            <div className="text-white text-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-              <p className="text-sm font-semibold">{photo.title}</p>
-              <p className="text-xs">{photo.location}</p>
+          <div className="w-full h-full overflow-hidden rounded-lg relative group">
+            <img 
+              src={photo.image} 
+              alt={`Photo from ${photo.location}`}
+              className="w-full h-full object-cover shadow-lg transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => {
+                console.error(`Failed to load image: ${photo.image}`);
+                e.target.style.display = 'none';
+                // Show a fallback div with the image path for debugging
+                const fallback = document.createElement('div');
+                fallback.className = 'w-full h-full bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 text-xs p-2';
+                fallback.innerHTML = `Image not found:<br/>${photo.image}`;
+                e.target.parentNode.appendChild(fallback);
+              }}
+            />
+            {/* Subtle gradient overlay at bottom */}
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent"></div>
+            
+            {/* Image info with improved positioning - title removed */}
+            <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-0 group-hover:translate-y-0 transition-transform">
+              <div className="flex items-center">
+                <div className="h-1.5 w-1.5 bg-blue-400 rounded-full mr-1.5"></div>
+                <p className="text-sm text-white font-medium drop-shadow-md">{photo.location}</p>
+              </div>
+            </div>
+            
+            {/* Flip indicator that appears on hover */}
+            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div className="bg-black/30 backdrop-blur-sm rounded-full p-2 rotate-0 group-hover:rotate-180 transition-transform duration-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                  <path d="M16 3h5v5"></path>
+                  <path d="M4 20L20 4"></path>
+                  <path d="M21 13v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"></path>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
         
-        {/* Back of card - Text Information */}
+        {/* Back of card - Improved design with only location and date */}
         <div 
-          className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg shadow-lg flex flex-col items-center justify-center text-white p-4 text-center"
+          className="absolute inset-0 w-full h-full rounded-lg flex flex-col items-center justify-center text-white shadow-lg overflow-hidden"
           style={{ 
             backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
+            transform: 'rotateY(180deg)',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 120%)'
           }}
         >
-          <h3 className="text-lg font-bold mb-2">{photo.title}</h3>
-          <p className="text-sm mb-1">{photo.location}</p>
-          <p className="text-xs mb-3">{photo.date}</p>
-          <p className="text-xs opacity-75">Click to flip back</p>
+          {/* Decorative map pin icon */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-5 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          
+          {/* Content with styled location and date */}
+          <div className="relative z-10 p-5 flex flex-col items-center justify-center space-y-3 bg-black/20 backdrop-blur-sm rounded-lg w-4/5 border border-white/10">
+            {/* Location */}
+            <div className="flex items-center">
+              <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></div>
+              <p className="text-lg font-medium text-white tracking-wide">{photo.location}</p>
+            </div>
+            
+            {/* Date with decorative underline */}
+            <div className="flex flex-col items-center">
+              <p className="text-sm text-blue-200">{photo.date}</p>
+              <div className="h-px w-12 bg-blue-400/30 mt-2"></div>
+            </div>
+          </div>
+          
+          {/* Enhanced corner accents */}
+          <div className="absolute top-2 left-2 w-6 h-6 border-t border-l border-blue-400/30"></div>
+          <div className="absolute bottom-2 right-2 w-6 h-6 border-b border-r border-blue-400/30"></div>
         </div>
       </div>
     </div>
@@ -170,16 +210,6 @@ const BookCard = ({ book, index }) => {
             <div className="flex items-center justify-center space-x-2 my-3">
               {renderStars(book.rating)}
             </div>
-            
-
-            
-            {/* Flip button at bottom */}
-            <button className="mt-3 py-1.5 px-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-xs font-medium transition-all duration-300 group flex items-center justify-center mx-auto">
-              <span className="mr-1">Flip Back</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 transition-transform duration-300 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
           </div>
           
           {/* Subtle corner accent */}
@@ -310,7 +340,7 @@ const InterestsDropdown = ({ books, photography }) => {
                 Photography
               </h3>
             </div>
-            <p className="text-center text-gray-600 mb-4 text-sm">💡 Click the images to flip them!</p>
+           
             
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-[120px] sm:auto-rows-[140px] md:auto-rows-[160px]">
@@ -1019,7 +1049,7 @@ const EducationSection = () => {
       title: 'Cloud Native Real Estate Predictor',
       description: 'Designed a real estate prediction service that utilizes Zillow\'s API to predict real estate prices in the 500 most populous cities around the world',
       tech: ['Docker', 'AWS', 'Kubernetes'],
-      link: 'https://flickfinda.onrender.com/'
+      link: ''
     },
   ];
 
@@ -1334,7 +1364,7 @@ const EducationSection = () => {
                           </div>
                           <div className="flex items-start">
                             <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
-                            <p className="text-sm text-gray-300">Algorithm Development</p>
+                            <p className="text-sm text-gray-300">DevOps</p>
                           </div>
                         </div>
                       </div>
@@ -1431,15 +1461,16 @@ const EducationSection = () => {
                         }
                       }}
                     >
-                      {/* Queralt Logo - Top Right */}
+                      {/* Queralt Logo - Better positioned */}
                       <div 
-                        className="absolute top-2 right-4 opacity-50 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
+                        className="absolute top-0 right-4 -translate-y-[10%] opacity-50 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
                         style={{
                           backgroundImage: `url('/queralt-logo.svg')`,
                           backgroundSize: 'contain',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
-                          filter: 'grayscale(100%)'
+                          filter: 'grayscale(100%)',
+                          zIndex: 5
                         }}
                       />
                       
@@ -1496,27 +1527,28 @@ const EducationSection = () => {
                         }
                       }}
                     >
-                      {/* Atlantic Logo - Top Right */}
+                      {/* Atlantic Logo - Better positioned */}
                       <div 
-                        className="absolute top-2 right-4 opacity-50 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
+                        className="absolute top-0 right-4 -translate-y-[10%] opacity-50 pointer-events-none transition-all duration-300 company-logo w-[120px] h-[80px] sm:w-[180px] sm:h-[120px]"
                         style={{
                           backgroundImage: `url('/atlantic-logo.svg')`,
                           backgroundSize: 'contain',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
-                          filter: 'grayscale(100%)'
+                          filter: 'grayscale(100%)',
+                          zIndex: 5
                         }}
                       />
                       
                       <div className="relative z-10">
                         {/* Mobile Date - Visible on Mobile Only */}
                         <div className="sm:hidden mb-3">
-                          <span className="text-xs bg-purple-500 text-white px-3 py-1 rounded-full font-medium">Summer 2024</span>
+                          <span className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full font-medium">Summer 2024</span>
                         </div>
                         
                         <div className="mb-3">
                           <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">Field Engineering Intern</h3>
-                          <p className="text-purple-600 font-medium">Atlantic Security</p>
+                          <p className="text-blue-600 font-medium">Atlantic Security</p>
                         </div>
                                               <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
                           Worked with a talented team of engineers to install complex commercial and residential Fire and security systems. 
@@ -1524,9 +1556,9 @@ const EducationSection = () => {
                           Programmed the connection of various housing zones to provide a seamless connection to all devices in the system. 
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Security Systems</span>
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Smart Home</span>
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Installation</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Security Systems</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Smart Home</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Installation</span>
                         </div>
                       </div>
                     </div>
@@ -1626,41 +1658,59 @@ const EducationSection = () => {
 
         {/* Footer - Mobile Optimized */}
         <footer className="py-8 sm:py-12 bg-gray-900 border-t border-gray-800">
-          <div className="container mx-auto px-4 sm:px-6 text-center">
-            <p className="text-gray-400 mb-4 text-sm sm:text-base">I hope you enjoy, please feel free to reach out about anything</p>
+          <div className="container mx-auto px-4 sm:px-6">
+            {/* Featured Contact Section */}
+            <div className="max-w-4xl mx-auto mb-10 bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-6 sm:p-8 border border-blue-900/50 shadow-xl">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                <div className="flex-shrink-0 bg-blue-600/20 p-4 rounded-full">
+                  <Mail size={32} className="text-blue-400" />
+                </div>
+                <div className="flex-grow text-center sm:text-left">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Let's Connect</h3>
+                  <p className="text-gray-300 mb-6">Have a question or want to work together? I'm always open to new opportunities and collaborations.</p>
+                  <button 
+                    onClick={handleEmailClick}
+                    className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-medium transition-all duration-300 shadow-lg hover:translate-y-[-2px] text-sm sm:text-base"
+                  >
+                    <Mail size={18} className="mr-2" />
+                    <span>Contact Me</span>
+                  </button>
+                </div>
+              </div>
+            </div>
             
             {/* Learn More About Me dropdown */}
-            <div className="mb-8">
+            <div className="mb-8 text-center">
+              <p className="text-gray-400 mb-4 text-sm sm:text-base">I hope you enjoy, please feel free to explore more about me</p>
               <InterestsDropdown 
                 books={books} 
                 photography={photography} 
               />
             </div>
             
-            <div className="flex justify-center space-x-6">
-              <button 
-                onClick={handleEmailClick}
-                className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
-              >
-                <Mail size={20} className="sm:hidden" />
-                <Mail size={24} className="hidden sm:block" />
-              </button>
-            </div>
-            <p className="text-gray-500 text-xs sm:text-sm mt-4 sm:mt-6">© 2025 Drake Bellisari. All rights reserved.</p>
+            <p className="text-gray-500 text-xs sm:text-sm mt-8 text-center">© 2025 Drake Bellisari.</p>
           </div>
         </footer>
 
-        {/* Contact Form Modal - Mobile Optimized */}
+        {/* Enhanced Contact Form Modal */}
         {showContactForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl sm:rounded-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl sm:rounded-2xl max-w-2xl w-full max-h-screen overflow-y-auto shadow-2xl border border-blue-200">
+              {/* Blue accent bar */}
+              <div className="h-1.5 bg-gradient-to-r from-blue-500 to-blue-700 w-full"></div>
               
-              <div className="p-4 sm:p-6">
-             <div className="flex justify-between items-center mb-4 sm:mb-6">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Get In Touch</h2>
+              <div className="p-6 sm:p-8">
+                <div className="flex justify-between items-center mb-6 sm:mb-8">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
+                      <Mail size={24} className="text-blue-600 mr-3" />
+                      Get In Touch
+                    </h2>
+                    <p className="text-gray-600 mt-2">I'd love to hear from you!</p>
+                  </div>
                   <button 
                     onClick={() => setShowContactForm(false)}
-                    className="text-gray-400 hover:text-gray-600 text-xl sm:text-2xl p-1"
+                    className="text-gray-400 hover:text-gray-600 text-xl sm:text-2xl p-1 hover:bg-gray-100 rounded-full h-8 w-8 flex items-center justify-center transition-colors"
                   >
                     ×
                   </button>
@@ -1759,11 +1809,15 @@ const EducationSection = () => {
                     />
                   </div>
                   
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex gap-3 pt-6">
                     <button
                       type="submit"
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-colors text-sm sm:text-base"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-md font-semibold transition-all duration-300 text-sm sm:text-base shadow-lg hover:shadow-xl flex items-center justify-center"
                     >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
                       Send Message
                     </button>
                   </div>
