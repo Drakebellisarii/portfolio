@@ -18,30 +18,39 @@ import {
   ChevronDown
 } from 'lucide-react';
 
-// Creative grid layout system
+// Masonry-style photo card that adapts to image aspect ratio
 const PhotoCard = ({ photo, index }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(1);
 
   const handleClick = () => {
     setIsFlipped(!isFlipped);
   };
 
+  const handleImageLoad = (e) => {
+    const img = e.target;
+    const ratio = img.naturalWidth / img.naturalHeight;
+    setAspectRatio(ratio);
+    setImageLoaded(true);
+  };
+
   const getCardClass = () => {
     const baseClass = "cursor-pointer transition-all duration-500 transform-gpu";
     
-    // Create a variety of sizes for visual interest using valid Tailwind classes
-    const sizeVariations = [
-      'col-span-1 row-span-1', // Small square
-      'col-span-2 row-span-1', // Wide
-      'col-span-1 row-span-2', // Tall
-      'col-span-2 row-span-2', // Large square
-      'col-span-2 row-span-1', // Wide (replacing col-span-3)
-      'col-span-1 row-span-2', // Tall (replacing row-span-3)
-    ];
+    // Determine size based on aspect ratio
+    let sizeClass = 'col-span-1';
     
-    // Use index to create a pattern that looks random but is predictable
-    const sizeIndex = index % sizeVariations.length;
-    const sizeClass = sizeVariations[sizeIndex];
+    if (aspectRatio > 1.5) {
+      // Wide images
+      sizeClass = 'col-span-2';
+    } else if (aspectRatio < 0.8) {
+      // Tall images
+      sizeClass = 'col-span-1 row-span-2';
+    } else if (aspectRatio > 1.2) {
+      // Medium-wide images
+      sizeClass = 'col-span-2';
+    }
     
     // Add some rotation for visual interest
     const rotationClass = index % 3 === 0 ? 'rotate-1' : index % 3 === 1 ? '-rotate-1' : '';
@@ -57,11 +66,12 @@ const PhotoCard = ({ photo, index }) => {
       <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
         {/* Front of card - Image with improved design */}
         <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
-          <div className="w-full h-full overflow-hidden rounded-lg relative group">
+          <div className="w-full h-full overflow-hidden rounded-lg relative group border border-gray-200 bg-white">
             <img 
               src={photo.image} 
               alt={`Photo from ${photo.location}`}
-              className="w-full h-full object-cover shadow-lg transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-contain shadow-lg transition-transform duration-500 group-hover:scale-105 bg-gray-50"
+              onLoad={handleImageLoad}
               onError={(e) => {
                 console.error(`Failed to load image: ${photo.image}`);
                 e.target.style.display = 'none';
@@ -343,7 +353,7 @@ const InterestsDropdown = ({ books, photography }) => {
            
             
             <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-[120px] sm:auto-rows-[140px] md:auto-rows-[160px]">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 auto-rows-[200px] sm:auto-rows-[220px] md:auto-rows-[240px] lg:auto-rows-[260px]">
                 {photography.map((photo, index) => (
                   <PhotoCard 
                     key={index}
@@ -471,7 +481,7 @@ export default function Portfolio() {
     { 
       image: '/trin-chap.jpeg', 
       title: 'Trinity Chapel',
-      location: 'Oxford, UK',
+      location: 'Hartford, CT',
       date: 'Summer 2023',
       orientation: 'vertical'
     },
@@ -1046,10 +1056,10 @@ const EducationSection = () => {
       link: 'https://queraltinc.com/'
     },
     {
-      title: 'Cloud Native Real Estate Predictor',
-      description: 'Designed a real estate prediction service that utilizes Zillow\'s API to predict real estate prices in the 500 most populous cities around the world',
-      tech: ['Docker', 'AWS', 'Kubernetes'],
-      link: ''
+      title: 'Marty B Solutions',
+      description: 'I Am currently collaborating with a coworker to design and develop a website for his business, to help him market his services and reach a wider audience. Here is the beggining stage of his site.',
+      tech: ['React', 'Javascripy', 'HTML/CSS'],
+      link: 'https://marty-b-solutions.vercel.app/'
     },
   ];
 
