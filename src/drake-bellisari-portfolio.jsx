@@ -511,7 +511,7 @@ export default function Portfolio() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowWebsite(true);
-    }, 4200);
+    }, 0);
     
     return () => clearTimeout(timer);
   }, []);
