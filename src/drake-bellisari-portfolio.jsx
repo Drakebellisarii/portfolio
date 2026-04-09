@@ -1,151 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Mail, 
-  ExternalLink, 
-  Camera,
-  BookOpen, 
-  Code, 
-  GraduationCap, 
-  Calendar, 
-  Award, 
+import {
+  Mail,
+  ExternalLink,
+  BookOpen,
+  Code,
+  GraduationCap,
+  Calendar,
+  Award,
   Brain,
   Trophy,
   ChevronRight,
   Star,
   Menu,
   X,
-  Dumbbell,
-  ChevronDown
+  Dumbbell
 } from 'lucide-react';
 
-// Masonry-style photo card that adapts to image aspect ratio
-const PhotoCard = ({ photo, index }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState(1);
 
-  const handleClick = () => {
-    setIsFlipped(!isFlipped);
-  };
-
-  const handleImageLoad = (e) => {
-    const img = e.target;
-    const ratio = img.naturalWidth / img.naturalHeight;
-    setAspectRatio(ratio);
-    setImageLoaded(true);
-  };
-
-  const getCardClass = () => {
-    const baseClass = "cursor-pointer transition-all duration-500 transform-gpu";
-    
-    // Determine size based on aspect ratio
-    let sizeClass = 'col-span-1';
-    
-    if (aspectRatio > 1.5) {
-      // Wide images
-      sizeClass = 'col-span-2';
-    } else if (aspectRatio < 0.8) {
-      // Tall images
-      sizeClass = 'col-span-1 row-span-2';
-    } else if (aspectRatio > 1.2) {
-      // Medium-wide images
-      sizeClass = 'col-span-2';
-    }
-    
-    // Add some rotation for visual interest
-    const rotationClass = index % 3 === 0 ? 'rotate-1' : index % 3 === 1 ? '-rotate-1' : '';
-    
-    return `${baseClass} ${sizeClass} ${rotationClass}`;
-  };
-
-
-
-
-  return (
-    <div className={getCardClass()} onClick={handleClick}>
-      <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
-        {/* Front of card - Image with improved design */}
-        <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
-          <div className="w-full h-full overflow-hidden rounded-lg relative group border border-gray-200 bg-white">
-            <img 
-              src={photo.image} 
-              alt={`Photo from ${photo.location}`}
-              className="w-full h-full object-contain shadow-lg transition-transform duration-500 group-hover:scale-105 bg-gray-50"
-              onLoad={handleImageLoad}
-              onError={(e) => {
-                console.error(`Failed to load image: ${photo.image}`);
-                e.target.style.display = 'none';
-                // Show a fallback div with the image path for debugging
-                const fallback = document.createElement('div');
-                fallback.className = 'w-full h-full bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 text-xs p-2';
-                fallback.innerHTML = `Image not found:<br/>${photo.image}`;
-                e.target.parentNode.appendChild(fallback);
-              }}
-            />
-            {/* Subtle gradient overlay at bottom */}
-            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent"></div>
-            
-            {/* Image info with improved positioning - title removed */}
-            <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-0 group-hover:translate-y-0 transition-transform">
-              <div className="flex items-center">
-                <div className="h-1.5 w-1.5 bg-blue-400 rounded-full mr-1.5"></div>
-                <p className="text-sm text-white font-medium drop-shadow-md">{photo.location}</p>
-              </div>
-            </div>
-            
-            {/* Flip indicator that appears on hover */}
-            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div className="bg-black/30 backdrop-blur-sm rounded-full p-2 rotate-0 group-hover:rotate-180 transition-transform duration-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                  <path d="M16 3h5v5"></path>
-                  <path d="M4 20L20 4"></path>
-                  <path d="M21 13v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Back of card - Improved design with only location and date */}
-        <div 
-          className="absolute inset-0 w-full h-full rounded-lg flex flex-col items-center justify-center text-white shadow-lg overflow-hidden"
-          style={{ 
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 120%)'
-          }}
-        >
-          {/* Decorative map pin icon */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-5 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-          </div>
-          
-          {/* Content with styled location and date */}
-          <div className="relative z-10 p-5 flex flex-col items-center justify-center space-y-3 bg-black/20 backdrop-blur-sm rounded-lg w-4/5 border border-white/10">
-            {/* Location */}
-            <div className="flex items-center">
-              <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2"></div>
-              <p className="text-lg font-medium text-white tracking-wide">{photo.location}</p>
-            </div>
-            
-            {/* Date with decorative underline */}
-            <div className="flex flex-col items-center">
-              <p className="text-sm text-blue-200">{photo.date}</p>
-              <div className="h-px w-12 bg-blue-400/30 mt-2"></div>
-            </div>
-          </div>
-          
-          {/* Enhanced corner accents */}
-          <div className="absolute top-2 left-2 w-6 h-6 border-t border-l border-blue-400/30"></div>
-          <div className="absolute bottom-2 right-2 w-6 h-6 border-b border-r border-blue-400/30"></div>
-        </div>
-      </div>
-    </div>
-  );
-};
+/* BOOK CARD COMPONENT - commented out for performance (book images slow load times)
+   Restore this + BooksHidden + books data array if you want to re-enable the book grid.
 
 const BookCard = ({ book, index }) => {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -171,16 +44,13 @@ const BookCard = ({ book, index }) => {
   return (
     <div className="cursor-pointer transition-all duration-500 transform-gpu w-full h-full" onClick={handleClick}>
       <div className={`relative w-full h-full transition-all duration-500 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
-        {/* Front of card - Book Cover */}
         <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
           <div className="aspect-[3/4] relative overflow-hidden rounded-lg h-full">
             <img
               src={book.cover}
               alt={`${book.title} cover`}
               className="w-full h-full object-cover rounded-lg shadow-lg"
-              onError={(e) => {
-                e.target.src = '/api/placeholder/200/300';
-              }}
+              onError={(e) => { e.target.src = '/api/placeholder/200/300'; }}
             />
             <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-all duration-300 rounded-lg flex items-center justify-center">
               <div className="text-white text-center opacity-0 hover:opacity-100 transition-opacity duration-300">
@@ -189,189 +59,63 @@ const BookCard = ({ book, index }) => {
             </div>
           </div>
         </div>
-        
-        {/* Back of card - Book Details */}
-        <div 
+        <div
           className="absolute inset-0 w-full h-full rounded-lg flex flex-col items-center justify-center text-white shadow-lg overflow-hidden"
-          style={{ 
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-          }}
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}
         >
-          {/* Top subtle glow */}
           <div className="absolute top-0 left-0 right-0 h-1/5 overflow-hidden opacity-20">
             <div className="w-full h-full bg-gradient-to-r from-blue-400 to-cyan-400 blur-xl transform -translate-y-1/2"></div>
           </div>
-          
-          {/* Content container with minimal glass effect */}
           <div className="relative z-10 w-[90%] h-[85%] flex flex-col justify-between p-5">
-            {/* Book title - larger and more prominent */}
             <div className="text-center">
               <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight">{book.title}</h3>
             </div>
-            
-            {/* Author name - larger and positioned separately */}
             <div className="text-center mt-2">
               <p className="text-base sm:text-lg text-blue-100 font-medium">by {book.author}</p>
             </div>
-            
-            {/* Rating stars */}
             <div className="flex items-center justify-center space-x-2 my-3">
               {renderStars(book.rating)}
             </div>
           </div>
-          
-          {/* Subtle corner accent */}
           <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-400/5 rounded-tl-full"></div>
         </div>
       </div>
     </div>
   );
 };
+*/
 
-const InterestsDropdown = ({ books, photography }) => {
-  const [activeTab, setActiveTab] = useState(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+/* BOOKS HIDDEN COMPONENT - commented out (book grid disabled for performance)
+   Re-enable alongside BookCard and books data array to restore the full book grid + Goodreads button.
 
-  // Films and music data removed
-
-  // Toggle dropdown
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-    if (isDropdownOpen) {
-      setActiveTab(null);
-    }
-  };
-
-  // Set active tab
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    setIsDropdownOpen(false);
-  };
-
-  // Render stars for ratings
-  const renderStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Star
-          key={i}
-          size={16}
-          className={`${i <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-        />
-      );
-    }
-    return stars;
-  };
-
+const BooksHidden = ({ books }) => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Dropdown Button */}
-      <div className="flex flex-col items-center justify-center mb-10">
-        <button
-          onClick={toggleDropdown}
-          className="flex items-center justify-center space-x-2 text-blue-400 hover:text-blue-300 py-2 transition-all duration-300 group border-b border-transparent hover:border-blue-400/30"
-        >
-          <span className="text-lg font-medium">Learn More About Me</span>
-          <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-        </button>
-
-        {/* Dropdown Menu */}
-        {isDropdownOpen && (
-          <div className="mt-4 bg-white rounded-lg shadow-2xl border border-gray-200 p-2 w-full max-w-md animate-fadeIn">
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleTabClick('books')}
-                className="flex flex-col items-center justify-center p-4 rounded-lg hover:text-blue-500 transition-colors duration-300"
-              >
-                <BookOpen className="h-8 w-8 text-blue-400 mb-2" />
-                <span className="text-gray-800 font-medium">Favorite Books</span>
-              </button>
-              <button
-                onClick={() => handleTabClick('photography')}
-                className="flex flex-col items-center justify-center p-4 rounded-lg hover:text-blue-500 transition-colors duration-300"
-              >
-                <Camera className="h-8 w-8 text-blue-400 mb-2" />
-                <span className="text-gray-800 font-medium">My Photography</span>
-              </button>
-            </div>
+    <div className="flex flex-col items-center">
+      <button onClick={() => setIsOpen(!isOpen)} className="text-gray-700/30 hover:text-gray-500/50 transition-colors duration-300 p-1" aria-label="Favorite reads" title="Favorite reads">
+        <BookOpen size={14} />
+      </button>
+      {isOpen && (
+        <div className="mt-6 w-full animate-fadeIn">
+          <div className="flex items-center justify-center mb-8 sm:mb-10">
+            <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
+            <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Reads</h3>
           </div>
-        )}
-      </div>
-
-      {/* Content Areas */}
-      <div className="mt-8">
-        {/* Books Section */}
-        {activeTab === 'books' && (
-          <div className="animate-fadeIn">
-            <div className="flex items-center justify-center mb-8 sm:mb-10">
-              <BookOpen className="text-blue-400 mr-3 sm:mr-4" size={24} />
-              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">Favorite Reads</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto px-4 sm:px-6 mb-8">
-              {books.map((book, index) => (
-                <div key={index} className="group w-full h-56 sm:h-72 md:h-80 p-1 sm:p-2">
-                  <div className="relative w-full h-full transition-all duration-300 hover:scale-105">                    
-                    <BookCard book={book} index={index} />
-                  </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto px-4 sm:px-6 mb-8">
+            {books.map((book, index) => (
+              <div key={index} className="group w-full h-56 sm:h-72 md:h-80 p-1 sm:p-2">
+                <div className="relative w-full h-full transition-all duration-300 hover:scale-105">
+                  <BookCard book={book} index={index} />
                 </div>
-              ))}
-            </div>
-            
-            <div className="flex justify-center mb-16 sm:mb-24">
-              <a 
-                href="https://www.goodreads.com/user/show/145474773" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center bg-[#f4f1ea] hover:bg-[#ede6d6] text-[#382110] py-3 px-6 rounded-lg text-base font-medium transition-all duration-300 shadow-md hover:shadow-lg border border-[#d6d0c4]"
-              >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 448 512" 
-                  className="w-5 h-5 mr-3 fill-current"
-                  aria-hidden="true"
-                > 
-                  <path d="M299.9 191.2c5.1 37.3-4.7 79-35.9 100.7-22.3 15.5-52.8 14.1-70.8 5.7-37.1-17.3-49.5-58.6-46.8-97.2 4.3-60.9 40.9-87.9 75.3-87.5 46.9-.2 71.8 31.8 78.2 78.3zM448 88v336c0 30.9-25.1 56-56 56H56c-30.9 0-56-25.1-56-56V88c0-30.9 25.1-56 56-56h336c30.9 0 56 25.1 56 56zM330 313.2s-.1-34-.1-217.3h-29v40.3c-.8.3-1.2-.5-1.6-1.2-9.6-20.7-35.9-46.3-76-46-51.9.4-87.2 31.2-100.6 77.8-4.3 14.9-5.8 30.1-5.5 45.6 1.7 77.9 45.1 117.8 112.4 115.2 28.9-1.1 54.5-17 69-45.2.5-1 1.1-1.9 1.7-2.9.2.1.4.1.6.2.3 3.8.2 30.7.1 34.5-.2 14.8-2 29.5-7.2 43.5-7.8 21-22.3 34.7-44.5 39.5-17.8 3.9-35.6 3.8-53.2-1.2-21.5-6.1-36.5-19-41.1-41.8-.3-1.6-1.3-1.3-2.3-1.3h-26.8c.8 10.6 3.2 20.3 8.5 29.2 24.2 40.5 82.7 48.5 128.2 37.4 49.9-12.3 67.3-54.9 67.4-106.3z"/>
-                </svg>
-                See what I'm reading on Goodreads
-              </a>
-            </div>
-          </div>
-        )}
-
-        {/* Photography Section */}
-        {activeTab === 'photography' && (
-          <div className="animate-fadeIn">
-            <div className="flex items-center justify-center mb-6 sm:mb-8">
-              <Camera className="text-blue-400 mr-3 sm:mr-4" size={24} />
-              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-white bg-clip-text text-transparent">
-                Photography
-              </h3>
-            </div>
-           
-            
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 auto-rows-[200px] sm:auto-rows-[220px] md:auto-rows-[240px] lg:auto-rows-[260px]">
-                {photography.map((photo, index) => (
-                  <PhotoCard 
-                    key={index}
-                    photo={photo}
-                    index={index}
-                  />
-                ))}
               </div>
-            </div>
+            ))}
           </div>
-        )}
-
-        {/* Default state when no tab is selected */}
-        {!activeTab && null}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
+*/
 
 export default function Portfolio() {
   const [showWebsite, setShowWebsite] = useState(false);
@@ -386,127 +130,6 @@ export default function Portfolio() {
     message: ''
   });
 
-  const photography = [
-    { 
-      image: '/sailboat.JPG', 
-      title: 'Sailboat at Sunset',
-      location: 'Hudson River, NJ',
-      date: 'Summer 2025',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/bridge.jpeg', 
-      title: 'Austrian Bridge',
-      location: 'Murau, Austria',
-      date: 'Spring 2025',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/car.JPG', 
-      title: 'Classic Car',
-      location: 'St Augustine, FL',
-      date: 'Summer 2024',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/country.jpeg', 
-      title: 'Countryside of Austria',
-      location: 'Murau, Austria',
-      date: 'Spring 2025',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/flag.JPG', 
-      title: 'American Flag',
-      location: 'Fair Haven, NJ',
-      date: 'Independence Day 2025',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/Sunset.jpeg', 
-      title: 'Florida Evening',
-      location: 'Fernandina Beach, FL',
-      date: 'Winter 2024',
-      orientation: 'vertical'
-    },
-    { 
-      image: '/Gunnar.JPG', 
-      title: 'Good Boy',
-      location: 'Burt Lake, MI',
-      date: 'Summer 2022',
-      orientation: 'vertical'
-    },
-    { 
-      image: '/Cod.PNG', 
-      title: 'Clean Living',
-      location: 'Cape Cod, MA',
-      date: 'Summer 2023',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/Lil-boat.PNG', 
-      title: 'Lil Boat',
-      location: 'Burt Lake, MI',
-      date: 'Spring 2023',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/Breakfast.jpeg', 
-      title: 'Breakfast over flame',
-      location: 'Athens, OH',
-      date: 'Summer 2023',
-      orientation: 'vertical'
-    },
-    { 
-      image: '/cabin.PNG', 
-      title: 'Cabin In the woods',
-      location: 'Burt Lake, MI',
-      date: 'Summer 2023',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/Colorado-river.jpeg', 
-      title: 'River ',
-      location: 'Vail, CO',
-      date: 'Winter 2023',
-      orientation: 'vertical'
-    },
-    { 
-      image: '/Newyork.jpg', 
-      title: 'New York Illumination',
-      location: 'New York, NY',
-      date: 'Summer 2023',
-      orientation: 'vertical'
-    },
-    { 
-      image: '/trin-chap.jpeg', 
-      title: 'Trinity Chapel',
-      location: 'Hartford, CT',
-      date: 'Summer 2023',
-      orientation: 'vertical'
-    },
-    { 
-      image: '/utah.jpeg', 
-      title: 'Utah Landscape',
-      location: 'Moab, UT',
-      date: 'Summer 2023',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/Island.JPG', 
-      title: 'Island View',
-      location: 'Burt Lake, MI',
-      date: 'Summer 2023',
-      orientation: 'horizontal'
-    },
-    { 
-      image: '/Train.jpeg', 
-      title: 'Beach Sunset',
-      location: 'New Haven, CT',
-      date: 'Spring 2023',
-      orientation: 'horizontal'
-    }
-  ];
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1056,87 +679,30 @@ const EducationSection = () => {
       link: 'https://queraltinc.com/'
     },
     {
-      title: 'Marty B Solutions',
-      description: 'I Am currently collaborating with a coworker to design and develop a website for his business, to help him market his services and reach a wider audience. Here is the beggining stage of his site.',
-      tech: ['React', 'Javascripy', 'HTML/CSS'],
-      link: 'https://marty-b-solutions.vercel.app/'
+      title: 'Mandel Moving',
+      description: 'Built and launched a professional marketing website end-to-end for Mandel Moving (NJ), handling everything from design system creation to production deployment. Focused on clean UI, fast load performance, and a conversion-first layout designed to drive service inquiries and establish credibility in a competitive local market.',
+      tech: ['Next.js', 'React', 'SEO Optimization'],
+      link: 'https://mandel-moving.vercel.app/'
     },
   ];
 
+  /* BOOKS DATA - commented out for performance (images slow load times)
+     Re-enable alongside BookCard and BooksHidden to restore the book grid.
   const books = [
-    {
-      title: 'A Man\'s Search For Meaning',
-      author: 'Viktor Frankl',
-      cover: '/Book-Images/mans_search_fm.jpg',
-      rating: 5
-    },
-    {
-      title: 'Outliers',
-      author: 'Malcolm Gladwell',
-      cover: '/Book-Images/outliers.jpg',
-      rating: 4
-    },
-    {
-      title: 'Tuesdays With Morrie',
-      author: 'Mitch Albom',
-      cover: '/Book-Images/tuesdays_with_morrie.jpg',
-      rating: 5
-    },
-    {
-      title: 'Flowers For Algernon',
-      author: 'Daniel Keyes',
-      cover: '/Book-Images/flowers_for_algernon.jpg',
-      rating: 4
-    },
-    {
-      title: 'My Brilliant Friend',
-      author: 'Elena Ferrante',
-      cover: '/Book-Images/my_brilliant_friend.jpg',
-      rating: 4
-    },
-    {
-      title: 'The way of the Hermit',
-      author: 'Ken Smith',
-      cover: '/Book-Images/the_way_of_the_hermit.jpg',
-      rating: 3
-    },
-    {
-      title: 'The Great Alone',
-      author: 'Kristin Hannah',
-      cover: '/Book-Images/the_great_alone.jpg',
-      rating: 4
-    },
-    {
-      title: 'Remarkably Bright Creatures',
-      author: 'Shelby Van Pelt',
-      cover: '/Book-Images/remarkably_bright.jpg',
-      rating: 5
-    },
-    {
-      title: 'Algorithms to live by',
-      author: 'Brian Christian and Tom Griffiths',
-      cover: '/Book-Images/algorithms_to_live_by.jpg',
-      rating: 4
-    },
-    {
-      title: 'Steve Jobs',
-      author: 'Walter Isaacson',
-      cover: '/Book-Images/steve_jobs.jpg',
-      rating: 5
-    },
-    {
-      title: 'Scar Tissue',
-      author: 'Anthony Kiedis',
-      cover: '/Book-Images/scar_tissue.jpg',
-      rating: 4
-    },
-    {
-      title: 'Anything You Want',
-      author: 'Derek Sivers',
-      cover: '/Book-Images/anything_you_want.jpeg',
-      rating: 4
-    },
+    { title: "A Man's Search For Meaning", author: 'Viktor Frankl', cover: '/Book-Images/mans_search_fm.jpg', rating: 5 },
+    { title: 'Outliers', author: 'Malcolm Gladwell', cover: '/Book-Images/outliers.jpg', rating: 4 },
+    { title: 'Tuesdays With Morrie', author: 'Mitch Albom', cover: '/Book-Images/tuesdays_with_morrie.jpg', rating: 5 },
+    { title: 'Flowers For Algernon', author: 'Daniel Keyes', cover: '/Book-Images/flowers_for_algernon.jpg', rating: 4 },
+    { title: 'My Brilliant Friend', author: 'Elena Ferrante', cover: '/Book-Images/my_brilliant_friend.jpg', rating: 4 },
+    { title: 'The way of the Hermit', author: 'Ken Smith', cover: '/Book-Images/the_way_of_the_hermit.jpg', rating: 3 },
+    { title: 'The Great Alone', author: 'Kristin Hannah', cover: '/Book-Images/the_great_alone.jpg', rating: 4 },
+    { title: 'Remarkably Bright Creatures', author: 'Shelby Van Pelt', cover: '/Book-Images/remarkably_bright.jpg', rating: 5 },
+    { title: 'Algorithms to live by', author: 'Brian Christian and Tom Griffiths', cover: '/Book-Images/algorithms_to_live_by.jpg', rating: 4 },
+    { title: 'Steve Jobs', author: 'Walter Isaacson', cover: '/Book-Images/steve_jobs.jpg', rating: 5 },
+    { title: 'Scar Tissue', author: 'Anthony Kiedis', cover: '/Book-Images/scar_tissue.jpg', rating: 4 },
+    { title: 'Anything You Want', author: 'Derek Sivers', cover: '/Book-Images/anything_you_want.jpeg', rating: 4 },
   ];
+  */
 
 
 
@@ -1447,15 +1013,8 @@ const EducationSection = () => {
                     {/* Enhanced Timeline Dot */}
                     <div className="absolute left-6 sm:left-8 w-4 h-4 sm:w-5 sm:h-5 bg-white border-2 border-blue-600 rounded-full -translate-x-1/2 shadow-md" style={{ boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)' }}></div>
                     
-                    {/* Enhanced Date on Timeline - Hidden on Mobile */}
-                    <div className="hidden sm:block absolute left-8 top-24 transform -translate-x-1/2">
-                      <div className="bg-blue-600 text-white text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-md">
-                        Summer 2025
-                      </div>
-                    </div>
-                    
-                    <div 
-                      className="ml-14 sm:ml-28 bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 w-full relative overflow-hidden group"
+                    <div
+                      className="ml-14 bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 w-full relative overflow-hidden group"
                       onMouseEnter={(e) => {
                         const logo = e.currentTarget.querySelector('.company-logo');
                         if (logo) {
@@ -1485,25 +1044,36 @@ const EducationSection = () => {
                       />
                       
                       <div className="relative z-10">
-                        {/* Mobile Date - Visible on Mobile Only */}
-                        <div className="sm:hidden mb-3">
-                          <span className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full font-medium">Summer 2025</span>
-                        </div>
-                        
                         <div className="mb-3">
-                          <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">Web Development Intern</h3>
+                          <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">Software Engineer</h3>
                           <p className="text-blue-600 font-medium">Queralt Inc.</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Jan 2026 - Present &middot; 4 mos</p>
                         </div>
-                        
+
                         <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
-                          Led the development and design process of our commercial website into production. Conducted extensive market research on competitors. Produced multiple iterations of wireframes and copy decks to present to our board of investors and CEO.
-                           Managed outsourced design talent, and set up communication channels of exterior applications providing secure data store.
+                          Built and maintained a secure, password protected, responsive investor portal using Next.js, React, and Node.js, with an emphasis on performance, modular architecture, and cross device reliability. Implemented protected navigation flows, reusable component systems, analytics, and domain level configuration to support deployment and ongoing iteration.  
+                        </p>
+
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Next.js</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">React.js</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Node.js</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Hosting</span>
+                        </div>
+
+                        <div className="border-t border-gray-100 pt-4 mt-4 mb-3">
+                          <h3 className="text-lg sm:text-xl font-semibold text-gray-700">Web Development Intern</h3>
+                          <p className="text-sm text-blue-600 font-medium">Queralt Inc.</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Summer 2025</p>
+                        </div>
+
+                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
+                          Led the development and design process of our commercial website into production. Conducted extensive market research on competitors. Produced multiple iterations of wireframes and copy decks to present to our board of investors and CEO. Managed outsourced design talent, and set up communication channels of exterior applications providing secure data store.
                         </p>
                         <div className="flex flex-wrap gap-2">
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">HTML</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">CSS</span>
                           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">UI/UX</span>
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Web Design</span>
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Production</span>
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Database Management</span>
                         </div>
                       </div>
                     </div>
@@ -1513,15 +1083,9 @@ const EducationSection = () => {
                     {/* Enhanced Timeline Dot */}
                     <div className="absolute left-6 sm:left-8 w-4 h-4 sm:w-5 sm:h-5 bg-white border-2 border-blue-600 rounded-full -translate-x-1/2 shadow-md" style={{ boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)' }}></div>
                     
-                    {/* Enhanced Date on Timeline - Hidden on Mobile */}
-                    <div className="hidden sm:block absolute left-8 top-24 transform -translate-x-1/2">
-                      <div className="bg-blue-600 text-white text-sm font-semibold px-3 py-2 rounded-full whitespace-nowrap shadow-md">
-                        Summer 2024
-                      </div>
-                    </div>
                     
                     <div 
-                      className="ml-14 sm:ml-28 bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 w-full relative overflow-hidden group"
+                      className="ml-14 bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 w-full relative overflow-hidden group"
                       onMouseEnter={(e) => {
                         const logo = e.currentTarget.querySelector('.company-logo');
                         if (logo) {
@@ -1551,24 +1115,36 @@ const EducationSection = () => {
                       />
                       
                       <div className="relative z-10">
-                        {/* Mobile Date - Visible on Mobile Only */}
-                        <div className="sm:hidden mb-3">
-                          <span className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full font-medium">Summer 2024</span>
-                        </div>
-                        
                         <div className="mb-3">
-                          <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">Field Engineering Intern</h3>
+                          <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">Software Engineer</h3>
                           <p className="text-blue-600 font-medium">Atlantic Security</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Seasonal &middot; Dec 2025 - Jan 2026 &middot; 2 mos &middot; On-site</p>
                         </div>
-                                              <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
-                          Worked with a talented team of engineers to install complex commercial and residential Fire and security systems. 
+
+                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
+                          Designed and implemented a backend webhook service in Python using FastAPI to receive approved bid events, validate requests, normalize third-party data, and persist structured payloads for automation. Integrated the backend service with simPRO to support automated quote creation and cost-center mapping, using Zapier as an event trigger.
+                        </p>
+
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">API Development</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Python</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">FastAPI</span>
+                        </div>
+
+                        <div className="border-t border-gray-100 pt-4 mt-4 mb-3">
+                          <h3 className="text-lg sm:text-xl font-semibold text-gray-700">Field Engineering Intern</h3>
+                          <p className="text-sm text-blue-600 font-medium">Atlantic Security</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Summer 2024</p>
+                        </div>
+
+                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
+                          Worked with a talented team of engineers to install complex commercial and residential Fire and security systems.
                           Developed my networking skills by connecting Cat-6 wires for LAN's inside of companies and homes in Northern Florida.
-                          Programmed the connection of various housing zones to provide a seamless connection to all devices in the system. 
+                          Programmed the connection of various housing zones to provide a seamless connection to all devices in the system.
                         </p>
                         <div className="flex flex-wrap gap-2">
                           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Security Systems</span>
                           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Smart Home</span>
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Installation</span>
                         </div>
                       </div>
                     </div>
@@ -1689,13 +1265,24 @@ const EducationSection = () => {
               </div>
             </div>
             
-            {/* Learn More About Me dropdown */}
-            <div className="mb-8 text-center">
-              <p className="text-gray-400 mb-4 text-sm sm:text-base">I hope you enjoy, please feel free to explore more about me</p>
-              <InterestsDropdown 
-                books={books} 
-                photography={photography} 
-              />
+            {/* Goodreads link */}
+            <div className="mb-8 flex justify-center">
+              <a
+                href="https://www.goodreads.com/user/show/145474773"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center bg-[#f4f1ea] hover:bg-[#ede6d6] text-[#382110] py-3 px-6 rounded-lg text-base font-medium transition-all duration-300 shadow-md hover:shadow-lg border border-[#d6d0c4]"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 448 512"
+                  className="w-5 h-5 mr-3 fill-current"
+                  aria-hidden="true"
+                >
+                  <path d="M299.9 191.2c5.1 37.3-4.7 79-35.9 100.7-22.3 15.5-52.8 14.1-70.8 5.7-37.1-17.3-49.5-58.6-46.8-97.2 4.3-60.9 40.9-87.9 75.3-87.5 46.9-.2 71.8 31.8 78.2 78.3zM448 88v336c0 30.9-25.1 56-56 56H56c-30.9 0-56-25.1-56-56V88c0-30.9 25.1-56 56-56h336c30.9 0 56 25.1 56 56zM330 313.2s-.1-34-.1-217.3h-29v40.3c-.8.3-1.2-.5-1.6-1.2-9.6-20.7-35.9-46.3-76-46-51.9.4-87.2 31.2-100.6 77.8-4.3 14.9-5.8 30.1-5.5 45.6 1.7 77.9 45.1 117.8 112.4 115.2 28.9-1.1 54.5-17 69-45.2.5-1 1.1-1.9 1.7-2.9.2.1.4.1.6.2.3 3.8.2 30.7.1 34.5-.2 14.8-2 29.5-7.2 43.5-7.8 21-22.3 34.7-44.5 39.5-17.8 3.9-35.6 3.8-53.2-1.2-21.5-6.1-36.5-19-41.1-41.8-.3-1.6-1.3-1.3-2.3-1.3h-26.8c.8 10.6 3.2 20.3 8.5 29.2 24.2 40.5 82.7 48.5 128.2 37.4 49.9-12.3 67.3-54.9 67.4-106.3z"/>
+                </svg>
+                See what I'm reading on Goodreads
+              </a>
             </div>
             
             <p className="text-gray-500 text-xs sm:text-sm mt-8 text-center">© 2025 Drake Bellisari.</p>
