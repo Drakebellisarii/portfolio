@@ -685,6 +685,12 @@ const EducationSection = () => {
       tech: ['Next.js', 'React', 'SEO Optimization'],
       link: 'https://mandel-moving.vercel.app/'
     },
+    {
+      title: 'Marty B Solutions',
+      description: 'A professional business website showcasing services and solutions.',
+      tech: ['Next.js', 'React', 'Vercel'],
+      link: 'https://marty-b-solutions.vercel.app'
+    },
   ];
 
   /* BOOKS DATA - commented out for performance (images slow load times)
