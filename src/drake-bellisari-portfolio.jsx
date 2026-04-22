@@ -1601,7 +1601,7 @@ const EducationSection = () => {
               </a>
             </div>
             
-            <p className="text-gray-500 text-xs sm:text-sm mt-8 text-center">© 2025 Drake Bellisari.</p>
+            <p className="text-gray-500 text-xs sm:text-sm mt-8 text-center">© 2026 Drake Bellisari.</p>
           </div>
         </footer>
 
