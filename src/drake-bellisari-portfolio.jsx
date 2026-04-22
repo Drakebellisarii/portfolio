@@ -117,6 +117,7 @@ const BooksHidden = ({ books }) => {
 };
 */
 
+
 export default function Portfolio() {
   const [showWebsite, setShowWebsite] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
@@ -163,6 +164,7 @@ export default function Portfolio() {
       return () => clearTimeout(animationTimer);
     }
   }, [showWebsite]);
+
 
   // Handle email click
   const handleEmailClick = () => {
@@ -211,6 +213,114 @@ export default function Portfolio() {
       [e.target.name]: e.target.value
     });
   };
+
+  // Hero scroll-driven animation refs
+  const heroRef          = useRef(null);
+  const heroBadgeRef     = useRef(null);
+  const heroNamesRef     = useRef(null);
+  const heroSubRef       = useRef(null);
+  const heroDividerRef   = useRef(null);
+  const heroBioRef       = useRef(null);
+  const heroTagsRef      = useRef(null);
+  const heroSocialsRef   = useRef(null);
+  const heroScrollIndRef = useRef(null);
+
+  useEffect(() => {
+    const norm = (p, a, b) => Math.max(0, Math.min(1, (p - a) / (b - a)));
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    const update = () => {
+      const section = heroRef.current;
+      if (!section) return;
+      const totalScroll = section.offsetHeight - window.innerHeight;
+      const progress = totalScroll > 0 ? Math.min(Math.max(window.scrollY / totalScroll, 0), 1) : 0;
+
+      // Role badge: 0.00–0.12 — fully bidirectional
+      const bP = norm(progress, 0, 0.12);
+      if (heroBadgeRef.current) {
+        heroBadgeRef.current.style.opacity = bP;
+        heroBadgeRef.current.style.transform = `translateY(${lerp(20, 0, bP)}px)`;
+      }
+
+      // Letters — toggle .hero-lv per-letter threshold so CSS transition bounces in/out
+      if (heroNamesRef.current) {
+        heroNamesRef.current.querySelectorAll('.hero-letter-a').forEach((s, i) => {
+          const show = progress >= 0.05 + i * 0.022;
+          s.classList.toggle('hero-lv', show);
+        });
+        heroNamesRef.current.querySelectorAll('.hero-letter-b').forEach((s, i) => {
+          const show = progress >= 0.13 + i * 0.018;
+          s.classList.toggle('hero-lv', show);
+        });
+      }
+
+      // Subline: 0.28–0.42
+      const sP = norm(progress, 0.28, 0.42);
+      if (heroSubRef.current) {
+        heroSubRef.current.style.opacity = sP;
+        heroSubRef.current.style.transform = `translateY(${lerp(16, 0, sP)}px)`;
+      }
+
+      // Divider line grows: 0.35–0.55
+      const lP = norm(progress, 0.35, 0.55);
+      if (heroDividerRef.current) {
+        heroDividerRef.current.style.width = `${lP * 100}%`;
+      }
+
+      // Bio: 0.52–0.67
+      const bioP = norm(progress, 0.52, 0.67);
+      if (heroBioRef.current) {
+        heroBioRef.current.style.opacity   = bioP;
+        heroBioRef.current.style.transform = `translateY(${lerp(20, 0, bioP)}px)`;
+      }
+
+      // Tags: 0.60–0.74
+      const tagP = norm(progress, 0.60, 0.74);
+      if (heroTagsRef.current) {
+        heroTagsRef.current.style.opacity   = tagP;
+        heroTagsRef.current.style.transform = `translateY(${lerp(16, 0, tagP)}px)`;
+      }
+
+      // Socials + nav: 0.70–0.88
+      const socP = norm(progress, 0.70, 0.88);
+      if (heroSocialsRef.current) {
+        heroSocialsRef.current.style.opacity   = socP;
+        heroSocialsRef.current.style.transform = `translateY(${lerp(16, 0, socP)}px)`;
+      }
+
+      // Scroll indicator: visible at start, gone by 0.06
+      if (heroScrollIndRef.current) {
+        heroScrollIndRef.current.style.opacity = `${Math.max(0, 1 - progress / 0.06)}`;
+      }
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    update(); // set initial state
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+
+  // Custom cursor tracking
+  const cursorDotRef  = useRef(null);
+  const cursorRingRef = useRef(null);
+  const cursorRafRef  = useRef(null);
+
+  useEffect(() => {
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let dx = mx, dy = my, rx = mx, ry = my;
+    const onMove = (e) => { mx = e.clientX; my = e.clientY; };
+    const tick = () => {
+      dx += (mx - dx) * 0.4;
+      dy += (my - dy) * 0.4;
+      rx += (mx - rx) * 0.10;
+      ry += (my - ry) * 0.10;
+      if (cursorDotRef.current)  { cursorDotRef.current.style.left  = `${dx}px`; cursorDotRef.current.style.top  = `${dy}px`; }
+      if (cursorRingRef.current) { cursorRingRef.current.style.left = `${rx}px`; cursorRingRef.current.style.top = `${ry}px`; }
+      cursorRafRef.current = requestAnimationFrame(tick);
+    };
+    document.addEventListener('mousemove', onMove);
+    cursorRafRef.current = requestAnimationFrame(tick);
+    return () => { document.removeEventListener('mousemove', onMove); cancelAnimationFrame(cursorRafRef.current); };
+  }, []);
 
 const EducationSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -728,6 +838,9 @@ const EducationSection = () => {
   if (showWebsite) {
       return (
     <div className="text-gray-900 min-h-screen">
+      {/* Custom cursor — desktop only */}
+      <div ref={cursorDotRef}  className="cursor-dot"  style={{ left: '-100px', top: '-100px' }} />
+      <div ref={cursorRingRef} className="cursor-ring" style={{ left: '-100px', top: '-100px' }} />
       <style jsx>{`
         .rotate-y-180 {
           transform: rotateY(180deg);
@@ -790,6 +903,155 @@ const EducationSection = () => {
           animation: spinCoin 2s linear infinite;
           animation-play-state: running;
         }
+
+        /* ── Hero redesign ──────────────────────────────── */
+        @keyframes heroSlideUp {
+          from { transform: translateY(110%); }
+          to   { transform: translateY(0); }
+        }
+        @keyframes heroFadeUp {
+          from { opacity: 0; transform: translateY(22px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes heroLineGrow {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+        @keyframes heroPulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(96,165,250,.5); }
+          60%     { box-shadow: 0 0 0 7px rgba(96,165,250,0); }
+        }
+        @keyframes heroSpin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes heroKenBurns {
+          from { transform: scale(1.07) translate(-1%,0); }
+          to   { transform: scale(1)    translate(0,0); }
+        }
+
+        .hero-kenburns { animation: heroKenBurns 18s ease-out forwards; }
+
+        .hero-pulse {
+          display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+          background: #60a5fa; animation: heroPulse 2.4s ease infinite;
+        }
+
+        /* Letters: start hidden above; .hero-lv bounces them into place.
+           Removing .hero-lv reverses the transition going back up. */
+        .hero-letter-a,
+        .hero-letter-b {
+          opacity: 0;
+          transform: translateY(-40px);
+          display: inline-block;
+          transition: opacity 0.32s ease, transform 0.52s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hero-letter-a.hero-lv,
+        .hero-letter-b.hero-lv {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .h-a1 { animation: heroFadeUp .55s ease .08s both; }
+        .h-a2 { animation: heroFadeUp .55s ease .22s both; }
+        .h-a3 { animation: heroFadeUp .55s ease .80s both; }
+        .h-a4 { animation: heroFadeUp .55s ease .95s both; }
+        .h-a5 { animation: heroFadeUp .55s ease 1.08s both; }
+        .h-a6 { animation: heroFadeUp .55s ease 1.20s both; }
+        .h-photo { animation: heroFadeUp .7s ease .55s both; }
+
+        .hero-line-grow {
+          transform-origin: left;
+          animation: heroLineGrow 1.4s cubic-bezier(.4,0,.2,1) .92s both;
+        }
+
+        .hero-outline { color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,.28); }
+
+        .hero-social {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 7px 14px; border-radius: 7px; font-size: 12.5px; font-weight: 600;
+          text-decoration: none; cursor: pointer; white-space: nowrap;
+          background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14);
+          color: rgba(255,255,255,.78);
+          transition: background .2s, border-color .2s, color .2s, transform .2s;
+        }
+        .hero-social:hover {
+          background: rgba(255,255,255,.13); border-color: rgba(255,255,255,.32);
+          color: white; transform: translateY(-2px);
+        }
+
+        .hero-nav {
+          color: rgba(255,255,255,.45); font-size: 10.5px; font-weight: 700;
+          letter-spacing: .12em; text-transform: uppercase;
+          background: none; border: none; cursor: pointer; padding: 0;
+          position: relative; transition: color .22s;
+        }
+        .hero-nav::after {
+          content: ''; position: absolute; bottom: -3px; left: 0;
+          width: 0; height: 1.5px; background: #3b82f6;
+          transition: width .25s ease;
+        }
+        .hero-nav:hover { color: rgba(255,255,255,.9); }
+        .hero-nav:hover::after { width: 100%; }
+
+        @media (max-width: 420px) {
+          .hero-social-label { display: none; }
+          .hero-social { padding: 8px; border-radius: 50%; }
+        }
+
+        /* ── Custom cursor ──────────────────────────────── */
+        @media (hover: hover) and (pointer: fine) {
+          * { cursor: none !important; }
+        }
+        .cursor-dot {
+          position: fixed; pointer-events: none; z-index: 9999;
+          width: 7px; height: 7px; border-radius: 50%;
+          background: #60a5fa;
+          box-shadow: 0 0 14px rgba(96,165,250,.9), 0 0 28px rgba(96,165,250,.3);
+          margin: -3.5px 0 0 -3.5px;
+          will-change: left, top;
+          mix-blend-mode: screen;
+        }
+        .cursor-ring {
+          position: fixed; pointer-events: none; z-index: 9998;
+          width: 34px; height: 34px; border-radius: 50%;
+          border: 1.5px solid rgba(96,165,250,.4);
+          margin: -17px 0 0 -17px;
+          will-change: left, top;
+        }
+
+        /* ── Marquee ──────────────────────────────── */
+        @keyframes heroMarquee {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .hero-marquee-inner {
+          display: flex; width: max-content;
+          animation: heroMarquee 36s linear infinite;
+        }
+
+        /* ── Scroll indicator ──────────────────────────────── */
+        @keyframes heroScrollBounce {
+          0%, 100% { transform: translateY(0); opacity: .55; }
+          50%       { transform: translateY(7px); opacity: 1; }
+        }
+        .hero-scroll-ind { animation: heroScrollBounce 1.9s ease-in-out 1.8s both infinite; }
+
+        /* ── Watermark ──────────────────────────────── */
+        .hero-watermark {
+          position: absolute; right: -2%; bottom: 3%;
+          font-size: clamp(80px, 15vw, 210px); font-weight: 900;
+          letter-spacing: -.04em; line-height: 1;
+          color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.055);
+          pointer-events: none; user-select: none; white-space: nowrap;
+        }
+
+        /* ── Vertical label ──────────────────────────────── */
+        .hero-vert {
+          writing-mode: vertical-rl; text-orientation: mixed;
+          font-size: 9px; letter-spacing: .22em; text-transform: uppercase;
+          font-weight: 600; color: rgba(255,255,255,.22);
+        }
       `}</style>
         {/* Professional Navigation Header */}
         <header className="fixed top-0 left-0 w-full bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg z-50 border-b border-gray-700">
@@ -836,153 +1098,190 @@ const EducationSection = () => {
           )}
         </header>
 
-        {/* Professional Hero Section */}
-        <section id="about" className="relative min-h-screen w-full overflow-hidden pt-16 sm:pt-20">
-          {/* Background Video */}
-          <div className="absolute inset-0 w-full h-full overflow-hidden">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover"
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                minWidth: '100%',
-                minHeight: '100%',
-              }}
-            >
-              <source src="/About-vid.mp4" type="video/mp4" />
-            </video>
-            
-            {/* Overlay for better readability */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-gray-900/70 to-black/60"></div>
-            
-            {/* Subtle overlay accents */}
-            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-500/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-400/5 rounded-full blur-3xl"></div>
-          </div>
+        {/* Hero Section — 220vh sticky scroll */}
+        <section ref={heroRef} id="about" className="relative w-full" style={{ height: '220vh' }}>
 
-          <div className="relative z-10 min-h-[calc(100vh-80px)] flex items-center px-4 sm:px-6 lg:px-8 py-16">
-            <div className="container mx-auto max-w-5xl">
-              {/* Unified hero container with layered design */}
-              <div className="relative overflow-hidden">
-                {/* Main content container */}
-                <div className="backdrop-blur-md bg-black/40 rounded-xl border border-white/10 shadow-2xl overflow-hidden">
-                  {/* Content area with improved layout */}
-                  <div className="p-8 lg:p-12">
-                    {/* Combined header section with integrated photo */}
-                    <div className="flex flex-col lg:flex-row items-center mb-8 lg:mb-12">
-                      {/* Photo integrated with header */}
-                      <div className="lg:mr-8 mb-6 lg:mb-0 relative flex-shrink-0">
-                        <div className="w-40 h-40 lg:w-44 lg:h-44 rounded-full border-4 border-blue-500/20 overflow-hidden">
-                          <img
-                            src="/Headshot.png"
-                            alt="Drake Bellisari"
-                            className="w-full h-full object-cover"
-                            style={{ objectPosition: "center 30%" }}
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Header text content */}
-                      <div className="flex-grow">
-                        <div className="space-y-2 text-center lg:text-left">
-                          {/* Professional Headline */}
-                          <div className="inline-flex items-center justify-center lg:justify-start">
-                            <span className="text-blue-400 font-medium tracking-wider uppercase text-sm py-1 px-3 border border-blue-500/30 rounded-full bg-blue-900/20">Software Developer</span>
-                          </div>
-                          
-                          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
-                            Drake Bellisari
-                          </h1>
-                          <h2 className="text-lg sm:text-xl font-light text-blue-100">
-                            B.S. Computer Science - Trinity College
-                          </h2>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Content divider */}
-                    <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent my-6"></div>
-                    
-                    {/* Two-column content layout */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                      {/* Main content column */}
-                      <div className="lg:col-span-2">
-                        <div className="text-base leading-relaxed text-gray-200 space-y-4">
-                          <p>
-                            I'm a computer science major at Trinity College with a passion for creating innovative 
-                            technology solutions that make a meaningful impact.
-                          </p>
-                          <p>
-                            I specialize in combining technical precision with creative thinking, developing software 
-                            that bridges the gap between functionality and user experience.
-                          </p>
-                          <p>
-                            My expertise spans multiple programming languages and frameworks, allowing me to approach 
-                            challenges with versatility and deliver elegant, efficient solutions.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Stats/highlights column */}
-                      <div className="lg:col-span-1 bg-white/5 rounded-lg border border-white/10 p-4">
-                        <h3 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">Expertise</h3>
-                        <div className="space-y-3">
-                          <div className="flex items-start">
-                            <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
-                            <p className="text-sm text-gray-300">Full Stack Development</p>
-                          </div>
-                          <div className="flex items-start">
-                            <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
-                            <p className="text-sm text-gray-300">Cloud Native Solutions</p>
-                          </div>
-                          <div className="flex items-start">
-                            <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
-                            <p className="text-sm text-gray-300">UI/UX Design Principles</p>
-                          </div>
-                          <div className="flex items-start">
-                            <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full mr-2"></div>
-                            <p className="text-sm text-gray-300">DevOps</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Tech stack and CTA section */}
-                    <div className="mt-8 flex flex-col space-y-6">
-                      {/* Tech Stack */}
-                      <div className="flex flex-wrap gap-2 items-center">
-                        <h3 className="text-xs font-semibold text-gray-400 mr-2 uppercase tracking-wider bg-white/5 px-2 py-1 rounded">Tech Stack:</h3>
-                        {['Java', 'Python', 'React', 'JavaScript', 'C', 'HTML', 'CSS'].map((tech, index) => (
-                          <span key={index} className="px-3 py-1 bg-blue-900/20 text-blue-100 text-xs rounded-sm border border-blue-500/20 hover:border-blue-400/40 transition-colors">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      {/* Action button without background */}
-                      <div className="flex flex-wrap gap-4 justify-center lg:justify-start mt-2">
-                        <a 
-                          href="https://www.linkedin.com/in/drake-bellisari/" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-md font-medium transition-all duration-300 hover:translate-y-[-2px] shadow-md text-sm flex items-center gap-2 border border-blue-500/50"
-                        >
-                          <span>Connect on LinkedIn</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
-                        </a>
-                        
-                      </div>
-                    </div>
+          {/* Sticky 100vh viewport */}
+          <div className="sticky top-0 w-full overflow-hidden" style={{ height: '100vh' }}>
+
+            {/* Video background */}
+            <div className="absolute inset-0">
+              <video autoPlay muted loop playsInline className="hero-kenburns w-full h-full object-cover"
+                style={{ position: 'absolute', inset: 0, minWidth: '100%', minHeight: '100%' }}>
+                <source src="/About-vid.mp4" type="video/mp4" />
+              </video>
+              {/* Left-heavy gradient fades rightward so video breathes on the open side */}
+              <div className="absolute inset-0" style={{
+                background: 'linear-gradient(to right, rgba(0,0,0,.93) 0%, rgba(0,0,0,.85) 36%, rgba(0,0,0,.44) 70%, rgba(0,0,0,.10) 100%)'
+              }} />
+              <div className="absolute inset-0" style={{
+                background: 'linear-gradient(to top, rgba(0,0,0,.62) 0%, transparent 44%)'
+              }} />
+            </div>
+
+            {/* Decorative watermark */}
+            <div className="hero-watermark">DEVELOPER</div>
+
+            {/* CS · 2026 corner label */}
+            <div className="absolute z-20 flex justify-end items-center w-full px-6 sm:px-10 lg:px-16"
+              style={{ top: 'calc(64px + 20px)' }}>
+              <span style={{ color: 'rgba(255,255,255,.18)', fontSize: 11, fontFamily: 'monospace', letterSpacing: '.1em' }}>
+                CS · 2026
+              </span>
+            </div>
+
+            {/* Scroll-driven content */}
+            <div className="relative z-10 flex flex-col justify-center px-6 sm:px-10 lg:px-16"
+              style={{ height: '100%', paddingTop: '80px', paddingBottom: '80px' }}>
+
+              {/* Role badge */}
+              <div ref={heroBadgeRef} className="flex items-center gap-3 mb-5"
+                style={{ opacity: 0, transform: 'translateY(20px)', willChange: 'opacity, transform' }}>
+                <div style={{ width: 32, height: 1.5, background: '#3b82f6', borderRadius: 1 }} />
+                <span style={{ color: '#60a5fa', fontSize: 10.5, fontWeight: 700, letterSpacing: '.22em', textTransform: 'uppercase' }}>
+                  Software Developer
+                </span>
+              </div>
+
+              {/* Giant name — letters bounce in on scroll */}
+              <div ref={heroNamesRef} className="mb-1">
+                <div style={{ lineHeight: .92, paddingBottom: 4 }}>
+                  <div style={{ fontSize: 'clamp(52px,10.5vw,138px)', fontWeight: 900, color: 'white', letterSpacing: '-.03em', display: 'flex' }}>
+                    {'DRAKE'.split('').map((l, i) => (
+                      <span key={i} className="hero-letter-a">{l}</span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ lineHeight: .92, paddingBottom: 6 }}>
+                  <div className="hero-outline"
+                    style={{ fontSize: 'clamp(52px,10.5vw,138px)', fontWeight: 900, letterSpacing: '-.03em', display: 'flex' }}>
+                    {'BELLISARI'.split('').map((l, i) => (
+                      <span key={i} className="hero-letter-b">{l}</span>
+                    ))}
                   </div>
                 </div>
               </div>
+
+              {/* B.S. subline */}
+              <p ref={heroSubRef}
+                style={{ color: 'rgba(255,255,255,.38)', fontSize: 12, letterSpacing: '.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 22, opacity: 0, transform: 'translateY(16px)', willChange: 'opacity, transform' }}>
+                B.S. Computer Science — Trinity College
+              </p>
+
+              {/* Divider line — grows from left */}
+              <div style={{ marginBottom: 22, height: 1, background: 'rgba(255,255,255,.08)', position: 'relative', overflow: 'hidden' }}>
+                <div ref={heroDividerRef}
+                  style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: 0,
+                    background: 'linear-gradient(to right, #3b82f6 0%, rgba(147,197,253,.45) 55%, transparent 100%)' }} />
+              </div>
+
+              {/* Bio */}
+              <p ref={heroBioRef}
+                style={{ color: 'rgba(255,255,255,.58)', fontSize: 'clamp(13px,1.1vw,15px)',
+                  lineHeight: 1.75, maxWidth: 480, marginBottom: 18,
+                  opacity: 0, transform: 'translateY(20px)', willChange: 'opacity, transform' }}>
+                CS major at Trinity College crafting innovative technology solutions.
+                I combine technical precision with creative thinking to build software
+                that bridges functionality and user experience.
+              </p>
+
+              {/* Tech stack tags */}
+              <div ref={heroTagsRef} className="flex flex-wrap gap-2"
+                style={{ marginBottom: 28, opacity: 0, transform: 'translateY(16px)', willChange: 'opacity, transform' }}>
+                {['Full Stack', 'Cloud Native', 'UI/UX', 'DevOps'].map(x => (
+                  <span key={x} style={{
+                    padding: '3px 10px', borderRadius: 3, fontSize: 10.5, fontWeight: 600,
+                    background: 'rgba(255,255,255,.06)', color: 'rgba(255,255,255,.55)',
+                    border: '1px solid rgba(255,255,255,.11)', letterSpacing: '.05em',
+                  }}>{x}</span>
+                ))}
+                <span style={{ color: 'rgba(255,255,255,.2)', margin: '0 4px', alignSelf: 'center', fontSize: 10 }}>·</span>
+                {['Java', 'Python', 'React', 'JS', 'C', 'HTML', 'CSS'].map(t => (
+                  <span key={t} style={{
+                    padding: '3px 9px', borderRadius: 3, fontSize: 10.5, fontWeight: 600,
+                    background: 'rgba(59,130,246,.1)', color: '#93c5fd',
+                    border: '1px solid rgba(59,130,246,.25)', letterSpacing: '.04em',
+                  }}>{t}</span>
+                ))}
+              </div>
+
+              {/* Socials + section nav */}
+              <div ref={heroSocialsRef} className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6"
+                style={{ opacity: 0, transform: 'translateY(16px)', willChange: 'opacity, transform' }}>
+                <div className="flex flex-wrap gap-2.5">
+                  <a href="https://www.linkedin.com/in/drake-bellisari/" target="_blank" rel="noopener noreferrer"
+                    className="hero-social" style={{ background: '#0a66c2', borderColor: 'transparent', color: 'white' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                      <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
+                    </svg>
+                    <span className="hero-social-label">LinkedIn</span>
+                  </a>
+                  <a href="https://github.com/DrakeBellisarii" target="_blank" rel="noopener noreferrer" className="hero-social">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                    </svg>
+                    <span className="hero-social-label">GitHub</span>
+                  </a>
+                  <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="hero-social">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <span className="hero-social-label">Resume</span>
+                  </a>
+                  <button onClick={handleEmailClick} className="hero-social">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    <span className="hero-social-label">Contact</span>
+                  </button>
+                </div>
+                <div className="hidden sm:block" style={{ width: 1, height: 28, background: 'rgba(255,255,255,.14)' }} />
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
+                  {[
+                    { id: 'experience', label: 'Work Experience' },
+                    { id: 'education',  label: 'Education' },
+                    { id: 'projects',   label: 'Projects' },
+                  ].map(s => (
+                    <button key={s.id} className="hero-nav" onClick={() => scrollToSection(s.id)}>
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
             </div>
+
+            {/* Scroll indicator */}
+            <div ref={heroScrollIndRef}
+              className="absolute z-20 flex flex-col items-center gap-2"
+              style={{ bottom: 72, left: '50%', transform: 'translateX(-50%)' }}>
+              <span style={{ color: 'rgba(255,255,255,.3)', fontSize: 9, letterSpacing: '.2em', textTransform: 'uppercase' }}>Scroll</span>
+              <svg width="14" height="20" viewBox="0 0 14 20" fill="none" stroke="rgba(255,255,255,.38)" strokeWidth="1.5" className="hero-scroll-ind">
+                <path d="M7 2v14M1 9l6 7 6-7"/>
+              </svg>
+            </div>
+
+            {/* Scrolling marquee strip */}
+            <div className="absolute bottom-0 left-0 right-0 z-20 py-3 overflow-hidden"
+              style={{ borderTop: '1px solid rgba(255,255,255,.06)', background: 'rgba(0,0,0,.28)' }}>
+              <div className="hero-marquee-inner">
+                {[...Array(2)].map((_, ri) => (
+                  <div key={ri} className="flex items-center">
+                    {['Software Engineering', 'Full Stack Development', 'Cloud Infrastructure', 'UI/UX Design', 'Java', 'Python', 'React', 'DevOps', 'Trinity College', 'Hartford CT'].map((item, i) => (
+                      <React.Fragment key={i}>
+                        <span style={{ padding: '0 28px', color: 'rgba(255,255,255,.25)', fontSize: 10.5, fontWeight: 600, letterSpacing: '.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{item}</span>
+                        <span style={{ color: 'rgba(255,255,255,.1)', fontSize: 7, flexShrink: 0 }}>✶</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </section>
 
