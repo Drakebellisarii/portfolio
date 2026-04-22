@@ -674,10 +674,10 @@ const EducationSection = () => {
       link: 'https://gpppartnersgroup.com/'
     },
     {
-      title: 'Queralt Inc.',
-      description: 'Was the sole web developer of our companies commercial website, from everything from market research to wireframes to deployment',
-      tech: ['UI/UX', 'HTML/CSS', 'Miro'],
-      link: 'https://queraltinc.com/'
+      title: 'Marty B Solutions',
+      description: 'A professional business website showcasing services and solutions.',
+      tech: ['Next.js', 'React', 'Vercel'],
+      link: 'https://marty-b-solutions.vercel.app'
     },
     {
       title: 'Mandel Moving',
@@ -686,10 +686,10 @@ const EducationSection = () => {
       link: 'https://mandel-moving.vercel.app/'
     },
     {
-      title: 'Marty B Solutions',
-      description: 'A professional business website showcasing services and solutions.',
-      tech: ['Next.js', 'React', 'Vercel'],
-      link: 'https://marty-b-solutions.vercel.app'
+      title: 'Queralt Inc.',
+      description: 'Was the sole web developer of our companies commercial website, from everything from market research to wireframes to deployment',
+      tech: ['UI/UX', 'HTML/CSS', 'Miro'],
+      link: 'https://queraltinc.com/'
     },
   ];
 
