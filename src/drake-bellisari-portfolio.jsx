@@ -300,27 +300,6 @@ export default function Portfolio() {
   }, []);
 
   // Custom cursor tracking
-  const cursorDotRef  = useRef(null);
-  const cursorRingRef = useRef(null);
-  const cursorRafRef  = useRef(null);
-
-  useEffect(() => {
-    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-    let dx = mx, dy = my, rx = mx, ry = my;
-    const onMove = (e) => { mx = e.clientX; my = e.clientY; };
-    const tick = () => {
-      dx += (mx - dx) * 0.4;
-      dy += (my - dy) * 0.4;
-      rx += (mx - rx) * 0.10;
-      ry += (my - ry) * 0.10;
-      if (cursorDotRef.current)  { cursorDotRef.current.style.left  = `${dx}px`; cursorDotRef.current.style.top  = `${dy}px`; }
-      if (cursorRingRef.current) { cursorRingRef.current.style.left = `${rx}px`; cursorRingRef.current.style.top = `${ry}px`; }
-      cursorRafRef.current = requestAnimationFrame(tick);
-    };
-    document.addEventListener('mousemove', onMove);
-    cursorRafRef.current = requestAnimationFrame(tick);
-    return () => { document.removeEventListener('mousemove', onMove); cancelAnimationFrame(cursorRafRef.current); };
-  }, []);
 
 const EducationSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -838,9 +817,6 @@ const EducationSection = () => {
   if (showWebsite) {
       return (
     <div className="text-gray-900 min-h-screen">
-      {/* Custom cursor — desktop only */}
-      <div ref={cursorDotRef}  className="cursor-dot"  style={{ left: '-100px', top: '-100px' }} />
-      <div ref={cursorRingRef} className="cursor-ring" style={{ left: '-100px', top: '-100px' }} />
       <style jsx>{`
         .rotate-y-180 {
           transform: rotateY(180deg);
@@ -999,26 +975,6 @@ const EducationSection = () => {
           .hero-social { padding: 8px; border-radius: 50%; }
         }
 
-        /* ── Custom cursor ──────────────────────────────── */
-        @media (hover: hover) and (pointer: fine) {
-          * { cursor: none !important; }
-        }
-        .cursor-dot {
-          position: fixed; pointer-events: none; z-index: 9999;
-          width: 7px; height: 7px; border-radius: 50%;
-          background: #60a5fa;
-          box-shadow: 0 0 14px rgba(96,165,250,.9), 0 0 28px rgba(96,165,250,.3);
-          margin: -3.5px 0 0 -3.5px;
-          will-change: left, top;
-          mix-blend-mode: screen;
-        }
-        .cursor-ring {
-          position: fixed; pointer-events: none; z-index: 9998;
-          width: 34px; height: 34px; border-radius: 50%;
-          border: 1.5px solid rgba(96,165,250,.4);
-          margin: -17px 0 0 -17px;
-          will-change: left, top;
-        }
 
         /* ── Marquee ──────────────────────────────── */
         @keyframes heroMarquee {
@@ -1027,15 +983,15 @@ const EducationSection = () => {
         }
         .hero-marquee-inner {
           display: flex; width: max-content;
-          animation: heroMarquee 36s linear infinite;
+          animation: heroMarquee 24s linear infinite;
         }
 
         /* ── Scroll indicator ──────────────────────────────── */
         @keyframes heroScrollBounce {
           0%, 100% { transform: translateY(0); opacity: .55; }
-          50%       { transform: translateY(7px); opacity: 1; }
+          50%       { transform: translateY(16px); opacity: 1; }
         }
-        .hero-scroll-ind { animation: heroScrollBounce 1.9s ease-in-out 1.8s both infinite; }
+        .hero-scroll-ind { animation: heroScrollBounce 1.3s ease-in-out infinite; }
 
         /* ── Watermark ──────────────────────────────── */
         .hero-watermark {
@@ -1053,47 +1009,107 @@ const EducationSection = () => {
           font-weight: 600; color: rgba(255,255,255,.22);
         }
       `}</style>
-        {/* Professional Navigation Header */}
-        <header className="fixed top-0 left-0 w-full bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg z-50 border-b border-gray-700">
-          <div className="container mx-auto px-4 sm:px-8 py-4 sm:py-5 flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden border border-blue-400/30">
-                <span className="text-white font-bold text-lg sm:text-xl">DB</span>
-              </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold text-white tracking-wide" style={{ fontFamily: "'Libertinus Serif', serif" }}>Drake Bellisari</h1>
-                <p className="text-xs text-blue-300 hidden sm:block">Computer Science @ Trinity College</p>
-              </div>
-            </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex">
-              <div className="flex space-x-1">
-                <button onClick={() => scrollToSection('about')} className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">About</button>
-                <button onClick={() => scrollToSection('experience')} className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Experience</button>
-                <button onClick={() => scrollToSection('education')} className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Education</button>
-                <button onClick={() => scrollToSection('projects')} className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Projects</button>
-              </div>
+        {/* Floating pill header */}
+        <header className="fixed z-50" style={{ top: 14, left: '50%', transform: 'translateX(-50%)', width: 'auto' }}>
+          <div style={{
+            background: 'rgba(8,10,18,.45)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255,255,255,.12)',
+            borderRadius: 999,
+            boxShadow: '0 4px 24px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.09)',
+            padding: '5px 6px',
+            display: 'flex', alignItems: 'center', gap: 2,
+          }}>
+
+            {/* DB monogram */}
+            <button onClick={() => scrollToSection('about')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px' }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, fontWeight: 800, color: 'white', flexShrink: 0,
+                boxShadow: '0 0 8px rgba(59,130,246,.5)',
+              }}>DB</div>
+            </button>
+
+            {/* Divider */}
+            <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,.12)', margin: '0 2px', flexShrink: 0 }} />
+
+            {/* Nav links — desktop */}
+            <nav className="hidden md:flex items-center">
+              {['experience', 'education', 'projects'].map(id => (
+                <button key={id} onClick={() => scrollToSection(id)} style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  padding: '5px 12px', borderRadius: 999,
+                  color: 'rgba(255,255,255,.58)', fontSize: 12.5, fontWeight: 600,
+                  transition: 'color .15s, background .15s', textTransform: 'capitalize',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,.09)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,.58)'; e.currentTarget.style.background = 'none'; }}>
+                  {id.charAt(0).toUpperCase() + id.slice(1)}
+                </button>
+              ))}
             </nav>
 
-            {/* Mobile Menu Button */}
-            <button 
-              className="md:hidden p-2 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md"
+            {/* Divider */}
+            <div className="hidden md:block" style={{ width: 1, height: 16, background: 'rgba(255,255,255,.12)', margin: '0 2px', flexShrink: 0 }} />
+
+            {/* Contact button */}
+            <button onClick={handleEmailClick} style={{
+              background: 'rgba(59,130,246,.22)', border: '1px solid rgba(59,130,246,.4)',
+              borderRadius: 999, cursor: 'pointer',
+              padding: '5px 14px', fontSize: 12.5, fontWeight: 700,
+              color: '#93c5fd', transition: 'background .15s, color .15s',
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,.38)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(59,130,246,.22)'; e.currentTarget.style.color = '#93c5fd'; }}>
+              Contact
+            </button>
+
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.7)', padding: '4px 6px' }}
             >
-              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
 
-          {/* Mobile Navigation Menu */}
+          {/* Mobile dropdown */}
           {mobileMenuOpen && (
-            <div className="md:hidden bg-gray-800 border-t border-gray-700 shadow-lg">
-              <nav className="flex flex-col p-3">
-                <button onClick={() => scrollToSection('about')} className="text-left py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">About</button>
-                <button onClick={() => scrollToSection('experience')} className="text-left py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Experience</button>
-                <button onClick={() => scrollToSection('education')} className="text-left py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Education</button>
-                <button onClick={() => scrollToSection('projects')} className="text-left py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md transition duration-150">Projects</button>
-              </nav>
+            <div style={{
+              marginTop: 8, borderRadius: 16,
+              background: 'rgba(8,10,18,.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,.10)',
+              boxShadow: '0 8px 24px rgba(0,0,0,.4)',
+              padding: '6px 8px 8px', minWidth: 160,
+            }}>
+              {['experience', 'education', 'projects'].map(id => (
+                <button key={id} onClick={() => { scrollToSection(id); setMobileMenuOpen(false); }}
+                  className="block w-full text-left"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer',
+                    padding: '9px 12px', borderRadius: 10, color: 'rgba(255,255,255,.7)',
+                    fontSize: 13.5, fontWeight: 500, textTransform: 'capitalize',
+                    transition: 'color .15s, background .15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,.07)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,.7)'; e.currentTarget.style.background = 'none'; }}>
+                  {id.charAt(0).toUpperCase() + id.slice(1)}
+                </button>
+              ))}
+              <div style={{ height: 1, background: 'rgba(255,255,255,.07)', margin: '4px 4px' }} />
+              <button onClick={() => { handleEmailClick(); setMobileMenuOpen(false); }}
+                className="block w-full text-left"
+                style={{ background: 'none', border: 'none', cursor: 'pointer',
+                  padding: '9px 12px', borderRadius: 10, color: '#93c5fd',
+                  fontSize: 13.5, fontWeight: 600, transition: 'color .15s, background .15s' }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(59,130,246,.12)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#93c5fd'; e.currentTarget.style.background = 'none'; }}>
+                Contact
+              </button>
             </div>
           )}
         </header>
@@ -1124,7 +1140,7 @@ const EducationSection = () => {
 
             {/* CS · 2026 corner label */}
             <div className="absolute z-20 flex justify-end items-center w-full px-6 sm:px-10 lg:px-16"
-              style={{ top: 'calc(64px + 20px)' }}>
+              style={{ top: 80 }}>
               <span style={{ color: 'rgba(255,255,255,.18)', fontSize: 11, fontFamily: 'monospace', letterSpacing: '.1em' }}>
                 CS · 2026
               </span>
@@ -1132,7 +1148,7 @@ const EducationSection = () => {
 
             {/* Scroll-driven content */}
             <div className="relative z-10 flex flex-col justify-center px-6 sm:px-10 lg:px-16"
-              style={{ height: '100%', paddingTop: '80px', paddingBottom: '80px' }}>
+              style={{ height: '100%', paddingTop: '72px', paddingBottom: '72px' }}>
 
               {/* Role badge */}
               <div ref={heroBadgeRef} className="flex items-center gap-3 mb-5"
@@ -1168,8 +1184,8 @@ const EducationSection = () => {
                 B.S. Computer Science — Trinity College
               </p>
 
-              {/* Divider line — grows from left */}
-              <div style={{ marginBottom: 22, height: 1, background: 'rgba(255,255,255,.08)', position: 'relative', overflow: 'hidden' }}>
+              {/* Divider line — grows from left, no visible track */}
+              <div style={{ marginBottom: 22, height: 1, background: 'transparent', position: 'relative', overflow: 'hidden' }}>
                 <div ref={heroDividerRef}
                   style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: 0,
                     background: 'linear-gradient(to right, #3b82f6 0%, rgba(147,197,253,.45) 55%, transparent 100%)' }} />
@@ -1223,14 +1239,6 @@ const EducationSection = () => {
                     </svg>
                     <span className="hero-social-label">GitHub</span>
                   </a>
-                  <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="hero-social">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
-                    <span className="hero-social-label">Resume</span>
-                  </a>
                   <button onClick={handleEmailClick} className="hero-social">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -1258,23 +1266,25 @@ const EducationSection = () => {
             {/* Scroll indicator */}
             <div ref={heroScrollIndRef}
               className="absolute z-20 flex flex-col items-center gap-2"
-              style={{ bottom: 72, left: '50%', transform: 'translateX(-50%)' }}>
-              <span style={{ color: 'rgba(255,255,255,.3)', fontSize: 9, letterSpacing: '.2em', textTransform: 'uppercase' }}>Scroll</span>
-              <svg width="14" height="20" viewBox="0 0 14 20" fill="none" stroke="rgba(255,255,255,.38)" strokeWidth="1.5" className="hero-scroll-ind">
-                <path d="M7 2v14M1 9l6 7 6-7"/>
-              </svg>
+              style={{ bottom: 72, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+              {/* Mouse shell */}
+              <div style={{ width: 34, height: 52, borderRadius: 17, border: '2px solid rgba(255,255,255,.9)', display: 'flex', justifyContent: 'center', paddingTop: 8, boxShadow: '0 0 24px rgba(255,255,255,.22), 0 0 48px rgba(59,130,246,.18)' }}>
+                {/* Dot that bounces */}
+                <div className="hero-scroll-ind" style={{ width: 4, height: 10, borderRadius: 2, background: 'white' }} />
+              </div>
+              <span style={{ color: 'rgba(255,255,255,.8)', fontSize: 9, fontWeight: 700, letterSpacing: '.32em', textTransform: 'uppercase' }}>Scroll</span>
             </div>
 
             {/* Scrolling marquee strip */}
-            <div className="absolute bottom-0 left-0 right-0 z-20 py-3 overflow-hidden"
-              style={{ borderTop: '1px solid rgba(255,255,255,.06)', background: 'rgba(0,0,0,.28)' }}>
+            <div className="absolute bottom-0 left-0 right-0 z-20 overflow-hidden"
+              style={{ borderTop: '1px solid rgba(255,255,255,.14)', background: 'rgba(0,0,0,.5)', paddingTop: 11, paddingBottom: 11 }}>
               <div className="hero-marquee-inner">
                 {[...Array(2)].map((_, ri) => (
                   <div key={ri} className="flex items-center">
                     {['Software Engineering', 'Full Stack Development', 'Cloud Infrastructure', 'UI/UX Design', 'Java', 'Python', 'React', 'DevOps', 'Trinity College', 'Hartford CT'].map((item, i) => (
                       <React.Fragment key={i}>
-                        <span style={{ padding: '0 28px', color: 'rgba(255,255,255,.25)', fontSize: 10.5, fontWeight: 600, letterSpacing: '.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{item}</span>
-                        <span style={{ color: 'rgba(255,255,255,.1)', fontSize: 7, flexShrink: 0 }}>✶</span>
+                        <span style={{ padding: '0 32px', color: 'rgba(255,255,255,.6)', fontSize: 11.5, fontWeight: 600, letterSpacing: '.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{item}</span>
+                        <span style={{ color: 'rgba(255,255,255,.25)', fontSize: 8, flexShrink: 0 }}>✶</span>
                       </React.Fragment>
                     ))}
                   </div>
