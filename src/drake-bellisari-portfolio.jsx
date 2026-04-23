@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Mail,
   ExternalLink,
@@ -11,8 +12,6 @@ import {
   Trophy,
   ChevronRight,
   Star,
-  Menu,
-  X,
   Dumbbell
 } from 'lucide-react';
 
@@ -121,7 +120,7 @@ const BooksHidden = ({ books }) => {
 export default function Portfolio() {
   const [showWebsite, setShowWebsite] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('about');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -165,6 +164,31 @@ export default function Portfolio() {
     }
   }, [showWebsite]);
 
+
+  // Active section tracking — uses document-absolute positions so the 220vh hero transitions cleanly
+  useEffect(() => {
+    const ids = ['about', 'experience', 'education', 'projects'];
+    const getActive = () => {
+      // scrollMid = scroll position of the 40% viewport mark in document coords
+      const scrollMid = window.scrollY + window.innerHeight * 0.4;
+      let active = 'about';
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const elTop = el.getBoundingClientRect().top + window.scrollY;
+        if (elTop <= scrollMid) active = id;
+      }
+      return active;
+    };
+    const onScroll = () => setActiveSection(getActive());
+    window.addEventListener('scroll', onScroll, { passive: true });
+    // RAF ensures sections are in the DOM before the initial read
+    const raf = requestAnimationFrame(() => setActiveSection(getActive()));
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
 
   // Handle email click
   const handleEmailClick = () => {
@@ -304,440 +328,328 @@ export default function Portfolio() {
 const EducationSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [expandedCourses, setExpandedCourses] = useState({});
+  const [activeCategory, setActiveCategory] = useState('core');
   const sectionRef = useRef(null);
+  const mobileRef  = useRef(null);
+  const mobileInView = useInView(mobileRef, { once: true, margin: '-60px' });
+
+  const categories = [
+    {
+      id: 'core', label: 'Core CS', Icon: Code, color: '#3b82f6',
+      courses: [
+        { id: 'ds-algos',            name: 'Data Structures + Algorithms', bullets: ['Mastered fundamental algorithms and data structure implementations', 'Developed efficient problem-solving strategies and run-time optimization'] },
+        { id: 'computer-systems',    name: 'Computer Systems',             bullets: ['Understanding of computer architecture and system-level programming', 'Memory management and process control concepts'] },
+        { id: 'python-fundamentals', name: 'Python Fundamentals',          bullets: ['Core Python syntax and object-oriented programming principles', 'Data manipulation and basic algorithmic implementations'] },
+      ],
+    },
+    {
+      id: 'math', label: 'Math', Icon: Brain, color: '#3b82f6',
+      courses: [
+        { id: 'discrete-math',   name: 'Discrete Mathematics', bullets: ['Logic, set theory, and mathematical proof techniques', 'Combinatorics and probability fundamentals'] },
+        { id: 'calculus',        name: 'Calculus 1 & 2',       bullets: ['Differential and integral calculus concepts', 'Applications to real-world problem solving'] },
+        { id: 'linear-algebra',  name: 'Linear Algebra',       bullets: ['Vector spaces, matrices, and linear transformations', 'Eigenvalues and applications in computer science'] },
+      ],
+    },
+    {
+      id: 'electives', label: 'Electives', Icon: Star, color: '#3b82f6',
+      courses: [
+        { id: 'cloud-native',       name: 'Cloud Native Development', bullets: ['Microservices architecture and containerization technologies', 'Cloud platform deployment and scaling strategies'] },
+        { id: 'software-design',    name: 'Software Design',          bullets: ['Design patterns and software architecture principles', 'User experience and interface design methodologies'] },
+        { id: 'computer-security',  name: 'Computer Security',        bullets: ['Cryptography and secure communication protocols', 'Vulnerability assessment and security best practices'] },
+      ],
+    },
+  ];
+
+  const stats = [
+    { Icon: BookOpen, value: '3.5+',   label: 'CS GPA',  color: '#3b82f6' },
+    { Icon: Trophy,   value: "Dean's", label: 'List',    color: '#3b82f6' },
+    { Icon: Dumbbell, value: '4yr',    label: 'Football', color: '#3b82f6' },
+    { Icon: Star,     value: '4yr',    label: 'CS Club',  color: '#3b82f6' },
+  ];
+
+  const activeCat = categories.find(c => c.id === activeCategory);
 
   const toggleCourse = (courseId) => {
-    setExpandedCourses(prev => ({
-      ...prev,
-      [courseId]: !prev[courseId]
-    }));
+    setExpandedCourses(prev => ({ ...prev, [courseId]: !prev[courseId] }));
   };
 
-  // Intersection Observer to trigger animation when section comes into view
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true);
-        }
-      },
-      {
-        threshold: 0.3,
-        rootMargin: '0px 0px -100px 0px'
-      }
+      ([entry]) => { if (entry.isIntersecting && !isVisible) setIsVisible(true); },
+      { threshold: 0.3, rootMargin: '0px 0px -100px 0px' }
     );
-
     const node = sectionRef.current;
-    if (node) {
-      observer.observe(node);
-    }
-
-    return () => {
-      if (node) {
-        observer.unobserve(node);
-      }
-    };
+    if (node) observer.observe(node);
+    return () => { if (node) observer.unobserve(node); };
   }, [isVisible]);
 
   return (
-          <section id="education" className="py-12 sm:py-20 relative overflow-hidden" ref={sectionRef}>
-        
-        {/* Trinity College Background Image - Blurred */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `url('/Trin.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'blur(1px) brightness(0.25) saturate(0.2)',
-            opacity: 0.98
-          }}
-        />
-        
-        {/* Overlay with subtle grid */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-15"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(239, 68, 68, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(239, 68, 68, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px'
-          }}
-        />
-        
-        {/* Subtle gradient overlay */}
-        <div 
-          className="absolute inset-0 pointer-events-none bg-gradient-to-b from-gray-500/40 to-gray-800/60"
-        />
-        
-        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+    <section id="education" className="relative overflow-hidden" ref={sectionRef}>
 
-        <div className="max-w-4xl mx-auto" style={{ perspective: '1000px' }}>
-          <div 
-            className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 ease-out hover:scale-[1.02] hover:rotate-1 hover:shadow-2xl relative transform-gpu"
-            style={{
-              boxShadow: `
-                0 15px 20px -5px rgba(0, 0, 0, 0.1),
-                0 8px 8px -5px rgba(0, 0, 0, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8),
-                0 0 15px 3px rgba(59, 130, 246, 0.08),
-                0 20px 40px -15px rgba(59, 130, 246, 0.07)
-              `,
-              transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',
-              opacity: isVisible ? 1 : 0
-            }}
-          >
-            {/* Trinity Seal Background Element - Top Right */}
-            <div 
-              className="absolute top-2 right-2 sm:top-6 sm:right-6 opacity-80 transition-all duration-300 cursor-pointer hover:opacity-100 w-16 h-16 sm:w-[140px] sm:h-[140px]"
+      {/* ─── MOBILE ─────────────────────────────────────────────── */}
+      <div className="block sm:hidden" ref={mobileRef} style={{ background: '#05050d' }}>
+
+        {/* Hero header */}
+        <div className="relative overflow-hidden" style={{ minHeight: 210 }}>
+          <div className="absolute inset-0" style={{
+            backgroundImage: "url('/Trin.jpg')", backgroundSize: 'cover', backgroundPosition: 'center top',
+            filter: 'blur(3px) brightness(0.18) saturate(0.2)',
+          }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,5,12,.05) 0%,rgba(5,5,12,.92) 100%)' }} />
+          <div className="absolute bottom-0 right-0 opacity-[0.05]" style={{
+            width: 170, height: 170,
+            backgroundImage: "url('/Trinity-seal.svg')", backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
+            filter: 'invert(1)',
+          }} />
+          <div className="relative z-10 px-5 pt-10 pb-7">
+            <motion.h2
+              initial={{ opacity: 0, x: -18 }} animate={mobileInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: .45, delay: .2 }}
+              style={{ fontSize: 33, fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 7 }}
+            >Trinity College</motion.h2>
+            <motion.p
+              initial={{ opacity: 0, x: -12 }} animate={mobileInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: .4, delay: .28 }}
+              style={{ color: 'rgba(255,255,255,.55)', fontSize: 14, fontWeight: 500, marginBottom: 16 }}
+            >B.S. Computer Science</motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 6 }} animate={mobileInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: .35, delay: .36 }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(59,130,246,.14)', border: '1px solid rgba(59,130,246,.28)', borderRadius: 999, padding: '5px 12px' }}
+            >
+              <Calendar size={11} style={{ color: '#60a5fa' }} />
+              <span style={{ color: '#93c5fd', fontSize: 11, fontWeight: 700, letterSpacing: '.06em' }}>Expected May 2026</span>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Stats strip */}
+        <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,.06)', display: 'flex', gap: 9, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          {stats.map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 14 }} animate={mobileInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: .38, delay: .38 + i * .07, type: 'spring', bounce: .4 }}
               style={{
-                backgroundImage: `url('/Trinity-seal.svg')`,
-                backgroundSize: 'contain',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                filter: 'grayscale(100%) brightness(1.5) contrast(1.3)'
+                flexShrink: 0, background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.09)',
+                borderRadius: 14, padding: '11px 14px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, minWidth: 72,
               }}
-              onMouseEnter={(e) => {
-                e.target.style.filter = 'grayscale(0%) brightness(1.2) contrast(1.1)';
+            >
+              <stat.Icon size={15} style={{ color: stat.color }} />
+              <span style={{ color: 'white', fontSize: 15, fontWeight: 800, lineHeight: 1 }}>{stat.value}</span>
+              <span style={{ color: 'rgba(255,255,255,.38)', fontSize: 9, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>{stat.label}</span>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Category tabs */}
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,.06)', display: 'flex', gap: 7 }}>
+          {categories.map(cat => {
+            const isActive = activeCategory === cat.id;
+            return (
+              <button key={cat.id} onClick={() => { setActiveCategory(cat.id); setExpandedCourses({}); }} style={{
+                flex: 1, padding: '9px 0', borderRadius: 10,
+                background: isActive ? cat.color + 'ee' : 'rgba(255,255,255,.04)',
+                border: `1px solid ${isActive ? cat.color : 'rgba(255,255,255,.08)'}`,
+                color: isActive ? 'white' : 'rgba(255,255,255,.4)',
+                fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
+                transition: 'all .2s ease', cursor: 'pointer', whiteSpace: 'nowrap',
+                boxShadow: isActive ? `0 4px 16px ${cat.color}44` : 'none',
+              }}>
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Course accordion list */}
+        <div style={{ padding: '14px 16px 24px', minHeight: 240 }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeCategory}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: .18 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 13 }}>
+                {activeCat && <activeCat.Icon size={13} style={{ color: activeCat.color }} />}
+                <span style={{ color: 'rgba(255,255,255,.35)', fontSize: 10, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' }}>
+                  {activeCat?.label}
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {activeCat?.courses.map((course, ci) => (
+                  <motion.div key={course.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: ci * .07, duration: .22 }}>
+                    <button
+                      onClick={() => toggleCourse(course.id)}
+                      style={{
+                        width: '100%',
+                        background: expandedCourses[course.id] ? `${activeCat.color}18` : 'rgba(255,255,255,.045)',
+                        border: `1px solid ${expandedCourses[course.id] ? activeCat.color + '60' : 'rgba(255,255,255,.09)'}`,
+                        borderRadius: expandedCourses[course.id] ? '11px 11px 0 0' : 11,
+                        padding: '14px 15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        color: expandedCourses[course.id] ? 'white' : 'rgba(255,255,255,.72)',
+                        fontSize: 13.5, fontWeight: 600, textAlign: 'left', cursor: 'pointer',
+                        transition: 'all .18s', letterSpacing: '-0.01em',
+                      }}
+                    >
+                      <span>{course.name}</span>
+                      <motion.span animate={{ rotate: expandedCourses[course.id] ? 90 : 0 }} transition={{ duration: .18 }} style={{ display: 'flex', flexShrink: 0, marginLeft: 8 }}>
+                        <ChevronRight size={15} style={{ color: expandedCourses[course.id] ? activeCat.color : 'rgba(255,255,255,.22)' }} />
+                      </motion.span>
+                    </button>
+                    <AnimatePresence>
+                      {expandedCourses[course.id] && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: .22, ease: 'easeInOut' }}
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <div style={{
+                            padding: '11px 15px 14px',
+                            background: `${activeCat.color}0a`,
+                            borderRadius: '0 0 11px 11px',
+                            border: `1px solid ${activeCat.color}60`,
+                            borderTop: 'none',
+                          }}>
+                            {course.bullets.map((b, bi) => (
+                              <div key={bi} style={{ display: 'flex', gap: 9, marginTop: bi > 0 ? 8 : 0 }}>
+                                <span style={{ color: activeCat.color, fontSize: 7, marginTop: 5, flexShrink: 0 }}>●</span>
+                                <span style={{ color: 'rgba(255,255,255,.52)', fontSize: 12.5, lineHeight: 1.6 }}>{b}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* ─── DESKTOP (unchanged) ──────────────────────────────── */}
+      <div className="hidden sm:block py-20 relative overflow-hidden">
+
+        {/* Trinity College Background Image */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: `url('/Trin.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center',
+          filter: 'blur(1px) brightness(0.25) saturate(0.2)', opacity: 0.98,
+        }} />
+        <div className="absolute inset-0 pointer-events-none opacity-15" style={{
+          backgroundImage: `linear-gradient(rgba(239,68,68,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(239,68,68,.1) 1px,transparent 1px)`,
+          backgroundSize: '40px 40px',
+        }} />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-gray-500/40 to-gray-800/60" />
+
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+          <div className="max-w-4xl mx-auto" style={{ perspective: '1000px' }}>
+            <div
+              className="bg-white/90 backdrop-blur-md rounded-3xl overflow-hidden relative transform-gpu"
+              style={{
+                boxShadow: '0 15px 20px -5px rgba(0,0,0,.1),0 8px 8px -5px rgba(0,0,0,.05),inset 0 1px 0 rgba(255,255,255,.8),0 0 15px 3px rgba(59,130,246,.08),0 20px 40px -15px rgba(59,130,246,.07)',
+                transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',
+                opacity: isVisible ? 1 : 0,
+                transition: 'transform .5s ease-out, opacity .5s ease-out',
               }}
-              onMouseLeave={(e) => {
-                e.target.style.filter = 'grayscale(100%) brightness(1.5) contrast(1.3)';
-              }}
-            />
-            
-            {/* Header Section */}
-            <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 sm:p-8 text-white">
-              <div className="flex flex-col items-start space-y-6">
-                <div className="flex flex-col items-start w-full">
-                  <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4">Trinity College</h3>
-                  <div className="flex items-center mb-4">
-                    <GraduationCap size={32} className="text-blue-400 mr-3" />
-                    <p className="text-gray-300 text-sm sm:text-lg lg:text-xl">Bachelor of Science in Computer Science</p>
-                  </div>
-                  <div className="flex items-center text-gray-400 text-sm sm:text-base">
-                    <Calendar size={18} className="mr-3 text-blue-400" />
-                    <span>Expected Graduation: May 2026</span>
+            >
+              {/* Trinity Seal */}
+              <div className="absolute top-6 right-6 opacity-80 w-[140px] h-[140px]" style={{
+                backgroundImage: `url('/Trinity-seal.svg')`, backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+                filter: 'grayscale(100%) brightness(1.5) contrast(1.3)',
+              }} />
+
+              {/* Header */}
+              <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-8 text-white">
+                <div className="flex flex-col items-start space-y-6">
+                  <div className="flex flex-col items-start w-full">
+                    <h3 className="text-4xl lg:text-5xl font-bold leading-tight mb-4">Trinity College</h3>
+                    <div className="flex items-center mb-4">
+                      <GraduationCap size={32} className="text-blue-400 mr-3" />
+                      <p className="text-gray-300 text-lg lg:text-xl">Bachelor of Science in Computer Science</p>
+                    </div>
+                    <div className="flex items-center text-gray-400 text-sm">
+                      <Calendar size={18} className="mr-3 text-blue-400" />
+                      <span>Expected Graduation: May 2026</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Coursework Overview */}
-            <div className="p-6 sm:p-8">
-                              <h4 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              {/* Coursework */}
+              <div className="p-8">
+                <h4 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
                   <BookOpen className="mr-3 text-blue-600" size={20} />
                   Academic Focus Areas
                 </h4>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                      <div className="flex items-center mb-6">
-                      <div className="flex-shrink-0">
-                        <Code className="text-blue-600 mr-3" size={24} />
+                <div className="grid grid-cols-3 gap-8 mb-8">
+                  {[
+                    { label: 'Core Computer Science', Icon: Code, courses: [
+                        { id: 'ds-algos', name: 'Data Structures + Algorithms', bullets: ['Mastered fundamental algorithms and data structure implementations', 'Developed efficient problem-solving strategies and run-time optimization'] },
+                        { id: 'computer-systems', name: 'Computer Systems', bullets: ['Understanding of computer architecture and system-level programming', 'Memory management and process control concepts'] },
+                        { id: 'python-fundamentals', name: 'Python Fundamentals', bullets: ['Core Python syntax and object-oriented programming principles', 'Data manipulation and basic algorithmic implementations'] },
+                    ]},
+                    { label: 'Mathematics & Theory', Icon: Brain, courses: [
+                        { id: 'discrete-math', name: 'Discrete Mathematics', bullets: ['Logic, set theory, and mathematical proof techniques', 'Combinatorics and probability fundamentals'] },
+                        { id: 'calculus', name: 'Calculus 1 & 2', bullets: ['Differential and integral calculus concepts', 'Applications to real-world problem solving'] },
+                        { id: 'linear-algebra', name: 'Linear Algebra', bullets: ['Vector spaces, matrices, and linear transformations', 'Eigenvalues and applications in computer science'] },
+                    ]},
+                    { label: 'Specialized Electives', Icon: Star, courses: [
+                        { id: 'cloud-native', name: 'Cloud Native Development', bullets: ['Microservices architecture and containerization technologies', 'Cloud platform deployment and scaling strategies'] },
+                        { id: 'software-design', name: 'Software Design', bullets: ['Design patterns and software architecture principles', 'User experience and interface design methodologies'] },
+                        { id: 'computer-security', name: 'Computer Security', bullets: ['Cryptography and secure communication protocols', 'Vulnerability assessment and security best practices'] },
+                    ]},
+                  ].map(col => (
+                    <div key={col.label} className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                      <div className="flex items-center mb-6">
+                        <col.Icon className="text-blue-600 mr-3" size={24} />
+                        <h5 className="text-lg font-semibold text-gray-800 leading-tight">{col.label}</h5>
                       </div>
-                      <h5 className="text-lg font-semibold text-gray-800 leading-tight">Core Computer Science</h5>
-                    </div>
-                  
-                  {/* Course Blocks */}
-                  <div className="space-y-3">
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('ds-algos')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors duration-300">Data Structures + Algorithms</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['ds-algos'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['ds-algos'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Mastered fundamental algorithms and data structure implementations</span>
+                      <div className="space-y-3">
+                        {col.courses.map(course => (
+                          <div key={course.id} className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden" onClick={() => toggleCourse(course.id)}>
+                            <div className="p-4 flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-800">{course.name}</span>
+                              <ChevronRight size={16} className={`text-gray-400 transition-transform duration-300 ${expandedCourses[course.id] ? 'rotate-90' : ''}`} />
+                            </div>
+                            <div className={`transition-all duration-300 ease-in-out ${expandedCourses[course.id] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
+                              <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
+                                {course.bullets.map((b, bi) => (
+                                  <div key={bi} className="flex items-start text-xs text-gray-600 pt-2">
+                                    <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
+                                    <span>{b}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Developed efficient problem-solving strategies and run-time optimization</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('computer-systems')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors duration-300">Computer Systems</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['computer-systems'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['computer-systems'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Understanding of computer architecture and system-level programming</span>
-                          </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Memory management and process control concepts</span>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('python-fundamentals')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors duration-300">Python Fundamentals</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['python-fundamentals'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['python-fundamentals'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Core Python syntax and object-oriented programming principles</span>
-                          </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Data manipulation and basic algorithmic implementations</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                      <div className="flex items-center mb-6">
-                      <div className="flex-shrink-0">
-                        <Brain className="text-blue-600 mr-3" size={24} />
+                {/* Achievements */}
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                  <h5 className="text-xl font-semibold text-gray-800 mb-6 flex items-center justify-center">
+                    <Award className="text-blue-600 mr-3" size={24} />
+                    Collegiate Achievements
+                  </h5>
+                  <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto">
+                    {[
+                      { Icon: Trophy, text: "Dean's List Member" },
+                      { Icon: Star, text: '4 year CS Club Contributor' },
+                      { Icon: Dumbbell, text: '4 year varsity athlete' },
+                      { Icon: BookOpen, text: '3.5+ Computer Science GPA' },
+                    ].map(({ Icon, text }) => (
+                      <div key={text} className="flex items-center justify-start">
+                        <Icon className="text-blue-500 mr-3 flex-shrink-0" size={18} />
+                        <span className="text-gray-700 text-base font-medium">{text}</span>
                       </div>
-                      <h5 className="text-lg font-semibold text-gray-800 leading-tight">Mathematics & Theory</h5>
-                    </div>
-                  
-                  {/* Course Blocks */}
-                  <div className="space-y-3">
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('discrete-math')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-purple-600 transition-colors duration-300">Discrete Mathematics</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['discrete-math'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['discrete-math'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Logic, set theory, and mathematical proof techniques</span>
-                          </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Combinatorics and probability fundamentals</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('calculus')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-purple-600 transition-colors duration-300">Calculus 1 & 2</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['calculus'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['calculus'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Differential and integral calculus concepts</span>
-                          </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Applications to real-world problem solving</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('linear-algebra')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-purple-600 transition-colors duration-300">Linear Algebra</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['linear-algebra'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['linear-algebra'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Vector spaces, matrices, and linear transformations</span>
-                          </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Eigenvalues and applications in computer science</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                      <div className="flex items-center mb-6">
-                      <div className="flex-shrink-0">
-                        <Star className="text-blue-600 mr-3" size={24} />
-                      </div>
-                      <h5 className="text-lg font-semibold text-gray-800 leading-tight">Specialized Electives</h5>
-                    </div>
-                  
-                  {/* Course Blocks */}
-                  <div className="space-y-3">
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('cloud-native')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-green-600 transition-colors duration-300">Cloud Native Development</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['cloud-native'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['cloud-native'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Microservices architecture and containerization technologies</span>
-                          </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Cloud platform deployment and scaling strategies</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('software-design')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-green-600 transition-colors duration-300">Software Design</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['software-design'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['software-design'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Design patterns and software architecture principles</span>
-                          </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>User experience and interface design methodologies</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div 
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden"
-                      onClick={() => toggleCourse('computer-security')}
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-800 group-hover:text-green-600 transition-colors duration-300">Computer Security</span>
-                          <ChevronRight 
-                            size={16} 
-                            className={`text-gray-400 transition-transform duration-300 ${expandedCourses['computer-security'] ? 'rotate-90' : ''}`}
-                          />
-                        </div>
-                      </div>
-                      <div className={`transition-all duration-300 ease-in-out ${expandedCourses['computer-security'] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                          <div className="flex items-start text-xs text-gray-600 pt-3">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Cryptography and secure communication protocols</span>
-                          </div>
-                          <div className="flex items-start text-xs text-gray-600">
-                            <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                            <span>Vulnerability assessment and security best practices</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Key Achievements */}
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
-                <h5 className="text-lg sm:text-xl font-semibold text-gray-800 mb-6 flex items-center justify-center">
-                  <div className="flex-shrink-0 mr-3">
-                    <Award className="text-blue-600" size={24} />
-                  </div>
-                  <span className="text-center">  Collegiate Achievements</span>
-                </h5>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                  <div className="flex items-center justify-start">
-                    <div className="flex-shrink-0 mr-3">
-                      <Trophy className="text-blue-500" size={18} />
-                    </div>
-                    <span className="text-gray-700 text-sm sm:text-base font-medium">Dean's List Member</span>
-                  </div>
-                  <div className="flex items-center justify-start">
-                    <div className="flex-shrink-0 mr-3">
-                      <Star className="text-blue-500" size={18} />
-                    </div>
-                    <span className="text-gray-700 text-sm sm:text-base font-medium">4 year CS Club Contributor</span>
-                  </div>
-                  <div className="flex items-center justify-start">
-                    <div className="flex-shrink-0 mr-3">
-                      <Dumbbell className="text-blue-500" size={18} />
-                    </div>
-                    <span className="text-gray-700 text-sm sm:text-base font-medium">4 year varsity athlete</span>
-                  </div>
-                  <div className="flex items-center justify-start">
-                    <div className="flex-shrink-0 mr-3">
-                      <BookOpen className="text-blue-500" size={18} />
-                    </div>
-                    <span className="text-gray-700 text-sm sm:text-base font-medium">3.5+ Computer Science GPA</span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -745,9 +657,11 @@ const EducationSection = () => {
           </div>
         </div>
       </div>
+
     </section>
   );
 };
+
 
   const projects = [
     {
@@ -810,7 +724,6 @@ const EducationSection = () => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      setMobileMenuOpen(false);
     }
   };
   
@@ -976,6 +889,35 @@ const EducationSection = () => {
         }
 
 
+        /* ── Nav header ──────────────────────────────── */
+        .nav-hdr-btn {
+          border: 1px solid transparent; border-radius: 999px; cursor: pointer;
+          padding: 6px 13px; font-size: 13px; font-weight: 600;
+          transition: all .25s cubic-bezier(.34,1.56,.64,1);
+          white-space: nowrap; flex-shrink: 0; line-height: 1;
+        }
+        .nav-hdr-btn.active {
+          background: rgba(255,255,255,.16);
+          border-color: rgba(255,255,255,.24);
+          color: white !important;
+          font-weight: 700;
+          transform: scale(1.12);
+          box-shadow: 0 3px 14px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.2), 0 0 18px rgba(255,255,255,.06);
+        }
+        .nav-hdr-contact {
+          display: flex; align-items: center; gap: 5px;
+          background: none; border: none; cursor: pointer;
+          padding: 6px 10px; font-size: 13px; font-weight: 700;
+          color: #60a5fa; transition: color .15s; white-space: nowrap; flex-shrink: 0;
+        }
+        .nav-hdr-contact:hover { color: #93c5fd; }
+        @media (max-width: 520px) {
+          .nav-hdr-btn { padding: 5px 8px; font-size: 10.5px; }
+          .nav-hdr-contact { padding: 5px 7px; font-size: 10.5px; gap: 3px; }
+          .nav-hdr-db { width: 26px !important; height: 26px !important; font-size: 9px !important; }
+          .nav-hdr-contact-text { display: none; }
+        }
+
         /* ── Marquee ──────────────────────────────── */
         @keyframes heroMarquee {
           from { transform: translateX(0); }
@@ -988,10 +930,10 @@ const EducationSection = () => {
 
         /* ── Scroll indicator ──────────────────────────────── */
         @keyframes heroScrollBounce {
-          0%, 100% { transform: translateY(0); opacity: .55; }
-          50%       { transform: translateY(16px); opacity: 1; }
+          0%, 100% { transform: translateY(0); opacity: .4; }
+          50%       { transform: translateY(8px); opacity: .75; }
         }
-        .hero-scroll-ind { animation: heroScrollBounce 1.3s ease-in-out infinite; }
+        .hero-scroll-ind { animation: heroScrollBounce 1.8s ease-in-out infinite; }
 
         /* ── Watermark ──────────────────────────────── */
         .hero-watermark {
@@ -1010,108 +952,61 @@ const EducationSection = () => {
         }
       `}</style>
         {/* Floating pill header */}
-        <header className="fixed z-50" style={{ top: 14, left: '50%', transform: 'translateX(-50%)', width: 'auto' }}>
+        <header className="fixed z-50" style={{ top: 16, left: '50%', transform: 'translateX(-50%)', width: 'auto', maxWidth: 'calc(100vw - 20px)' }}>
           <div style={{
-            background: 'rgba(8,10,18,.45)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,.12)',
+            background: 'rgba(8,10,18,.52)',
+            backdropFilter: 'blur(32px)',
+            WebkitBackdropFilter: 'blur(32px)',
+            border: '1px solid rgba(255,255,255,.15)',
             borderRadius: 999,
-            boxShadow: '0 4px 24px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.09)',
-            padding: '5px 6px',
-            display: 'flex', alignItems: 'center', gap: 2,
+            boxShadow: '0 6px 32px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.11)',
+            padding: '7px 8px',
+            display: 'flex', alignItems: 'center', gap: 1,
           }}>
 
             {/* DB monogram */}
-            <button onClick={() => scrollToSection('about')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px' }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
+            <button onClick={() => scrollToSection('about')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 4px', flexShrink: 0 }}>
+              <div className="nav-hdr-db" style={{
+                width: 32, height: 32, borderRadius: '50%',
                 background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, fontWeight: 800, color: 'white', flexShrink: 0,
-                boxShadow: '0 0 8px rgba(59,130,246,.5)',
+                fontSize: 11, fontWeight: 800, color: 'white', flexShrink: 0,
+                boxShadow: '0 0 10px rgba(59,130,246,.55)',
               }}>DB</div>
             </button>
 
             {/* Divider */}
-            <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,.12)', margin: '0 2px', flexShrink: 0 }} />
+            <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,.13)', margin: '0 3px', flexShrink: 0 }} />
 
-            {/* Nav links — desktop */}
-            <nav className="hidden md:flex items-center">
-              {['experience', 'education', 'projects'].map(id => (
-                <button key={id} onClick={() => scrollToSection(id)} style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  padding: '5px 12px', borderRadius: 999,
-                  color: 'rgba(255,255,255,.58)', fontSize: 12.5, fontWeight: 600,
-                  transition: 'color .15s, background .15s', textTransform: 'capitalize',
-                  whiteSpace: 'nowrap',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,.09)'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,.58)'; e.currentTarget.style.background = 'none'; }}>
-                  {id.charAt(0).toUpperCase() + id.slice(1)}
+            {/* Nav links — all screen sizes */}
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {[
+                { id: 'about',      label: 'About'     },
+                { id: 'experience', label: 'Experience' },
+                { id: 'education',  label: 'Education'  },
+                { id: 'projects',   label: 'Projects'   },
+              ].map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => scrollToSection(id)}
+                  className={`nav-hdr-btn${activeSection === id ? ' active' : ''}`}
+                  style={{ color: activeSection === id ? 'white' : 'rgba(255,255,255,.52)' }}
+                >
+                  {label}
                 </button>
               ))}
             </nav>
 
             {/* Divider */}
-            <div className="hidden md:block" style={{ width: 1, height: 16, background: 'rgba(255,255,255,.12)', margin: '0 2px', flexShrink: 0 }} />
+            <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,.13)', margin: '0 3px', flexShrink: 0 }} />
 
-            {/* Contact button */}
-            <button onClick={handleEmailClick} style={{
-              background: 'rgba(59,130,246,.22)', border: '1px solid rgba(59,130,246,.4)',
-              borderRadius: 999, cursor: 'pointer',
-              padding: '5px 14px', fontSize: 12.5, fontWeight: 700,
-              color: '#93c5fd', transition: 'background .15s, color .15s',
-              whiteSpace: 'nowrap',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,.38)'; e.currentTarget.style.color = 'white'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(59,130,246,.22)'; e.currentTarget.style.color = '#93c5fd'; }}>
-              Contact
+            {/* Contact — icon + text, no pill so it doesn't compete with bubble */}
+            <button className="nav-hdr-contact" onClick={handleEmailClick}>
+              <Mail size={13} strokeWidth={2.5} style={{ flexShrink: 0 }} />
+              <span className="nav-hdr-contact-text">Contact</span>
             </button>
 
-            {/* Mobile hamburger */}
-            <button
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.7)', padding: '4px 6px' }}
-            >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
           </div>
-
-          {/* Mobile dropdown */}
-          {mobileMenuOpen && (
-            <div style={{
-              marginTop: 8, borderRadius: 16,
-              background: 'rgba(8,10,18,.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,.10)',
-              boxShadow: '0 8px 24px rgba(0,0,0,.4)',
-              padding: '6px 8px 8px', minWidth: 160,
-            }}>
-              {['experience', 'education', 'projects'].map(id => (
-                <button key={id} onClick={() => { scrollToSection(id); setMobileMenuOpen(false); }}
-                  className="block w-full text-left"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer',
-                    padding: '9px 12px', borderRadius: 10, color: 'rgba(255,255,255,.7)',
-                    fontSize: 13.5, fontWeight: 500, textTransform: 'capitalize',
-                    transition: 'color .15s, background .15s' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,.07)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,.7)'; e.currentTarget.style.background = 'none'; }}>
-                  {id.charAt(0).toUpperCase() + id.slice(1)}
-                </button>
-              ))}
-              <div style={{ height: 1, background: 'rgba(255,255,255,.07)', margin: '4px 4px' }} />
-              <button onClick={() => { handleEmailClick(); setMobileMenuOpen(false); }}
-                className="block w-full text-left"
-                style={{ background: 'none', border: 'none', cursor: 'pointer',
-                  padding: '9px 12px', borderRadius: 10, color: '#93c5fd',
-                  fontSize: 13.5, fontWeight: 600, transition: 'color .15s, background .15s' }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(59,130,246,.12)'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = '#93c5fd'; e.currentTarget.style.background = 'none'; }}>
-                Contact
-              </button>
-            </div>
-          )}
         </header>
 
         {/* Hero Section — 220vh sticky scroll */}
@@ -1266,13 +1161,10 @@ const EducationSection = () => {
             {/* Scroll indicator */}
             <div ref={heroScrollIndRef}
               className="absolute z-20 flex flex-col items-center gap-2"
-              style={{ bottom: 72, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
-              {/* Mouse shell */}
-              <div style={{ width: 34, height: 52, borderRadius: 17, border: '2px solid rgba(255,255,255,.9)', display: 'flex', justifyContent: 'center', paddingTop: 8, boxShadow: '0 0 24px rgba(255,255,255,.22), 0 0 48px rgba(59,130,246,.18)' }}>
-                {/* Dot that bounces */}
-                <div className="hero-scroll-ind" style={{ width: 4, height: 10, borderRadius: 2, background: 'white' }} />
+              style={{ bottom: 68, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+              <div style={{ width: 26, height: 40, borderRadius: 13, border: '1.5px solid rgba(255,255,255,.45)', display: 'flex', justifyContent: 'center', paddingTop: 7 }}>
+                <div className="hero-scroll-ind" style={{ width: 3, height: 7, borderRadius: 2, background: 'rgba(255,255,255,.75)' }} />
               </div>
-              <span style={{ color: 'rgba(255,255,255,.8)', fontSize: 9, fontWeight: 700, letterSpacing: '.32em', textTransform: 'uppercase' }}>Scroll</span>
             </div>
 
             {/* Scrolling marquee strip */}
@@ -1319,7 +1211,7 @@ const EducationSection = () => {
             <div className="max-w-4xl mx-auto">
               <div className="relative">
                 {/* Enhanced Timeline Design */}
-                <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-1 bg-blue-600 rounded-none shadow-none" style={{ 
+                <div className="hidden sm:block absolute left-8 top-0 bottom-0 w-1 rounded-none" style={{
                   boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
                   background: 'linear-gradient(to bottom, #3b82f6, #2563eb)'
                 }}></div>
@@ -1327,10 +1219,10 @@ const EducationSection = () => {
                 <div className="space-y-8 sm:space-y-12">
                   <div className="relative flex items-start">
                     {/* Enhanced Timeline Dot */}
-                    <div className="absolute left-6 sm:left-8 w-4 h-4 sm:w-5 sm:h-5 bg-white border-2 border-blue-600 rounded-full -translate-x-1/2 shadow-md" style={{ boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)' }}></div>
+                    <div className="hidden sm:block absolute left-8 w-5 h-5 bg-white border-2 border-blue-600 rounded-full -translate-x-1/2 shadow-md" style={{ boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)' }}></div>
                     
                     <div
-                      className="ml-14 bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 w-full relative overflow-hidden group"
+                      className="sm:ml-14 bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 w-full relative overflow-hidden group"
                       onMouseEnter={(e) => {
                         const logo = e.currentTarget.querySelector('.company-logo');
                         if (logo) {
@@ -1397,11 +1289,11 @@ const EducationSection = () => {
 
                   <div className="relative flex items-start">
                     {/* Enhanced Timeline Dot */}
-                    <div className="absolute left-6 sm:left-8 w-4 h-4 sm:w-5 sm:h-5 bg-white border-2 border-blue-600 rounded-full -translate-x-1/2 shadow-md" style={{ boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)' }}></div>
+                    <div className="hidden sm:block absolute left-8 w-5 h-5 bg-white border-2 border-blue-600 rounded-full -translate-x-1/2 shadow-md" style={{ boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)' }}></div>
                     
                     
                     <div 
-                      className="ml-14 bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 w-full relative overflow-hidden group"
+                      className="sm:ml-14 bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 w-full relative overflow-hidden group"
                       onMouseEnter={(e) => {
                         const logo = e.currentTarget.querySelector('.company-logo');
                         if (logo) {
