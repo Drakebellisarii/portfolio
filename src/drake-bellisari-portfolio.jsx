@@ -688,12 +688,6 @@ const EducationSection = () => {
       tech: ['Next.js', 'React', 'SEO Optimization'],
       link: 'https://mandel-moving.vercel.app/'
     },
-    {
-      title: 'Queralt Inc.',
-      description: 'Was the sole web developer of our companies commercial website, from everything from market research to wireframes to deployment',
-      tech: ['UI/UX', 'HTML/CSS', 'Miro'],
-      link: 'https://queraltinc.com/'
-    },
   ];
 
   /* BOOKS DATA - commented out for performance (images slow load times)
