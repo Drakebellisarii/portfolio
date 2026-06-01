@@ -677,6 +677,12 @@ const EducationSection = () => {
       link: 'https://gpppartnersgroup.com/'
     },
     {
+      title: 'Drake\'s Sites',
+      description: 'Built my own web development business site to move beyond a general personal portfolio and speak directly to potential clients. Wanted something niche-focused, a site that leads with what I offer, who I build for, and why it matters, rather than an overview of me as a person.',
+      tech: ['Next.js', 'React', 'Vercel', 'Tailwind CSS'],
+      link: 'https://web-dev-site-zeta.vercel.app/'
+    },
+    {
       title: 'Marty B Solutions',
       description: 'A professional business website showcasing services and solutions.',
       tech: ['Next.js', 'React', 'Vercel'],
