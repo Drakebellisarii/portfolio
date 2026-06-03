@@ -329,338 +329,150 @@ export default function Portfolio() {
   // Custom cursor tracking
 
 const EducationSection = () => {
-  const [isVisible, setIsVisible] = useState(false);
   const [expandedCourses, setExpandedCourses] = useState({});
-  const [activeCategory, setActiveCategory] = useState('core');
-  const sectionRef = useRef(null);
-  const mobileRef  = useRef(null);
-  const mobileInView = useInView(mobileRef, { once: true, margin: '-60px' });
+  const toggleCourse = (id) => setExpandedCourses(prev => ({ ...prev, [id]: !prev[id] }));
 
-  const categories = [
+  const columns = [
     {
-      id: 'core', label: 'Core CS', Icon: Code, color: '#3b82f6',
+      label: 'Core CS', Icon: Code,
       courses: [
-        { id: 'ds-algos',            name: 'Data Structures + Algorithms', bullets: ['Mastered fundamental algorithms and data structure implementations', 'Developed efficient problem-solving strategies and run-time optimization'] },
-        { id: 'computer-systems',    name: 'Computer Systems',             bullets: ['Understanding of computer architecture and system-level programming', 'Memory management and process control concepts'] },
-        { id: 'python-fundamentals', name: 'Python Fundamentals',          bullets: ['Core Python syntax and object-oriented programming principles', 'Data manipulation and basic algorithmic implementations'] },
+        { id: 'ds-algos',     name: 'Data Structures + Algorithms', detail: 'Fundamental algorithms and data structure implementations with run-time optimization and problem-solving strategies.' },
+        { id: 'analysis',     name: 'Analysis of Algorithms',       detail: 'Formal complexity analysis using Big-O, Big-Θ, and Big-Ω notation. Divide-and-conquer, dynamic programming, greedy design, and NP-completeness.' },
+        { id: 'systems',      name: 'Computer Systems',             detail: 'Computer architecture and system-level programming including memory management and process control.' },
+        { id: 'python',       name: 'Python Fundamentals',          detail: 'Core Python syntax, object-oriented principles, data manipulation, and algorithmic implementations.' },
       ],
     },
     {
-      id: 'math', label: 'Math', Icon: Brain, color: '#3b82f6',
+      label: 'Mathematics', Icon: Brain,
       courses: [
-        { id: 'discrete-math',   name: 'Discrete Mathematics', bullets: ['Logic, set theory, and mathematical proof techniques', 'Combinatorics and probability fundamentals'] },
-        { id: 'calculus',        name: 'Calculus 1 & 2',       bullets: ['Differential and integral calculus concepts', 'Applications to real-world problem solving'] },
-        { id: 'linear-algebra',  name: 'Linear Algebra',       bullets: ['Vector spaces, matrices, and linear transformations', 'Eigenvalues and applications in computer science'] },
+        { id: 'discrete',     name: 'Discrete Mathematics', detail: 'Logic, set theory, proof techniques, combinatorics, and probability fundamentals.' },
+        { id: 'calculus',     name: 'Calculus 1 & 2',       detail: 'Differential and integral calculus with real-world applications.' },
+        { id: 'linear',       name: 'Linear Algebra',       detail: 'Vector spaces, matrices, linear transformations, eigenvalues, and applications in CS.' },
       ],
     },
     {
-      id: 'electives', label: 'Electives', Icon: Star, color: '#3b82f6',
+      label: 'Electives', Icon: Star,
       courses: [
-        { id: 'cloud-native',       name: 'Cloud Native Development', bullets: ['Microservices architecture and containerization technologies', 'Cloud platform deployment and scaling strategies'] },
-        { id: 'software-design',    name: 'Software Design',          bullets: ['Design patterns and software architecture principles', 'User experience and interface design methodologies'] },
-        { id: 'computer-security',  name: 'Computer Security',        bullets: ['Cryptography and secure communication protocols', 'Vulnerability assessment and security best practices'] },
+        { id: 'ai',           name: 'Artificial Intelligence',  detail: 'Search algorithms, constraint satisfaction, adversarial game trees, ML fundamentals, and Bayesian inference.' },
+        { id: 'sensitive',    name: 'Sensitive Information',    detail: 'Privacy law, PII handling and classification, breach response, and regulatory compliance frameworks.' },
+        { id: 'cloud',        name: 'Cloud Native Development', detail: 'Microservices, containerization, cloud platform deployment, and scaling strategies.' },
+        { id: 'swdesign',     name: 'Software Design',          detail: 'Design patterns, software architecture principles, and interface design methodologies.' },
+        { id: 'security',     name: 'Computer Security',        detail: 'Cryptography, secure communication protocols, and vulnerability assessment.' },
       ],
     },
   ];
 
-  const stats = [
-    { Icon: BookOpen, value: '3.5+',   label: 'CS GPA',  color: '#3b82f6' },
-    { Icon: Trophy,   value: "Dean's", label: 'List',    color: '#3b82f6' },
-    { Icon: Dumbbell, value: '4yr',    label: 'Football', color: '#3b82f6' },
-    { Icon: Star,     value: '4yr',    label: 'CS Club',  color: '#3b82f6' },
+  const achievements = [
+    { Icon: Award,    text: 'Graduated with Honors' },
+    { Icon: Trophy,   text: 'Experiential Certificate in Cybersecurity' },
+    { Icon: Dumbbell, text: '4 Year Varsity Athlete' },
+    { Icon: BookOpen, text: '3.5+ CS GPA' },
   ];
-
-  const activeCat = categories.find(c => c.id === activeCategory);
-
-  const toggleCourse = (courseId) => {
-    setExpandedCourses(prev => ({ ...prev, [courseId]: !prev[courseId] }));
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting && !isVisible) setIsVisible(true); },
-      { threshold: 0.3, rootMargin: '0px 0px -100px 0px' }
-    );
-    const node = sectionRef.current;
-    if (node) observer.observe(node);
-    return () => { if (node) observer.unobserve(node); };
-  }, [isVisible]);
 
   return (
-    <section id="education" className="relative overflow-hidden" ref={sectionRef}>
+    <section id="education" className="py-12 sm:py-20 relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: "url('/Trin.jpg')", backgroundSize: 'cover', backgroundPosition: 'center',
+        filter: 'blur(1px) brightness(0.22) saturate(0.15)',
+      }} />
+      <div className="absolute inset-0" style={{
+        backgroundImage: 'linear-gradient(rgba(239,68,68,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(239,68,68,.08) 1px,transparent 1px)',
+        backgroundSize: '40px 40px', opacity: 0.12,
+      }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-slate-950/70" />
 
-      {/* ─── MOBILE ─────────────────────────────────────────────── */}
-      <div className="block sm:hidden" ref={mobileRef} style={{ background: '#05050d' }}>
+      <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
 
-        {/* Hero header */}
-        <div className="relative overflow-hidden" style={{ minHeight: 210 }}>
-          <div className="absolute inset-0" style={{
-            backgroundImage: "url('/Trin.jpg')", backgroundSize: 'cover', backgroundPosition: 'center top',
-            filter: 'blur(3px) brightness(0.18) saturate(0.2)',
-          }} />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,5,12,.05) 0%,rgba(5,5,12,.92) 100%)' }} />
-          <div className="absolute bottom-0 right-0 opacity-[0.05]" style={{
-            width: 170, height: 170,
-            backgroundImage: "url('/Trinity-seal.svg')", backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
-            filter: 'invert(1)',
-          }} />
-          <div className="relative z-10 px-5 pt-10 pb-7">
-            <motion.h2
-              initial={{ opacity: 0, x: -18 }} animate={mobileInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: .45, delay: .2 }}
-              style={{ fontSize: 33, fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 7 }}
-            >Trinity College</motion.h2>
-            <motion.p
-              initial={{ opacity: 0, x: -12 }} animate={mobileInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: .4, delay: .28 }}
-              style={{ color: 'rgba(255,255,255,.55)', fontSize: 14, fontWeight: 500, marginBottom: 16 }}
-            >B.S. Computer Science</motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 6 }} animate={mobileInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: .35, delay: .36 }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(59,130,246,.14)', border: '1px solid rgba(59,130,246,.28)', borderRadius: 999, padding: '5px 12px' }}
-            >
-              <Calendar size={11} style={{ color: '#60a5fa' }} />
-              <span style={{ color: '#93c5fd', fontSize: 11, fontWeight: 700, letterSpacing: '.06em' }}>Expected May 2026</span>
-            </motion.div>
+        {/* Header */}
+        <div className="text-center mb-10 sm:mb-14">
+          <p className="text-blue-400/80 text-xs font-semibold tracking-widest uppercase mb-3" style={{ letterSpacing: '0.28em' }}>
+            Bachelor of Science in Computer Science
+          </p>
+          <h2 style={{ fontFamily: "'Georgia', 'Cambria', 'Times New Roman', serif", fontWeight: 700, letterSpacing: '-0.01em' }}
+            className="text-3xl sm:text-4xl lg:text-5xl text-white mb-2">
+            Trinity College
+          </h2>
+          <div className="flex items-center justify-center gap-3 my-4">
+            <div style={{ height: 1, width: 48, background: 'linear-gradient(to right, transparent, rgba(148,163,184,0.4))' }} />
+            <p className="text-slate-400 text-xs tracking-widest uppercase" style={{ letterSpacing: '0.2em', fontFamily: "'Georgia', serif", fontStyle: 'italic' }}>
+              Graduated May 2026
+            </p>
+            <div style={{ height: 1, width: 48, background: 'linear-gradient(to left, transparent, rgba(148,163,184,0.4))' }} />
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 mt-5">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-200 border border-blue-400/30"
+              style={{ background: 'rgba(30,58,138,0.35)', borderRadius: 4, letterSpacing: '0.04em' }}>
+              <Award size={11} /> Graduated with Honors
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-200 border border-blue-400/30"
+              style={{ background: 'rgba(30,58,138,0.35)', borderRadius: 4, letterSpacing: '0.04em' }}>
+              <Trophy size={11} /> Experiential Certificate in Cybersecurity
+            </span>
           </div>
         </div>
 
-        {/* Stats strip */}
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,.06)', display: 'flex', gap: 9, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 14 }} animate={mobileInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: .38, delay: .38 + i * .07, type: 'spring', bounce: .4 }}
-              style={{
-                flexShrink: 0, background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.09)',
-                borderRadius: 14, padding: '11px 14px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, minWidth: 72,
-              }}
-            >
-              <stat.Icon size={15} style={{ color: stat.color }} />
-              <span style={{ color: 'white', fontSize: 15, fontWeight: 800, lineHeight: 1 }}>{stat.value}</span>
-              <span style={{ color: 'rgba(255,255,255,.38)', fontSize: 9, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>{stat.label}</span>
-            </motion.div>
+        {/* Course columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+          {columns.map(col => (
+            <div key={col.label} style={{
+              background: 'rgba(15,23,42,0.72)',
+              border: '1px solid rgba(148,163,184,0.18)',
+              borderRadius: 10,
+              backdropFilter: 'blur(18px)',
+              WebkitBackdropFilter: 'blur(18px)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
+            }} className="p-5">
+              <div className="flex items-center gap-2.5 mb-4 pb-3" style={{ borderBottom: '1px solid rgba(148,163,184,0.14)' }}>
+                <col.Icon size={14} className="text-blue-400 flex-shrink-0" />
+                <h3 style={{ fontFamily: "'Georgia', 'Cambria', serif", fontWeight: 600, letterSpacing: '0.03em', fontSize: 13 }}
+                  className="text-slate-100">{col.label}</h3>
+              </div>
+              <div className="space-y-0.5">
+                {col.courses.map(course => (
+                  <div key={course.id}>
+                    <button
+                      onClick={() => toggleCourse(course.id)}
+                      className="w-full flex items-center justify-between text-left px-2 py-2 rounded transition-colors duration-150"
+                      style={{ color: 'rgba(203,213,225,0.82)' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(148,163,184,0.09)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={{ fontFamily: "'Georgia', serif", fontSize: 13, lineHeight: 1.45 }}>{course.name}</span>
+                      <ChevronRight
+                        size={12}
+                        className="flex-shrink-0 ml-2 transition-transform duration-200"
+                        style={{ color: 'rgba(148,163,184,0.45)', transform: expandedCourses[course.id] ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                      />
+                    </button>
+                    {expandedCourses[course.id] && (
+                      <p className="px-2 pb-2.5" style={{ color: 'rgba(148,163,184,0.7)', fontSize: 12, lineHeight: 1.65, fontStyle: 'italic', fontFamily: "'Georgia', serif" }}>{course.detail}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
-        {/* Category tabs */}
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,.06)', display: 'flex', gap: 7 }}>
-          {categories.map(cat => {
-            const isActive = activeCategory === cat.id;
-            return (
-              <button key={cat.id} onClick={() => { setActiveCategory(cat.id); setExpandedCourses({}); }} style={{
-                flex: 1, padding: '9px 0', borderRadius: 10,
-                background: isActive ? cat.color + 'ee' : 'rgba(255,255,255,.04)',
-                border: `1px solid ${isActive ? cat.color : 'rgba(255,255,255,.08)'}`,
-                color: isActive ? 'white' : 'rgba(255,255,255,.4)',
-                fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
-                transition: 'all .2s ease', cursor: 'pointer', whiteSpace: 'nowrap',
-                boxShadow: isActive ? `0 4px 16px ${cat.color}44` : 'none',
-              }}>
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Course accordion list */}
-        <div style={{ padding: '14px 16px 24px', minHeight: 240 }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeCategory}
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: .18 }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 13 }}>
-                {activeCat && <activeCat.Icon size={13} style={{ color: activeCat.color }} />}
-                <span style={{ color: 'rgba(255,255,255,.35)', fontSize: 10, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' }}>
-                  {activeCat?.label}
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                {activeCat?.courses.map((course, ci) => (
-                  <motion.div key={course.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: ci * .07, duration: .22 }}>
-                    <button
-                      onClick={() => toggleCourse(course.id)}
-                      style={{
-                        width: '100%',
-                        background: expandedCourses[course.id] ? `${activeCat.color}18` : 'rgba(255,255,255,.045)',
-                        border: `1px solid ${expandedCourses[course.id] ? activeCat.color + '60' : 'rgba(255,255,255,.09)'}`,
-                        borderRadius: expandedCourses[course.id] ? '11px 11px 0 0' : 11,
-                        padding: '14px 15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        color: expandedCourses[course.id] ? 'white' : 'rgba(255,255,255,.72)',
-                        fontSize: 13.5, fontWeight: 600, textAlign: 'left', cursor: 'pointer',
-                        transition: 'all .18s', letterSpacing: '-0.01em',
-                      }}
-                    >
-                      <span>{course.name}</span>
-                      <motion.span animate={{ rotate: expandedCourses[course.id] ? 90 : 0 }} transition={{ duration: .18 }} style={{ display: 'flex', flexShrink: 0, marginLeft: 8 }}>
-                        <ChevronRight size={15} style={{ color: expandedCourses[course.id] ? activeCat.color : 'rgba(255,255,255,.22)' }} />
-                      </motion.span>
-                    </button>
-                    <AnimatePresence>
-                      {expandedCourses[course.id] && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: .22, ease: 'easeInOut' }}
-                          style={{ overflow: 'hidden' }}
-                        >
-                          <div style={{
-                            padding: '11px 15px 14px',
-                            background: `${activeCat.color}0a`,
-                            borderRadius: '0 0 11px 11px',
-                            border: `1px solid ${activeCat.color}60`,
-                            borderTop: 'none',
-                          }}>
-                            {course.bullets.map((b, bi) => (
-                              <div key={bi} style={{ display: 'flex', gap: 9, marginTop: bi > 0 ? 8 : 0 }}>
-                                <span style={{ color: activeCat.color, fontSize: 7, marginTop: 5, flexShrink: 0 }}>●</span>
-                                <span style={{ color: 'rgba(255,255,255,.52)', fontSize: 12.5, lineHeight: 1.6 }}>{b}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* ─── DESKTOP (unchanged) ──────────────────────────────── */}
-      <div className="hidden sm:block py-20 relative overflow-hidden">
-
-        {/* Trinity College Background Image */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: `url('/Trin.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center',
-          filter: 'blur(1px) brightness(0.25) saturate(0.2)', opacity: 0.98,
-        }} />
-        <div className="absolute inset-0 pointer-events-none opacity-15" style={{
-          backgroundImage: `linear-gradient(rgba(239,68,68,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(239,68,68,.1) 1px,transparent 1px)`,
-          backgroundSize: '40px 40px',
-        }} />
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-gray-500/40 to-gray-800/60" />
-
-        <div className="container mx-auto px-4 sm:px-6 relative z-10">
-          <div className="max-w-4xl mx-auto" style={{ perspective: '1000px' }}>
-            <div
-              className="bg-white/90 backdrop-blur-md rounded-3xl overflow-hidden relative transform-gpu"
-              style={{
-                boxShadow: '0 15px 20px -5px rgba(0,0,0,.1),0 8px 8px -5px rgba(0,0,0,.05),inset 0 1px 0 rgba(255,255,255,.8),0 0 15px 3px rgba(59,130,246,.08),0 20px 40px -15px rgba(59,130,246,.07)',
-                transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',
-                opacity: isVisible ? 1 : 0,
-                transition: 'transform .5s ease-out, opacity .5s ease-out',
-              }}
-            >
-              {/* Trinity Seal */}
-              <div className="absolute top-6 right-6 opacity-80 w-[140px] h-[140px]" style={{
-                backgroundImage: `url('/Trinity-seal.svg')`, backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
-                filter: 'grayscale(100%) brightness(1.5) contrast(1.3)',
-              }} />
-
-              {/* Header */}
-              <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-8 text-white">
-                <div className="flex flex-col items-start space-y-6">
-                  <div className="flex flex-col items-start w-full">
-                    <h3 className="text-4xl lg:text-5xl font-bold leading-tight mb-4">Trinity College</h3>
-                    <div className="flex items-center mb-4">
-                      <GraduationCap size={32} className="text-blue-400 mr-3" />
-                      <p className="text-gray-300 text-lg lg:text-xl">Bachelor of Science in Computer Science</p>
-                    </div>
-                    <div className="flex items-center text-gray-400 text-sm">
-                      <Calendar size={18} className="mr-3 text-blue-400" />
-                      <span>Expected Graduation: May 2026</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Coursework */}
-              <div className="p-8">
-                <h4 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                  <BookOpen className="mr-3 text-blue-600" size={20} />
-                  Academic Focus Areas
-                </h4>
-                <div className="grid grid-cols-3 gap-8 mb-8">
-                  {[
-                    { label: 'Core Computer Science', Icon: Code, courses: [
-                        { id: 'ds-algos', name: 'Data Structures + Algorithms', bullets: ['Mastered fundamental algorithms and data structure implementations', 'Developed efficient problem-solving strategies and run-time optimization'] },
-                        { id: 'computer-systems', name: 'Computer Systems', bullets: ['Understanding of computer architecture and system-level programming', 'Memory management and process control concepts'] },
-                        { id: 'python-fundamentals', name: 'Python Fundamentals', bullets: ['Core Python syntax and object-oriented programming principles', 'Data manipulation and basic algorithmic implementations'] },
-                    ]},
-                    { label: 'Mathematics & Theory', Icon: Brain, courses: [
-                        { id: 'discrete-math', name: 'Discrete Mathematics', bullets: ['Logic, set theory, and mathematical proof techniques', 'Combinatorics and probability fundamentals'] },
-                        { id: 'calculus', name: 'Calculus 1 & 2', bullets: ['Differential and integral calculus concepts', 'Applications to real-world problem solving'] },
-                        { id: 'linear-algebra', name: 'Linear Algebra', bullets: ['Vector spaces, matrices, and linear transformations', 'Eigenvalues and applications in computer science'] },
-                    ]},
-                    { label: 'Specialized Electives', Icon: Star, courses: [
-                        { id: 'cloud-native', name: 'Cloud Native Development', bullets: ['Microservices architecture and containerization technologies', 'Cloud platform deployment and scaling strategies'] },
-                        { id: 'software-design', name: 'Software Design', bullets: ['Design patterns and software architecture principles', 'User experience and interface design methodologies'] },
-                        { id: 'computer-security', name: 'Computer Security', bullets: ['Cryptography and secure communication protocols', 'Vulnerability assessment and security best practices'] },
-                    ]},
-                  ].map(col => (
-                    <div key={col.label} className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                      <div className="flex items-center mb-6">
-                        <col.Icon className="text-blue-600 mr-3" size={24} />
-                        <h5 className="text-lg font-semibold text-gray-800 leading-tight">{col.label}</h5>
-                      </div>
-                      <div className="space-y-3">
-                        {col.courses.map(course => (
-                          <div key={course.id} className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 cursor-pointer overflow-hidden" onClick={() => toggleCourse(course.id)}>
-                            <div className="p-4 flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-800">{course.name}</span>
-                              <ChevronRight size={16} className={`text-gray-400 transition-transform duration-300 ${expandedCourses[course.id] ? 'rotate-90' : ''}`} />
-                            </div>
-                            <div className={`transition-all duration-300 ease-in-out ${expandedCourses[course.id] ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                              <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                                {course.bullets.map((b, bi) => (
-                                  <div key={bi} className="flex items-start text-xs text-gray-600 pt-2">
-                                    <span className="text-amber-500 mr-2 mt-1 flex-shrink-0">•</span>
-                                    <span>{b}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Achievements */}
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
-                  <h5 className="text-xl font-semibold text-gray-800 mb-6 flex items-center justify-center">
-                    <Award className="text-blue-600 mr-3" size={24} />
-                    Collegiate Achievements
-                  </h5>
-                  <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto">
-                    {[
-                      { Icon: Trophy, text: "Dean's List Member" },
-                      { Icon: Star, text: '4 year CS Club Contributor' },
-                      { Icon: Dumbbell, text: '4 year varsity athlete' },
-                      { Icon: BookOpen, text: '3.5+ Computer Science GPA' },
-                    ].map(({ Icon, text }) => (
-                      <div key={text} className="flex items-center justify-start">
-                        <Icon className="text-blue-500 mr-3 flex-shrink-0" size={18} />
-                        <span className="text-gray-700 text-base font-medium">{text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+        {/* Achievements */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {achievements.map(({ Icon, text }) => (
+            <div key={text} className="flex flex-col items-center text-center gap-2.5 p-4 sm:p-5" style={{
+              background: 'rgba(15,23,42,0.68)',
+              border: '1px solid rgba(148,163,184,0.16)',
+              borderRadius: 10,
+              backdropFilter: 'blur(18px)',
+              WebkitBackdropFilter: 'blur(18px)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+            }}>
+              <Icon size={17} className="text-blue-400" />
+              <span style={{ fontFamily: "'Georgia', serif", fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, color: 'rgba(226,232,240,0.9)' }}>{text}</span>
             </div>
-          </div>
+          ))}
         </div>
-      </div>
 
+      </div>
     </section>
   );
 };
