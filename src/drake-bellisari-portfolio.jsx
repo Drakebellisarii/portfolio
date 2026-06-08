@@ -365,13 +365,13 @@ const EducationSection = () => {
   const toggle = (id) => setExpandedCourse(prev => prev === id ? null : id);
 
   return (
-    <section id="education" className="relative overflow-hidden" style={{ paddingTop: 88, paddingBottom: 96 }}>
+    <section id="education" className="relative overflow-hidden" style={{ paddingTop: 130, paddingBottom: 140 }}>
 
       {/* Background: campus photo, heavily darkened */}
       <div className="absolute inset-0" style={{
         backgroundImage: "url('/Trin.jpg')",
         backgroundSize: 'cover', backgroundPosition: 'center 30%',
-        filter: 'blur(3px) brightness(0.13) saturate(0.06)',
+        filter: 'blur(3px) brightness(0.22) saturate(0.12)',
       }} />
       {/* Vignette — darker edges, slightly open center */}
       <div className="absolute inset-0" style={{
@@ -1394,50 +1394,48 @@ const TrinNavModal = ({ onClose }) => (
           </div>
         </section>
 
-        {/* Footer - Mobile Optimized */}
-        <footer className="py-8 sm:py-12 bg-gray-900 border-t border-gray-800">
-          <div className="container mx-auto px-4 sm:px-6">
-            {/* Featured Contact Section */}
-            <div className="max-w-4xl mx-auto mb-10 bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-6 sm:p-8 border border-blue-900/50 shadow-xl">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                <div className="flex-shrink-0 bg-blue-600/20 p-4 rounded-full">
-                  <Mail size={32} className="text-blue-400" />
-                </div>
-                <div className="flex-grow text-center sm:text-left">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Let's Connect</h3>
-                  <p className="text-gray-300 mb-6">Have a question or want to work together? I'm always open to new opportunities and collaborations.</p>
-                  <button 
-                    onClick={handleEmailClick}
-                    className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-medium transition-all duration-300 shadow-lg hover:translate-y-[-2px] text-sm sm:text-base"
-                  >
-                    <Mail size={18} className="mr-2" />
-                    <span>Contact Me</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            {/* Goodreads link */}
-            <div className="mb-8 flex justify-center">
+        {/* Footer */}
+        <footer className="bg-gray-900 border-t border-gray-800" style={{ paddingTop: 72, paddingBottom: 56 }}>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center">
+
+            {/* Contact */}
+            <p style={{ fontFamily: "'Georgia', serif", fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 700, color: 'white', letterSpacing: '-0.01em', marginBottom: 20 }}>
+              Let's talk.
+            </p>
+            <button
+              onClick={handleEmailClick}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontFamily: "'Georgia', serif", fontSize: 'clamp(17px, 2.2vw, 22px)',
+                color: '#60a5fa', letterSpacing: '0.01em',
+                textDecoration: 'underline', textUnderlineOffset: 4,
+                textDecorationColor: 'rgba(96,165,250,0.35)',
+                transition: 'color 0.15s, text-decoration-color 0.15s',
+                padding: 0, marginBottom: 40,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#93c5fd'; e.currentTarget.style.textDecorationColor = 'rgba(147,197,253,0.6)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#60a5fa'; e.currentTarget.style.textDecorationColor = 'rgba(96,165,250,0.35)'; }}
+            >
+              Contact me →
+            </button>
+
+            {/* Goodreads */}
+            <div className="mb-10">
               <a
                 href="https://www.goodreads.com/user/show/145474773"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center bg-[#f4f1ea] hover:bg-[#ede6d6] text-[#382110] py-3 px-6 rounded-lg text-base font-medium transition-all duration-300 shadow-md hover:shadow-lg border border-[#d6d0c4]"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 448 512"
-                  className="w-5 h-5 mr-3 fill-current"
-                  aria-hidden="true"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-5 h-5 mr-3 fill-current" aria-hidden="true">
                   <path d="M299.9 191.2c5.1 37.3-4.7 79-35.9 100.7-22.3 15.5-52.8 14.1-70.8 5.7-37.1-17.3-49.5-58.6-46.8-97.2 4.3-60.9 40.9-87.9 75.3-87.5 46.9-.2 71.8 31.8 78.2 78.3zM448 88v336c0 30.9-25.1 56-56 56H56c-30.9 0-56-25.1-56-56V88c0-30.9 25.1-56 56-56h336c30.9 0 56 25.1 56 56zM330 313.2s-.1-34-.1-217.3h-29v40.3c-.8.3-1.2-.5-1.6-1.2-9.6-20.7-35.9-46.3-76-46-51.9.4-87.2 31.2-100.6 77.8-4.3 14.9-5.8 30.1-5.5 45.6 1.7 77.9 45.1 117.8 112.4 115.2 28.9-1.1 54.5-17 69-45.2.5-1 1.1-1.9 1.7-2.9.2.1.4.1.6.2.3 3.8.2 30.7.1 34.5-.2 14.8-2 29.5-7.2 43.5-7.8 21-22.3 34.7-44.5 39.5-17.8 3.9-35.6 3.8-53.2-1.2-21.5-6.1-36.5-19-41.1-41.8-.3-1.6-1.3-1.3-2.3-1.3h-26.8c.8 10.6 3.2 20.3 8.5 29.2 24.2 40.5 82.7 48.5 128.2 37.4 49.9-12.3 67.3-54.9 67.4-106.3z"/>
                 </svg>
                 See what I'm reading on Goodreads
               </a>
             </div>
-            
-            <p className="text-gray-500 text-xs sm:text-sm mt-8 text-center">© 2026 Drake Bellisari.</p>
+
+            <p className="text-gray-500 text-xs sm:text-sm">© 2026 Drake Bellisari.</p>
+
           </div>
         </footer>
 
