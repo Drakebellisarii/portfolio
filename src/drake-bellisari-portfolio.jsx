@@ -3,15 +3,9 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   Mail,
   ExternalLink,
-  BookOpen,
-  Code,
-  GraduationCap,
-  Calendar,
   Award,
-  Brain,
   Trophy,
   ChevronRight,
-  Star,
   Dumbbell,
   X,
   Smartphone
@@ -329,149 +323,206 @@ export default function Portfolio() {
   // Custom cursor tracking
 
 const EducationSection = () => {
-  const [expandedCourses, setExpandedCourses] = useState({});
-  const toggleCourse = (id) => setExpandedCourses(prev => ({ ...prev, [id]: !prev[id] }));
+  const [activeTab, setActiveTab] = useState('Core CS');
+  const [expandedCourse, setExpandedCourse] = useState(null);
 
-  const columns = [
+  const disciplines = [
     {
-      label: 'Core CS', Icon: Code,
+      label: 'Core CS',
       courses: [
-        { id: 'ds-algos',     name: 'Data Structures + Algorithms', detail: 'Fundamental algorithms and data structure implementations with run-time optimization and problem-solving strategies.' },
-        { id: 'analysis',     name: 'Analysis of Algorithms',       detail: 'Formal complexity analysis using Big-O, Big-Θ, and Big-Ω notation. Divide-and-conquer, dynamic programming, greedy design, and NP-completeness.' },
-        { id: 'systems',      name: 'Computer Systems',             detail: 'Computer architecture and system-level programming including memory management and process control.' },
-        { id: 'python',       name: 'Python Fundamentals',          detail: 'Core Python syntax, object-oriented principles, data manipulation, and algorithmic implementations.' },
+        { id: 'ds-algos', name: 'Data Structures + Algorithms', detail: 'Fundamental algorithms and data structure implementations with run-time optimization and problem-solving strategies.' },
+        { id: 'analysis', name: 'Analysis of Algorithms',       detail: 'Formal complexity analysis using Big-O, Big-Θ, and Big-Ω notation. Divide-and-conquer, dynamic programming, greedy design, and NP-completeness.' },
+        { id: 'systems', name: 'Computer Systems',              detail: 'Computer architecture and system-level programming including memory management and process control.' },
+        { id: 'python',  name: 'Python Fundamentals',           detail: 'Core Python syntax, object-oriented principles, data manipulation, and algorithmic implementations.' },
       ],
     },
     {
-      label: 'Mathematics', Icon: Brain,
+      label: 'Mathematics',
       courses: [
-        { id: 'discrete',     name: 'Discrete Mathematics', detail: 'Logic, set theory, proof techniques, combinatorics, and probability fundamentals.' },
-        { id: 'calculus',     name: 'Calculus 1 & 2',       detail: 'Differential and integral calculus with real-world applications.' },
-        { id: 'linear',       name: 'Linear Algebra',       detail: 'Vector spaces, matrices, linear transformations, eigenvalues, and applications in CS.' },
+        { id: 'discrete', name: 'Discrete Mathematics', detail: 'Logic, set theory, proof techniques, combinatorics, and probability fundamentals.' },
+        { id: 'calculus', name: 'Calculus 1 & 2',       detail: 'Differential and integral calculus with real-world applications.' },
+        { id: 'linear',   name: 'Linear Algebra',       detail: 'Vector spaces, matrices, linear transformations, eigenvalues, and applications in CS.' },
       ],
     },
     {
-      label: 'Electives', Icon: Star,
+      label: 'Electives',
       courses: [
-        { id: 'ai',           name: 'Artificial Intelligence',  detail: 'Search algorithms, constraint satisfaction, adversarial game trees, ML fundamentals, and Bayesian inference.' },
-        { id: 'sensitive',    name: 'Sensitive Information',    detail: 'Privacy law, PII handling and classification, breach response, and regulatory compliance frameworks.' },
-        { id: 'cloud',        name: 'Cloud Native Development', detail: 'Microservices, containerization, cloud platform deployment, and scaling strategies.' },
-        { id: 'swdesign',     name: 'Software Design',          detail: 'Design patterns, software architecture principles, and interface design methodologies.' },
-        { id: 'security',     name: 'Computer Security',        detail: 'Cryptography, secure communication protocols, and vulnerability assessment.' },
+        { id: 'ai',       name: 'Artificial Intelligence',  detail: 'Search algorithms, constraint satisfaction, adversarial game trees, ML fundamentals, and Bayesian inference.' },
+        { id: 'sensitive',name: 'Sensitive Information',    detail: 'Privacy law, PII handling and classification, breach response, and regulatory compliance frameworks.' },
+        { id: 'cloud',    name: 'Cloud Native Development', detail: 'Microservices, containerization, cloud platform deployment, and scaling strategies.' },
+        { id: 'swdesign', name: 'Software Design',          detail: 'Design patterns, software architecture principles, and interface design methodologies.' },
+        { id: 'security', name: 'Computer Security',        detail: 'Cryptography, secure communication protocols, and vulnerability assessment.' },
       ],
     },
   ];
 
   const achievements = [
-    { Icon: Award,    text: 'Graduated with Honors' },
-    { Icon: Trophy,   text: 'Experiential Certificate in Cybersecurity' },
-    { Icon: Dumbbell, text: '4 Year Varsity Athlete' },
-    { Icon: BookOpen, text: '3.5+ CS GPA' },
+    { Icon: Award,    label: 'Graduated with Honors' },
+    { Icon: Trophy,   label: 'Experiential Certificate in Cybersecurity' },
+    { Icon: Dumbbell, label: '4 Year Varsity Athlete' },
   ];
 
+  const activeCourses = disciplines.find(d => d.label === activeTab)?.courses || [];
+  const toggle = (id) => setExpandedCourse(prev => prev === id ? null : id);
+
   return (
-    <section id="education" className="py-12 sm:py-20 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0" style={{
-        backgroundImage: "url('/Trin.jpg')", backgroundSize: 'cover', backgroundPosition: 'center',
-        filter: 'blur(1px) brightness(0.22) saturate(0.15)',
-      }} />
-      <div className="absolute inset-0" style={{
-        backgroundImage: 'linear-gradient(rgba(239,68,68,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(239,68,68,.08) 1px,transparent 1px)',
-        backgroundSize: '40px 40px', opacity: 0.12,
-      }} />
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-slate-950/70" />
+    <section id="education" className="relative overflow-hidden" style={{ paddingTop: 88, paddingBottom: 96 }}>
 
-      <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      {/* Background: campus photo, heavily darkened */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: "url('/Trin.jpg')",
+        backgroundSize: 'cover', backgroundPosition: 'center 30%',
+        filter: 'blur(3px) brightness(0.13) saturate(0.06)',
+      }} />
+      {/* Vignette — darker edges, slightly open center */}
+      <div className="absolute inset-0" style={{
+        background: 'radial-gradient(ellipse 110% 80% at 50% 55%, rgba(5,9,20,0.2) 0%, rgba(5,9,20,0.78) 100%)',
+      }} />
 
-        {/* Header */}
-        <div className="text-center mb-10 sm:mb-14">
-          <p className="text-blue-400/80 text-xs font-semibold tracking-widest uppercase mb-3" style={{ letterSpacing: '0.28em' }}>
-            Bachelor of Science in Computer Science
-          </p>
-          <h2 style={{ fontFamily: "'Georgia', 'Cambria', 'Times New Roman', serif", fontWeight: 700, letterSpacing: '-0.01em' }}
-            className="text-3xl sm:text-4xl lg:text-5xl text-white mb-2">
-            Trinity College
-          </h2>
-          <div className="flex items-center justify-center gap-3 my-4">
-            <div style={{ height: 1, width: 48, background: 'linear-gradient(to right, transparent, rgba(148,163,184,0.4))' }} />
-            <p className="text-slate-400 text-xs tracking-widest uppercase" style={{ letterSpacing: '0.2em', fontFamily: "'Georgia', serif", fontStyle: 'italic' }}>
+      <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 lg:px-16">
+
+
+        {/* ── Main two-column layout ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-14 lg:gap-24 lg:items-center">
+
+          {/* LEFT: Institution identity */}
+          <div>
+            <p style={{ fontFamily: "'Georgia', serif", fontSize: 12.5, color: 'rgba(148,163,184,0.55)', marginBottom: 18 }}>
+              Hartford, Connecticut
+            </p>
+
+            <h2 style={{
+              fontFamily: "'Georgia', 'Cambria', 'Times New Roman', serif",
+              fontSize: 'clamp(42px, 6vw, 76px)',
+              fontWeight: 700,
+              lineHeight: 0.88,
+              letterSpacing: '-0.025em',
+              color: 'oklch(97% 0.004 245)',
+              marginBottom: 26,
+            }}>
+              Trinity<br />College
+            </h2>
+
+            {/* Blue accent rule */}
+            <div style={{ width: 34, height: 2, background: '#3b82f6', borderRadius: 1, marginBottom: 26 }} />
+
+            {/* Degree */}
+            <p style={{ fontFamily: "'Georgia', serif", fontSize: 15, lineHeight: 1.65, color: 'oklch(80% 0.01 245)', marginBottom: 10, whiteSpace: 'nowrap' }}>
+              B.S. <span style={{ fontStyle: 'italic' }}>Computer Science</span>
+            </p>
+            <p style={{ fontFamily: "'Georgia', serif", fontSize: 14, color: 'oklch(62% 0.012 245)', marginBottom: 36 }}>
               Graduated May 2026
             </p>
-            <div style={{ height: 1, width: 48, background: 'linear-gradient(to left, transparent, rgba(148,163,184,0.4))' }} />
-          </div>
-          <div className="flex flex-wrap justify-center gap-2 mt-5">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-200 border border-blue-400/30"
-              style={{ background: 'rgba(30,58,138,0.35)', borderRadius: 4, letterSpacing: '0.04em' }}>
-              <Award size={11} /> Graduated with Honors
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-200 border border-blue-400/30"
-              style={{ background: 'rgba(30,58,138,0.35)', borderRadius: 4, letterSpacing: '0.04em' }}>
-              <Trophy size={11} /> Experiential Certificate in Cybersecurity
-            </span>
-          </div>
-        </div>
 
-        {/* Course columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
-          {columns.map(col => (
-            <div key={col.label} style={{
-              background: 'rgba(15,23,42,0.72)',
-              border: '1px solid rgba(148,163,184,0.18)',
-              borderRadius: 10,
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
-            }} className="p-5">
-              <div className="flex items-center gap-2.5 mb-4 pb-3" style={{ borderBottom: '1px solid rgba(148,163,184,0.14)' }}>
-                <col.Icon size={14} className="text-blue-400 flex-shrink-0" />
-                <h3 style={{ fontFamily: "'Georgia', 'Cambria', serif", fontWeight: 600, letterSpacing: '0.03em', fontSize: 13 }}
-                  className="text-slate-100">{col.label}</h3>
-              </div>
-              <div className="space-y-0.5">
-                {col.courses.map(course => (
-                  <div key={course.id}>
-                    <button
-                      onClick={() => toggleCourse(course.id)}
-                      className="w-full flex items-center justify-between text-left px-2 py-2 rounded transition-colors duration-150"
-                      style={{ color: 'rgba(203,213,225,0.82)' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(148,163,184,0.09)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <span style={{ fontFamily: "'Georgia', serif", fontSize: 13, lineHeight: 1.45 }}>{course.name}</span>
-                      <ChevronRight
-                        size={12}
-                        className="flex-shrink-0 ml-2 transition-transform duration-200"
-                        style={{ color: 'rgba(148,163,184,0.45)', transform: expandedCourses[course.id] ? 'rotate(90deg)' : 'rotate(0deg)' }}
-                      />
-                    </button>
-                    {expandedCourses[course.id] && (
-                      <p className="px-2 pb-2.5" style={{ color: 'rgba(148,163,184,0.7)', fontSize: 12, lineHeight: 1.65, fontStyle: 'italic', fontFamily: "'Georgia', serif" }}>{course.detail}</p>
-                    )}
+            {/* Thin divider */}
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', marginBottom: 30 }} />
+
+            {/* Achievements — stacked, no cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {achievements.map(({ Icon, label }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                  <div style={{
+                    width: 30, height: 30, borderRadius: '50%',
+                    background: 'rgba(59,130,246,0.11)',
+                    border: '1px solid rgba(59,130,246,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0, marginTop: 1,
+                  }}>
+                    <Icon size={12} style={{ color: '#60a5fa' }} />
                   </div>
-                ))}
-              </div>
+                  <span style={{ fontFamily: "'Georgia', serif", fontSize: 13.5, lineHeight: 1.55, color: 'oklch(74% 0.01 245)' }}>
+                    {label}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Achievements */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {achievements.map(({ Icon, text }) => (
-            <div key={text} className="flex flex-col items-center text-center gap-2.5 p-4 sm:p-5" style={{
-              background: 'rgba(15,23,42,0.68)',
-              border: '1px solid rgba(148,163,184,0.16)',
-              borderRadius: 10,
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
-            }}>
-              <Icon size={17} className="text-blue-400" />
-              <span style={{ fontFamily: "'Georgia', serif", fontSize: 12.5, fontWeight: 500, lineHeight: 1.4, color: 'rgba(226,232,240,0.9)' }}>{text}</span>
+          {/* RIGHT: Coursework, tab-filtered */}
+          <div>
+            <p style={{ fontFamily: "'Georgia', serif", fontSize: 13, color: 'rgba(148,163,184,0.6)', marginBottom: 22 }}>
+              Select a discipline to explore the coursework.
+            </p>
+
+            {/* Tab bar — underline style, no pill or box */}
+            <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 2 }}>
+              {disciplines.map(d => (
+                <button
+                  key={d.label}
+                  onClick={() => { setActiveTab(d.label); setExpandedCourse(null); }}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    paddingTop: 8, paddingBottom: 10, paddingLeft: 0, paddingRight: 20,
+                    fontFamily: "'Georgia', serif",
+                    fontSize: 13.5,
+                    fontWeight: activeTab === d.label ? 600 : 400,
+                    color: activeTab === d.label ? 'oklch(95% 0.005 245)' : 'rgba(255,255,255,0.3)',
+                    borderBottom: activeTab === d.label ? '2px solid #3b82f6' : '2px solid transparent',
+                    marginBottom: -1,
+                    transition: 'color 0.17s, border-color 0.17s',
+                    letterSpacing: '0.01em',
+                    flexShrink: 0,
+                  }}
+                >
+                  {d.label}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
 
+            {/* Course list — numbered editorial rows, zero box */}
+            <div>
+              {activeCourses.map((course, i) => (
+                <div key={course.id}>
+                  <button
+                    onClick={() => toggle(course.id)}
+                    style={{
+                      width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 18,
+                      padding: '17px 0',
+                      borderBottom: expandedCourse === course.id ? 'none' : '1px solid rgba(255,255,255,0.055)',
+                      textAlign: 'left',
+                    }}
+                  >
+                    {/* Index number */}
+                    <span style={{
+                      fontFamily: 'monospace', fontSize: 10, fontWeight: 600,
+                      color: 'rgba(100,130,180,0.45)', flexShrink: 0,
+                      minWidth: 20, lineHeight: 1, userSelect: 'none',
+                    }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    {/* Course name */}
+                    <span style={{
+                      flex: 1, fontFamily: "'Georgia', serif", fontSize: 14.5,
+                      color: 'oklch(87% 0.007 245)', lineHeight: 1.35,
+                    }}>
+                      {course.name}
+                    </span>
+                    {/* Chevron */}
+                    <ChevronRight size={12} style={{
+                      flexShrink: 0, color: 'rgba(148,163,184,0.3)',
+                      transform: expandedCourse === course.id ? 'rotate(90deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.17s ease',
+                    }} />
+                  </button>
+
+                  {/* Expanded detail — italic, indented, no background */}
+                  {expandedCourse === course.id && (
+                    <div style={{ paddingLeft: 38, paddingBottom: 18, paddingTop: 2, borderBottom: '1px solid rgba(255,255,255,0.055)' }}>
+                      <p style={{
+                        fontFamily: "'Georgia', serif", fontSize: 13, fontStyle: 'italic',
+                        color: 'rgba(148,163,184,0.68)', lineHeight: 1.8,
+                      }}>
+                        {course.detail}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
       </div>
     </section>
   );
