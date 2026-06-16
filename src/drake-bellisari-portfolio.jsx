@@ -607,10 +607,10 @@ const TrinNavModal = ({ onClose }) => (
       modal: true
     },
      {
-      title: 'Marty B Solutions',
-      description: 'A professional business website showcasing services and solutions.',
+      title: 'Central Florida Automation',
+      description: 'Currently building this site for a Central Florida smart-home integration and security company serving the Orlando area. Designing a clean, high-end marketing site that highlights their automation, surveillance, lighting control, and AV services while reflecting the premium, invisible-technology feel of their luxury residential work. (Work in progress.)',
       tech: ['Next.js', 'React', 'Vercel'],
-      link: 'https://marty-b-solutions.vercel.app'
+      link: 'https://central-florida-alarm.vercel.app'
     },
      {
       title: 'Mandel Moving',
