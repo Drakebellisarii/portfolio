@@ -1,8 +1,8 @@
 import React from 'react';
-import Portfolio from './drake-bellisari-portfolio';
+import Home from './home/Home';
 
 function App() {
-  return <Portfolio />;
+  return <Home />;
 }
 
 export default App;
