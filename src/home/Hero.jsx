@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const HERO_STORY = "Take some time, enjoy this video I took on my drone, breathe a little.\nIf you want to meet me feel free to scroll.\n If you want to say anything feel free to drop a message.";
+const HERO_STORY = "Scroll down to meet me.";
 
 export default function Hero({ onContact }) {
   // Typewriter story prompt — reveals one character at a time
