@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 const HERO_STORY = "Scroll down to meet me.";
+const CITIES = ['Columbus, OH', 'Hartford, CT', 'New York City, NY'];
 
 export default function Hero({ onContact }) {
   // Typewriter story prompt — reveals one character at a time
@@ -17,6 +18,37 @@ export default function Hero({ onContact }) {
       }
     }, 55);
     return () => clearInterval(id);
+  }, []);
+
+  // City typewriter — types each stop, deletes it, moves on, and stays on the last one
+  const [city, setCity] = useState('');
+  useEffect(() => {
+    let cancelled = false;
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const TYPE_SPEED = 65;
+    const DELETE_SPEED = 32;
+    const HOLD_TIME = 1100;
+
+    (async () => {
+      for (let c = 0; c < CITIES.length; c++) {
+        const place = CITIES[c];
+        for (let i = 1; i <= place.length; i++) {
+          if (cancelled) return;
+          setCity(place.slice(0, i));
+          await sleep(TYPE_SPEED);
+        }
+        if (c === CITIES.length - 1) return; // stay on the last stop
+        await sleep(HOLD_TIME);
+        for (let i = place.length; i >= 0; i--) {
+          if (cancelled) return;
+          setCity(place.slice(0, i));
+          await sleep(DELETE_SPEED);
+        }
+        await sleep(250);
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, []);
 
   // Hero scroll-driven animation refs
@@ -175,7 +207,8 @@ export default function Hero({ onContact }) {
             <div className="flex items-center gap-2">
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#bb0000', flexShrink: 0 }} />
               <span style={{ color: '#e23b3b', fontSize: 11.5, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' }}>
-                Columbus, Ohio
+                {city}
+                <span className="hero-caret" style={{ height: '1em' }} />
               </span>
             </div>
             {/* Buttons */}

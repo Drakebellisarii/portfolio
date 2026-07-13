@@ -19,7 +19,7 @@ export default function Experience() {
       <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-gray-100/85 pointer-events-none"></div>
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-12" style={{ fontFamily: "'Libertinus Serif', serif" }}>
+        <h2 className="display-heading display-heading-outline text-4xl sm:text-5xl text-center text-gray-800 mb-8 sm:mb-12">
           Work Experience
         </h2>
         <div className="max-w-4xl mx-auto">

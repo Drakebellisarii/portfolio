@@ -174,4 +174,23 @@ export const homeStyles = `
           color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.055);
           pointer-events: none; user-select: none; white-space: nowrap;
         }
+
+        /* ── Display heading ── the same huge/black-weight/tight-tracking
+           treatment as the hero name (DRAKE BELLISARI), reused for section
+           titles so it reads as one consistent typographic signature. ── */
+        .display-heading {
+          font-weight: 900;
+          letter-spacing: -.03em;
+          line-height: 0.95;
+        }
+        /* Hollow variant — same weight, but outlined instead of filled, the
+           way BELLISARI reads next to the solid DRAKE in the hero. Stroke
+           picks up currentColor, so it adapts to whatever text-color class
+           the heading already has on light or dark sections. */
+        .display-heading-outline {
+          -webkit-text-fill-color: transparent;
+          text-fill-color: transparent;
+          -webkit-text-stroke: 1.25px currentColor;
+          text-stroke: 1.25px currentColor;
+        }
 `;

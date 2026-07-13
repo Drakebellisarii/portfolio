@@ -6,23 +6,14 @@ import Hero from './Hero';
 import Experience from './Experience';
 import Education from './Education';
 import Projects from './Projects';
+import Contact from './Contact';
 import Footer from './Footer';
 import TrinNavModal from './TrinNavModal';
-import ContactModal from './ContactModal';
 
 export default function Home() {
   const [showWebsite, setShowWebsite] = useState(false);
-  const [showContactForm, setShowContactForm] = useState(false);
   const [activeSection, setActiveSection] = useState('about');
   const [showTrinNav, setShowTrinNav] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    contactMethod: '',
-    contactValue: '',
-    subject: '',
-    message: ''
-  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,7 +25,7 @@ export default function Home() {
 
   // Active section tracking — uses document-absolute positions so the 220vh hero transitions cleanly
   useEffect(() => {
-    const ids = ['about', 'experience', 'education', 'projects'];
+    const ids = ['about', 'experience', 'education', 'projects', 'contact'];
     const getActive = () => {
       // scrollMid = scroll position of the 40% viewport mark in document coords
       const scrollMid = window.scrollY + window.innerHeight * 0.4;
@@ -58,50 +49,26 @@ export default function Home() {
   }, [showWebsite]);
 
   const handleEmailClick = () => {
-    setShowContactForm(true);
+    scrollToSection('contact');
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+  const handleContactSubmit = async (data) => {
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', data.name);
+    formDataToSend.append('contactMethod', data.contactMethod);
+    formDataToSend.append('message', data.message);
 
-    if (formData.contactMethod === 'email' && !formData.contactValue.includes('@')) {
-      alert('Please enter a valid email address with an @ sign.');
-      return;
-    }
-
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('contactMethod', formData.contactMethod);
-      formDataToSend.append('contactValue', formData.contactValue);
-      formDataToSend.append('subject', formData.subject);
-      formDataToSend.append('message', formData.message);
-
-      const response = await fetch('https://formspree.io/f/mzzvglrd', {
-        method: 'POST',
-        body: formDataToSend,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        alert('Thank you for your message! I\'ll get back to you soon.');
-        setShowContactForm(false);
-        setFormData({ name: '', contactMethod: '', contactValue: '', subject: '', message: '' });
-      } else {
-        alert('Oops! There was a problem sending your message. Please try again.');
+    const response = await fetch('https://formspree.io/f/mzzvglrd', {
+      method: 'POST',
+      body: formDataToSend,
+      headers: {
+        'Accept': 'application/json'
       }
-    } catch (error) {
-      alert('Oops! There was a problem sending your message. Please try again.');
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to send message');
+    }
   };
 
   const handleProjectClick = (project) => {
@@ -137,18 +104,11 @@ export default function Home() {
 
       <Projects projects={projects} onProjectClick={handleProjectClick} />
 
+      <Contact onSubmit={handleContactSubmit} />
+
       <Footer onContact={handleEmailClick} />
 
       {showTrinNav && <TrinNavModal onClose={() => setShowTrinNav(false)} />}
-
-      {showContactForm && (
-        <ContactModal
-          formData={formData}
-          onChange={handleInputChange}
-          onSubmit={handleFormSubmit}
-          onClose={() => setShowContactForm(false)}
-        />
-      )}
     </div>
   );
 }

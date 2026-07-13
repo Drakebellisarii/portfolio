@@ -4,15 +4,6 @@ export default function Footer({ onContact }) {
   return (
     <footer className="bg-gray-900 border-t border-gray-800" style={{ paddingTop: 72, paddingBottom: 56 }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center">
-
-        {/* Contact */}
-        <p style={{ fontFamily: "'Georgia', serif", fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 700, color: 'white', letterSpacing: '-0.01em', marginBottom: 20 }}>
-          Let's talk.
-        </p>
-        <button onClick={onContact} className="footer-contact" style={{ marginBottom: 40 }}>
-          Contact me
-        </button>
-
         {/* Goodreads */}
         <div className="mb-10">
           <a
