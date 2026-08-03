@@ -79,15 +79,18 @@ export default function Contact({ onSubmit }) {
   }, [renderedLines, typingLine, inputValue]);
 
   // ── focus management ─────────────────────────────────────
+  // preventScroll is essential here: the boot sequence auto-focuses the
+  // input as soon as it finishes typing, and without it the browser yanks
+  // the whole page down to this section the moment it happens.
   useEffect(() => {
     if (!inputEnabled) return;
-    if (step === 'message') textareaRef.current?.focus();
-    else inputRef.current?.focus();
+    if (step === 'message') textareaRef.current?.focus({ preventScroll: true });
+    else inputRef.current?.focus({ preventScroll: true });
   }, [inputEnabled, step]);
 
   const focusActive = () => {
-    if (step === 'message') textareaRef.current?.focus();
-    else inputRef.current?.focus();
+    if (step === 'message') textareaRef.current?.focus({ preventScroll: true });
+    else inputRef.current?.focus({ preventScroll: true });
   };
 
   // ── submission ────────────────────────────────────────────

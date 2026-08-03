@@ -205,8 +205,8 @@ export default function Hero({ onContact }) {
             style={{ opacity: 0, transform: 'translateY(16px)', willChange: 'opacity, transform' }}>
             {/* Location */}
             <div className="flex items-center gap-2">
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#bb0000', flexShrink: 0 }} />
-              <span style={{ color: '#e23b3b', fontSize: 11.5, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#0a66c2', flexShrink: 0 }} />
+              <span style={{ color: '#0a66c2', fontSize: 11.5, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' }}>
                 {city}
                 <span className="hero-caret" style={{ height: '1em' }} />
               </span>
