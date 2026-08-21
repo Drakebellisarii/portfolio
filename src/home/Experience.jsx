@@ -69,11 +69,11 @@ export default function Experience() {
                     <div className="mb-3">
                       <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">Software Engineer</h3>
                       <p className="text-blue-600 font-medium">Queralt Inc.</p>
-                      <p className="text-xs text-gray-500 mt-0.5">Jan 2026 - Present &middot; 4 mos</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Jan 2026 - Present &middot; 9 mos</p>
                     </div>
 
                     <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4">
-                      Built and maintained a secure, password protected, responsive investor portal using Next.js, React, and Node.js, with an emphasis on performance, modular architecture, and cross device reliability. Implemented protected navigation flows, reusable component systems, analytics, and domain level configuration to support deployment and ongoing iteration.
+                      Sole developer on a channel sales partner portal built with Next.js, TypeScript, and Tailwind, featuring Microsoft Entra ID B2B guest authentication, per-partner document storage via SharePoint and the Microsoft Graph API, and database-backed tracking of partner onboarding progress and deal registration, with full ownership of the authentication flow and repository architecture. Also built and maintained a secure, password protected, responsive investor portal using Next.js, React, and Node.js, with an emphasis on performance, modular architecture, and cross device reliability, implementing protected navigation flows, reusable component systems, analytics, and domain level configuration to support deployment and ongoing iteration.
                     </p>
 
                     <div className="flex flex-wrap gap-2">

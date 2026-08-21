@@ -22,9 +22,17 @@ function ProjectVisual({ project }) {
         <div className="relative aspect-[2/1] overflow-hidden bg-gradient-to-br from-blue-950 via-[#0d1117] to-[#0d1117] flex items-center justify-center">
           <div className="relative w-[100px] sm:w-[116px] aspect-[9/19] rounded-[20px] border-[3px] border-gray-700/80 bg-black shadow-2xl overflow-hidden transition-transform duration-500 group-hover:scale-[1.05]">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-9 h-2.5 bg-gray-900 rounded-b-lg z-10" />
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-600/30 via-gray-900 to-gray-950 flex items-center justify-center">
-              <Compass size={22} className="text-blue-300/60" strokeWidth={1.5} />
-            </div>
+            {project.image ? (
+              <img
+                src={project.image}
+                alt={`${project.title} preview`}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-600/30 via-gray-900 to-gray-950 flex items-center justify-center">
+                <Compass size={22} className="text-blue-300/60" strokeWidth={1.5} />
+              </div>
+            )}
           </div>
 
           <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-colors duration-300">

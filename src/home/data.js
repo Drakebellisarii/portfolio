@@ -3,6 +3,13 @@
 // public/ and fall back to a plain title-card in the browser mockup when unset.
 export const projects = [
   {
+    title: 'Atlantic Companies',
+    description: 'Built and maintain the marketing site for Atlantic Companies, now averaging around 4,000 visitors a month. Integrated custom data pipelines and analytics to track visitor behavior alongside SEO optimization to grow organic search traffic.',
+    tech: ['Next.js', 'React', 'Vercel', 'Data Pipelines', 'Analytics', 'SEO Optimization'],
+    link: 'https://atlantic-site.vercel.app',
+    image: '/Atlantic-companies.png'
+  },
+  {
     title: 'AI-Powered Movie Selector',
     description: 'Designed a cloud native movie selection platform to minimize the time it takes to select a title for movie night. Make an account or browse as a guest if you would like to check out my work',
     tech: ['Javascript', 'Python', 'SQL', 'HTML/CSS', 'API Integration', 'Credential Managment'],
@@ -13,7 +20,8 @@ export const projects = [
     title: 'TrinNav',
     description: 'Senior capstone iOS app — a graph-driven campus navigation system for Trinity College. Built with SwiftUI, MapKit, and SceneKit to deliver panoramic 360° views at each node, real-time route resolution across a custom JSON node topology, and CoreLocation-based positioning. Not publicly hosted; click to view the full project description.',
     tech: ['Swift', 'SwiftUI', 'MapKit', 'SceneKit', 'AVFoundation', 'CoreLocation', 'Xcode'],
-    modal: true
+    modal: true,
+    image: '/Trinav.png'
   },
   {
     title: 'Central Florida Automation',

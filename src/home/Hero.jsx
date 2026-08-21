@@ -191,13 +191,15 @@ export default function Hero({ onContact }) {
             style={{ color: 'rgba(255,255,255,.58)', fontSize: 'clamp(13px,1.1vw,15px)',
               lineHeight: 1.75, maxWidth: 480, marginTop: 40, marginBottom: 18,
               opacity: 0, transform: 'translateY(20px)', willChange: 'opacity, transform' }}>
-            Recent graduate of Trinity College with a B.S. in Computer
-            Science and an experiential certificate in cybersecurity. I love
-            living in that seam between creativity and code. But I'll be honest:
-            the part of me that loves to make things is also scared of a world
+            I've been coding for eight years now, and I graduated from Trinity
+            College with a B.S. in Computer Science and an experiential
+            certificate in cybersecurity. I love living in that seam between
+            creativity and code talking through it, creating it, all of it.
+            The part of me that loves to make things is also scared of a world
             where machines do all the imagining for us. So I build software for
             people, the kind that actually helps people, and I try to keep human
-            fingerprints on everything I make. Drop a message I would love to chat with whoever.
+            fingerprints on everything I make. Drop a message, I would love to
+            chat with whoever.
           </p>
 
           {/* Status + socials */}
