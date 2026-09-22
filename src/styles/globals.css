@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonts are declared in public/index.html so the browser discovers them before
+   any JavaScript runs; this file only references the family. */
+
+:root {
+  --font-display: 'DM Serif Text', Georgia, 'Times New Roman', serif;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  /* Matches the hero, so the very first paint is never a white flash. */
+  background: #06080c;
+  color: #111827;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* ── Display heading: the hero's huge, black-weight, tight-tracked treatment,
+   reused for section titles so the site reads as one typographic voice. ── */
+.display-heading {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+/* Hollow variant, the way BELLISARI sits next to DRAKE. Picks up currentColor. */
+.display-heading-outline {
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.25px currentColor;
+}
+
+/* ── Reduced motion: everything settles instantly. ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

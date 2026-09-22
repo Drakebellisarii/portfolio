@@ -1,70 +1,58 @@
-# Getting Started with Create React App
+# Drake Bellisari — Portfolio
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Personal portfolio site. React 19 on Create React App, Tailwind for utility styling,
+plain CSS for the hero and nav choreography. No animation libraries: every effect
+is CSS transitions driven by a handful of small hooks.
 
-## Available Scripts
+## Scripts
 
-In the project directory, you can run:
+| Command          | What it does                                              |
+| ---------------- | --------------------------------------------------------- |
+| `npm start`      | Dev server on http://localhost:3000                       |
+| `npm run build`  | Production build into `build/`                            |
+| `npm test`       | Jest + Testing Library smoke test                         |
+| `npm run media`  | Regenerates every optimized asset in `public/media`       |
 
-### `npm start`
+## Layout
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+src/
+  App.jsx            Stateless page shell: Nav + sections + Footer
+  sections/          One file per section of the page
+  components/        Reveal, SmartVideo, Picture, Typewriter
+  hooks/             useInView, usePrefersReducedMotion
+  lib/               observe (IntersectionObserver wrapper), scroll, contact (Formspree)
+  data/              Copy and media references for projects, experience, education
+  styles/            globals.css, components.css, hero.css, nav.css
+scripts/
+  build-media.sh     ffmpeg + cwebp + fonttools pipeline (see below)
+public/
+  media/             Generated. Never edit by hand; run `npm run media`.
+  fonts/             Generated WOFF2 subsets of DM Serif Text.
+  *.mp4, *.png, ...  Source assets the pipeline reads from.
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## How the page stays fast
 
-### `npm test`
+- **Hero video** is served as a 0.7x motion-interpolated encode (VP9 first, H.264
+  fallback) at roughly a quarter of the original size. Its poster is the exact
+  first frame and is preloaded from `index.html`, so the hero paints before the
+  JavaScript bundle is parsed, and the video crossfades in once frames are
+  actually rendering.
+- **`SmartVideo`** only plays while on screen and, for project clips, does not
+  download until it is near the viewport. Reduced-motion and data-saver users get
+  the poster only.
+- **Section backgrounds** have their blur/brightness baked into the pixels at
+  build time instead of running CSS `filter` at paint time.
+- **Nothing re-renders on scroll.** The hero animation writes to the DOM inside a
+  single `requestAnimationFrame` per frame; the nav tracks the active section with
+  an `IntersectionObserver`.
+- **The contact terminal** boots when it scrolls into view and never moves
+  keyboard focus until the visitor clicks into it, so the page can never be
+  yanked down to the form.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Media pipeline
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+`scripts/build-media.sh` needs `ffmpeg` (with libx264 and libvpx-vp9) and `cwebp`;
+the font step additionally needs `pyftsubset` from `pip install fonttools brotli`.
+Run one group with `./scripts/build-media.sh hero|projects|backgrounds|fonts`.

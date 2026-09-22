@@ -1,43 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=G-W563QJ9RYQ"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-W563QJ9RYQ');
-      </script>
-
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo.svg" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
     <title>Drake Bellisari - Portfolio</title>
+    <meta name="description" content="Drake Bellisari is a software engineer and Trinity College computer science graduate building web products for people. Work, education, projects, and a way to get in touch." />
+    <meta name="theme-color" content="#06080c" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Drake Bellisari - Portfolio" />
+    <meta property="og:description" content="Software engineer and Trinity College computer science graduate building web products for people." />
+    <meta property="og:image" content="%PUBLIC_URL%/media/hero/poster.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="%PUBLIC_URL%/logo.svg" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo.svg" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Critical assets: the hero poster and the display font are requested
+         before the JavaScript bundle is even parsed. -->
+    <link rel="preload" href="%PUBLIC_URL%/media/hero/poster.jpg" as="image" fetchpriority="high" />
+    <link rel="preload" href="%PUBLIC_URL%/fonts/DMSerifText-Italic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="%PUBLIC_URL%/fonts/DMSerifText-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      @font-face {
+        font-family: 'DM Serif Text';
+        src: url('%PUBLIC_URL%/fonts/DMSerifText-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'DM Serif Text';
+        src: url('%PUBLIC_URL%/fonts/DMSerifText-Italic.woff2') format('woff2');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+      }
+      html { background: #06080c; }
+      /* Until React mounts, the preloaded hero poster fills the viewport behind
+         the same tint the hero uses, so the first picture lands within the
+         first round-trips instead of after the JavaScript bundle. */
+      #root:empty {
+        min-height: 100vh;
+        background:
+          linear-gradient(rgba(0, 0, 0, 0.64), rgba(0, 0, 0, 0.64)),
+          url('%PUBLIC_URL%/media/hero/poster.jpg') center / cover no-repeat;
+      }
+    </style>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W563QJ9RYQ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W563QJ9RYQ');
+    </script>
   </head>
   <body>
     <noscript>
@@ -52,44 +70,21 @@
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
           text-align: center;
         }
-        .noscript-container h1 {
-          font-size: 1.8rem;
-          margin-bottom: 1rem;
-        }
-        .noscript-container p {
-          margin: 0.5rem 0;
-          color: #333;
-        }
-        .noscript-container a {
-          color: #0077ff;
-          text-decoration: none;
-          font-weight: bold;
-        }
+        .noscript-container h1 { font-size: 1.8rem; margin-bottom: 1rem; }
+        .noscript-container p { margin: 0.5rem 0; color: #333; }
+        .noscript-container a { color: #0077ff; text-decoration: none; font-weight: bold; }
       </style>
-    
       <div class="noscript-container">
         <h1>Drake Bellisari</h1>
         <p>Hi 👋, thanks for visiting my site!</p>
-        <p>I’m a Computer Science student and developer. You can still reach me here:</p>
+        <p>I'm a software engineer and Computer Science graduate. You can still reach me here:</p>
         <p>
-          📧 <a href="mailto:drake@example.com">drake@example.com</a><br>
-          💼 <a href="https://www.linkedin.com/in/drakebellisari/">LinkedIn</a><br>
-          🖥️ <a href="https://github.com/drakebellisari">GitHub</a>
+          💼 <a href="https://www.linkedin.com/in/drake-bellisari/">LinkedIn</a><br>
+          🖥️ <a href="https://github.com/DrakeBellisarii">GitHub</a>
         </p>
-        <p>If you enable JavaScript, you’ll see the full site with my projects and portfolio.</p>
+        <p>If you enable JavaScript, you'll see the full site with my projects and portfolio.</p>
       </div>
     </noscript>
-    
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

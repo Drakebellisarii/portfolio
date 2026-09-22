@@ -1,0 +1,110 @@
+/* ── Reveal on scroll ─────────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Blinking caret ───────────────────────────────────────────────────────── */
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -0.08em;
+  background: currentColor;
+  animation: caret-blink 1s step-end infinite;
+}
+
+/* ── SmartVideo: poster underneath, stream crossfades over it ─────────────── */
+.smart-video {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.smart-video__poster,
+.smart-video__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.smart-video__video {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.smart-video__video.is-playing {
+  opacity: 1;
+}
+.smart-video--top .smart-video__poster,
+.smart-video--top .smart-video__video {
+  object-position: top;
+}
+
+/* ── Experience card watermark logo ───────────────────────────────────────── */
+.xp-card__logo {
+  opacity: 0.5;
+  filter: grayscale(100%);
+  transition:
+    opacity 0.3s ease,
+    filter 0.3s ease;
+}
+.xp-card:hover .xp-card__logo {
+  opacity: var(--logo-hover-opacity, 0.5);
+  filter: grayscale(var(--logo-hover-grayscale, 0%));
+}
+
+/* ── Education: course accordion animates height via grid rows ────────────── */
+.course-detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.32s var(--ease-out),
+    opacity 0.25s ease;
+}
+.course-detail.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.course-detail__inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Education: tab panel crossfade ───────────────────────────────────────── */
+@keyframes panel-in {
+  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+.panel-in {
+  animation: panel-in 0.28s var(--ease-out) both;
+}
+
+/* ── Modal ────────────────────────────────────────────────────────────────── */
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modal-panel-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.modal-backdrop {
+  animation: modal-backdrop-in 0.2s ease both;
+}
+.modal-panel {
+  animation: modal-panel-in 0.28s var(--ease-out) both;
+}

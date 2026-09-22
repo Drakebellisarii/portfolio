@@ -1,0 +1,58 @@
+/* ── Stacked editorial nav, top-right. Lives over the hero and fades away
+   once the visitor scrolls into the page proper. ── */
+.nav {
+  position: fixed;
+  z-index: 50;
+  top: clamp(20px, 3vw, 36px);
+  right: clamp(18px, 4vw, 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  opacity: 0;
+  transform: translate3d(0, -8px, 0);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out),
+    visibility 0s linear 0.35s;
+}
+.nav.is-visible {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+.nav__link {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 32px);
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #fff;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.35);
+  transform-origin: right center;
+  transition:
+    transform 0.32s var(--ease-spring),
+    color 0.25s ease;
+}
+.nav__link:hover {
+  transform: scale(1.08);
+}
+.nav__link:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+.nav__link.is-active {
+  color: #3b82f6;
+  transform: scale(1.26);
+}
+@media (max-width: 600px) {
+  .nav__link { font-size: clamp(16px, 5vw, 22px); }
+}
