@@ -17,7 +17,7 @@ export const projects = [
     description:
       'Built and maintain the marketing site for Atlantic Companies, now averaging around 4,000 visitors a month. Integrated custom data pipelines and analytics to track visitor behavior alongside SEO optimization to grow organic search traffic.',
     tech: ['Next.js', 'React', 'Vercel', 'Data Pipelines', 'Analytics', 'SEO Optimization'],
-    link: 'https://atlantic-site.vercel.app',
+    link: 'https://smarthome.biz',
     image: media('atlantic'),
   },
   {
@@ -35,7 +35,7 @@ export const projects = [
     description:
       'Currently building this site for a Central Florida smart-home integration and security company serving the Orlando area. Designing a clean, high-end marketing site that highlights their automation, surveillance, lighting control, and AV services while reflecting the premium, invisible-technology feel of their luxury residential work. (Work in progress.)',
     tech: ['Next.js', 'React', 'Vercel'],
-    link: 'https://central-florida-alarm.vercel.app',
+    link: 'https://cfalarm.com',
     video: clip('cfas', { webm: false }),
   },
   {
@@ -44,7 +44,7 @@ export const projects = [
     description:
       'Built and launched a professional marketing website end-to-end for Mandel Moving (NJ), handling everything from design system creation to production deployment. Focused on clean UI, fast load performance, and a conversion-first layout designed to drive service inquiries and establish credibility in a competitive local market.',
     tech: ['Next.js', 'React', 'SEO Optimization'],
-    link: 'https://mandel-moving.vercel.app/',
+    link: 'https://mandelmoving.com',
     image: media('mandel'),
   },
   {

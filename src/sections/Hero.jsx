@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { GraduationCap, House } from 'lucide-react';
 import SmartVideo from '../components/SmartVideo';
 import Typewriter from '../components/Typewriter';
 import { observe } from '../lib/observe';
@@ -6,6 +7,38 @@ import '../styles/hero.css';
 
 const STORY = ['Scroll down to meet me.'];
 const CITIES = ['Columbus, OH', 'Hartford, CT', 'New York City, NY'];
+
+/** A small skyline, drawn on lucide's 24px grid and stroke so it sits with House and GraduationCap. */
+function Skyline(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M3 21h18" />
+      <path d="M5 21v-9h4" />
+      <path d="M9 21V7l2.5-2L14 7v14" />
+      <path d="M11.5 5V2.5" />
+      <path d="M14 21v-8h5v8" />
+    </svg>
+  );
+}
+
+// One icon per city, in CITIES order: home, where I went to school, then the city.
+const PLACE_ICONS = [House, GraduationCap, Skyline];
+
+/** The typed city line; its icon changes as each city starts typing. */
+function HeroLocation({ active }) {
+  const [city, setCity] = useState(0);
+  return (
+    <div className="hero__location">
+      <span className="hero__place" aria-hidden="true">
+        {PLACE_ICONS.map((Icon, i) => (
+          <Icon key={i} className={`hero__place-icon${i === city ? ' is-on' : ''}`} width={13} height={13} strokeWidth={2.1} />
+        ))}
+      </span>
+      <Typewriter phrases={CITIES} active={active} typeSpeed={65} deleteSpeed={32} holdMs={1100} onPhrase={setCity} />
+    </div>
+  );
+}
+
 const FIRST_NAME = 'DRAKE'.split('');
 const LAST_NAME = 'BELLISARI'.split('');
 
@@ -159,9 +192,7 @@ export default function Hero({ onContact }) {
           </p>
 
           <div ref={metaRef} className="hero__meta">
-            <div className="hero__location">
-              <Typewriter phrases={CITIES} active={metaLive} typeSpeed={65} deleteSpeed={32} holdMs={1100} />
-            </div>
+            <HeroLocation active={metaLive} />
 
             <div className="hero__actions">
               <a

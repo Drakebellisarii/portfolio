@@ -1,58 +1,134 @@
-/* ── Stacked editorial nav, top-right. Lives over the hero and fades away
-   once the visitor scrolls into the page proper. ── */
+/* ══ Section names, top-right ═══════════════════════════════════════════════
+   Type only, in the hero name's voice: black-weight sans, tight tracking, the
+   current section at full strength and the rest set back. White drawn with
+   mix-blend-mode: difference reads as white over the dark sections and as ink
+   over the light ones, and splits cleanly where a boundary passes beneath. */
+
 .nav {
+  /* over the hero: large and tightly stacked, on the same 0.92 leading as the name beside it */
+  --fs: clamp(30px, 2.85vw, 44px);
+  --lead: 0.92;
+  /* extra room below each row for descenders (the p in Experience, the j in
+     Projects), taken back by a negative margin so it costs no spacing */
+  --room: 0.16;
+
   position: fixed;
   z-index: 50;
-  top: clamp(20px, 3vw, 36px);
-  right: clamp(18px, 4vw, 56px);
+  top: clamp(16px, 2.3vw, 30px);
+  right: clamp(14px, 2.8vw, 42px);
+  color: #fff;
+  mix-blend-mode: difference;
+  transition:
+    opacity 0.35s var(--ease-out),
+    translate 0.45s var(--ease-out),
+    visibility 0s linear 0s;
+}
+/* Phones, reading down: the running head steps aside. */
+.nav[data-away] {
+  opacity: 0;
+  translate: 0 -10px;
+  visibility: hidden;
+  pointer-events: none;
+  transition-delay: 0s, 0s, 0.45s;
+}
+
+.nav-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(6, 8, 12, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.35s var(--ease-out),
+    visibility 0s linear 0.35s;
+}
+.nav-scrim[data-show] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+/* Past the hero: the running head settles to a quieter size. */
+.nav[data-past] { --fs: clamp(19px, 1.5vw, 23px); --lead: 1.14; }
+/* Opened on a phone: the names set large, for the thumb. */
+.nav[data-open] { --fs: 30px; --lead: 1.1; }
+
+.nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  text-align: right;
-  opacity: 0;
-  transform: translate3d(0, -8px, 0);
-  visibility: hidden;
-  pointer-events: none;
+}
+
+/* Each row can close to nothing; the padding keeps glyph edges clear of the
+   clipping edge while it does. Rows are clipped, so the descender room hangs
+   below each one and the next row overlaps it. */
+.nav__item {
+  height: calc(var(--fs) * (var(--lead) + var(--room)));
+  margin-bottom: calc(var(--fs) * var(--room) * -1);
+  padding: 0 3px;
+  overflow: hidden;
   transition:
-    opacity 0.35s var(--ease-out),
-    transform 0.35s var(--ease-out),
-    visibility 0s linear 0.35s;
+    height 0.55s var(--ease-out),
+    margin 0.55s var(--ease-out),
+    opacity 0.4s var(--ease-out);
 }
-.nav.is-visible {
-  opacity: 1;
-  transform: none;
-  visibility: visible;
-  pointer-events: auto;
-  transition-delay: 0s;
-}
+
 .nav__link {
-  font-family: var(--font-display);
-  font-size: clamp(20px, 2.4vw, 32px);
-  line-height: 0.95;
-  letter-spacing: 0.005em;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  color: #fff;
-  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.35);
-  transform-origin: right center;
+  display: block;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: var(--fs);
+  line-height: var(--lead);
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  /* the current section at full strength; the rest set back */
+  opacity: 0.36;
+  /* a hairline for keyboard focus */
+  background: linear-gradient(currentColor, currentColor) right bottom 0.02em / 0 1.5px no-repeat;
   transition:
-    transform 0.32s var(--ease-spring),
-    color 0.25s ease;
+    font-size 0.55s var(--ease-out),
+    opacity 0.3s ease,
+    background-size 0.45s var(--ease-out);
 }
-.nav__link:hover {
-  transform: scale(1.08);
+.nav__item.is-current .nav__link { opacity: 1; }
+@media (hover: hover) {
+  .nav__link:hover { opacity: 1; }
 }
-.nav__link:focus-visible {
-  outline: 2px solid #60a5fa;
-  outline-offset: 4px;
-  border-radius: 2px;
+.nav__link:focus-visible { opacity: 1; background-size: 100% 1.5px; }
+
+/* Running head: past the hero, only the current section's name stands. */
+.nav[data-folded] .nav__item:not(.is-current) {
+  height: 0;
+  margin-bottom: 0;
+  opacity: 0;
+  transition-delay: 0.12s;
 }
-.nav__link.is-active {
-  color: #3b82f6;
-  transform: scale(1.26);
+
+/* First appearance: the names set in one after another. */
+@keyframes nav-in {
+  from { opacity: 0; translate: 0 5px; }
+  to { opacity: 1; translate: 0 0; }
 }
-@media (max-width: 600px) {
-  .nav__link { font-size: clamp(16px, 5vw, 22px); }
+.nav__link > span { display: inline-block; animation: nav-in 0.7s var(--ease-out) both; }
+.nav__item:nth-child(1) .nav__link > span { animation-delay: 0.2s; }
+.nav__item:nth-child(2) .nav__link > span { animation-delay: 0.26s; }
+.nav__item:nth-child(3) .nav__link > span { animation-delay: 0.32s; }
+.nav__item:nth-child(4) .nav__link > span { animation-delay: 0.38s; }
+.nav__item:nth-child(5) .nav__link > span { animation-delay: 0.44s; }
+
+@media (max-width: 640px) {
+  .nav { --fs: 24px; top: 16px; right: 12px; }
+  .nav[data-past] { --fs: 17px; }
+  .nav[data-open] { --fs: 30px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav__link > span { animation: none; }
 }

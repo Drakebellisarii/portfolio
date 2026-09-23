@@ -81,6 +81,10 @@ build_projects() {
   shot public/Mandel.png             mandel 1200
   shot public/Luma-Valen.png         lumavalen 1200
   shot public/Foyer.png              foyer 1200
+  # Queralt lineup: windows captured from the case study recreations, shown at 0.6x UI scale.
+  shot public/Queralt-Hub.png        queralt-hub 1296
+  shot public/Queralt-Channel.png    queralt-channel 1296
+  shot public/Queralt-Investor.png   queralt-investor 602
   # TrinNav's screens came from a screen recording: paint the red recording dot
   # in the Dynamic Island back to black before they go into the phone frames.
   $FF -i public/Trinav.png -vf "format=rgb24,drawbox=x=139:y=22:w=20:h=19:color=black:t=fill" "$TMP/trinnav.png"
@@ -108,9 +112,8 @@ build_backgrounds() {
   cwebp -quiet -q 78 "$TMP/trinity.png" -o "$OUT/backgrounds/trinity.webp"
   $FF -i "$TMP/trinity.png" -pix_fmt yuvj420p -q:v 5 "$OUT/backgrounds/trinity.jpg"
 
-  $FF -i public/topography.jpg -vf "gblur=sigma=0.5,eq=contrast=1.1" "$TMP/topography.png"
-  cwebp -quiet -q 80 "$TMP/topography.png" -o "$OUT/backgrounds/topography.webp"
-  $FF -i "$TMP/topography.png" -pix_fmt yuvj420p -q:v 5 "$OUT/backgrounds/topography.jpg"
+  # Projects: a vector survey drawing, generated rather than traced from a photo.
+  node scripts/build-topography.mjs
 }
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────

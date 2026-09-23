@@ -63,6 +63,10 @@
   max-width: min(78vw, 440px);
   will-change: opacity, transform;
 }
+/* Phones: leave room for the section index in the opposite corner. */
+@media (max-width: 640px) {
+  .hero__prompt { max-width: min(78vw, calc(100vw - 24px - 150px - 12px - 16px)); }
+}
 .hero__prompt p {
   margin: 0;
   font-family: var(--font-display);
@@ -159,13 +163,29 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
-.hero__location::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #0a66c2;
+/* The place icon: home, graduation cap, city. The three stack in one small box and
+   cross-fade, each lifting in as its city starts typing. */
+.hero__place {
+  position: relative;
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
+}
+.hero__place-icon {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translate3d(0, 3px, 0);
+  transition:
+    opacity 0.35s ease,
+    transform 0.45s var(--ease-out);
+}
+.hero__place-icon.is-on {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__place-icon { transform: none; transition: opacity 0.2s linear; }
 }
 .hero__actions {
   display: flex;

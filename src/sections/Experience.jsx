@@ -14,9 +14,23 @@ const monthIndex = (ym) => {
 };
 const today = new Date();
 const NOW = today.getFullYear() * 12 + today.getMonth();
-const STATIONS = roles.map((r) => monthIndex(r.start));
+
+// Each role is a band on the dial, like the band markings on a shortwave set:
+// start to end month, inclusive; a current role runs to today. Bands that share
+// a month take separate lanes.
+const BANDS = [];
+roles.forEach((r, i) => {
+  const band = { role: i, from: monthIndex(r.start), to: r.end ? monthIndex(r.end) : NOW };
+  const taken = new Set(BANDS.filter((o) => o.from <= band.to && band.from <= o.to).map((o) => o.lane));
+  let lane = 0;
+  while (taken.has(lane)) lane += 1;
+  BANDS.push({ ...band, lane });
+});
+// A station is tuned at the middle of its band, as a radio is tuned into a band
+// rather than onto its edge.
+const STATIONS = BANDS.map((b) => (b.from + b.to) / 2);
 const TOP = NOW + 3; // ruler runs a little past today…
-const BOTTOM = Math.min(...STATIONS) - 9; // …and below the first role
+const BOTTOM = Math.min(...BANDS.map((b) => b.from)) - 9; // …and below the first role
 
 // ── Drum geometry ─────────────────────────────────────────────────────────────
 const FACE_ANGLE = 38; // degrees between station cards on the drum
@@ -37,7 +51,7 @@ for (let m = TOP; m >= BOTTOM; m -= 1) {
     m,
     k: TOP - m,
     kind: m % 12 === 0 ? 'year' : m % 3 === 0 ? 'quarter' : 'month',
-    station: STATIONS.includes(m),
+    bands: BANDS.filter((b) => m >= b.from && m <= b.to).map((b) => ({ ...b, first: m === b.from, last: m === b.to })),
   });
 }
 
@@ -59,15 +73,30 @@ const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
 const smooth = (t) => t * t * (3 - 2 * t);
 const pad = (n) => String(n).padStart(2, '0');
 
-/**
- * Month label on the pocket dial. Stations carry their year so the needle reads
- * unambiguously; a January station is already named by the year beside its tick,
- * and a quarter label next to a station would collide with it.
- */
+/** Month label on the pocket dial: quarters only; a year is named by the figure beside its tick. */
 function dialLabel(t) {
-  if (t.station) return t.kind === 'year' ? null : `${MONTHS[t.m % 12]} ’${String(Math.floor(t.m / 12)).slice(2)}`;
-  if (t.kind !== 'quarter' || STATIONS.some((m) => Math.abs(m - t.m) <= 1)) return null;
-  return MONTHS[t.m % 12];
+  return t.kind === 'quarter' ? MONTHS[t.m % 12] : null;
+}
+
+/**
+ * One month's slice of each band running through it. Slices sit edge to edge on
+ * the drum, so together they draw a continuous engraved bracket; the ends carry
+ * the bracket's short arms. The tuned role's band is lit.
+ */
+function BandMarks({ bands }) {
+  return bands.map((b) => (
+    <span
+      key={b.role}
+      data-role={b.role}
+      className={`xp-band xp-band--lane${b.lane}${b.first ? ' xp-band--from' : ''}${b.last ? ' xp-band--to' : ''}`}
+    />
+  ));
+}
+
+/** Light the tuned role's band (or none, with -1). */
+function lightBand(root, role) {
+  if (!root) return;
+  root.querySelectorAll('.xp-band').forEach((el) => el.classList.toggle('is-lit', Number(el.dataset.role) === role));
 }
 
 /**
@@ -110,28 +139,45 @@ function useMediaQuery(query) {
   return match;
 }
 
-// Vertical padding + borders of .xp-card, added to the tallest body to size the drum faces.
-const CARD_CHROME = 30 + 34 + 2;
+// Vertical padding + borders of a desktop .xp-card--plain, added to the tallest body to size the drum faces.
+const CARD_CHROME = 36 + 36 + 2;
 
-function Card({ role, index, bodyRef }) {
+/**
+ * A role's card. On the phone it carries a station band (index, scale and date)
+ * because its dial sits apart from the log; on desktop the dial beside the drum
+ * already says all that, so `band={false}` opens the card straight on the title.
+ */
+function Card({ role, index, bodyRef, band = true }) {
+  const logo = <img className="xp-card__logo" src={role.logo} alt="" loading="lazy" decoding="async" />;
+  const tags = (
+    <ul className="xp-card__tags" aria-label="Technologies">
+      {role.tags.map((tag) => (
+        <li key={tag} className="xp-key">
+          {tag}
+        </li>
+      ))}
+    </ul>
+  );
   return (
-    <article className="xp-card">
+    <article className={`xp-card${band ? '' : ' xp-card--plain'}`}>
       <span className="xp-card__grille" aria-hidden="true" />
-      <img className="xp-card__logo" src={role.logo} alt="" loading="lazy" decoding="async" />
+      {band && logo}
       <div ref={bodyRef} className="xp-card__body">
-        {/* Printed dial scale: the blue pointer marks where this station sits on the band. */}
-        <div className="xp-card__band" aria-hidden="true">
-          <span className="xp-card__index">
-            STN {pad(index + 1)}
-            <span className="xp-card__of">/{pad(roles.length)}</span>
-          </span>
-          <span className="xp-card__scale" style={{ '--pos': `${(index / (roles.length - 1)) * 100}%` }}>
-            <span className="xp-card__pointer" />
-          </span>
-          <span className="xp-card__freq">
-            {MONTHS[monthIndex(role.start) % 12]} {role.start.slice(0, 4)}
-          </span>
-        </div>
+        {band && (
+          // Printed dial scale: the blue pointer marks where this station sits on the band.
+          <div className="xp-card__band" aria-hidden="true">
+            <span className="xp-card__index">
+              STN {pad(index + 1)}
+              <span className="xp-card__of">/{pad(roles.length)}</span>
+            </span>
+            <span className="xp-card__scale" style={{ '--pos': `${(index / (roles.length - 1)) * 100}%` }}>
+              <span className="xp-card__pointer" />
+            </span>
+            <span className="xp-card__freq">
+              {MONTHS[monthIndex(role.start) % 12]} {role.start.slice(0, 4)}
+            </span>
+          </div>
+        )}
         <div className="xp-card__head">
           <h3 className="xp-card__title">{role.title}</h3>
           <p className="xp-card__meta">
@@ -141,13 +187,14 @@ function Card({ role, index, bodyRef }) {
           </p>
         </div>
         <p className="xp-card__text">{role.body}</p>
-        <ul className="xp-card__tags" aria-label="Technologies">
-          {role.tags.map((tag) => (
-            <li key={tag} className="xp-key">
-              {tag}
-            </li>
-          ))}
-        </ul>
+        {band ? (
+          tags
+        ) : (
+          <div className="xp-card__foot">
+            {tags}
+            {logo}
+          </div>
+        )}
       </div>
     </article>
   );
@@ -156,7 +203,7 @@ function Card({ role, index, bodyRef }) {
 function Heading() {
   return (
     <Reveal>
-      <h2 className="xp-heading display-heading display-heading-outline text-4xl sm:text-5xl text-center">Work Experience</h2>
+      <h2 className="xp-heading display-heading display-heading-outline text-3xl sm:text-4xl text-left">Work Experience</h2>
     </Reveal>
   );
 }
@@ -254,6 +301,7 @@ function PocketLayout({ still }) {
       const near = s < -0.5 ? -1 : clamp(Math.round(s), 0, last);
       if (near !== prev.near) {
         prev.near = near;
+        lightBand(dialRef.current, near);
         keys.forEach((key, i) => {
           key.classList.toggle('is-on', i === near);
           if (i === near) key.setAttribute('aria-current', 'true');
@@ -485,8 +533,9 @@ function PocketLayout({ still }) {
                     ref={(el) => {
                       tickRefs.current[i] = el;
                     }}
-                    className={`xp-dtick xp-dtick--${t.kind}${t.station ? ' xp-dtick--station' : ''}`}
+                    className={`xp-dtick xp-dtick--${t.kind}`}
                   >
+                    <BandMarks bands={t.bands} />
                     {t.kind === 'year' && <span className="xp-dtick__year">{t.m / 12}</span>}
                     {label && <span className="xp-dtick__label">{label}</span>}
                   </span>
@@ -554,7 +603,7 @@ function TunerLayout() {
   const sectionRef = useRef(null);
   const faceDrumRef = useRef(null);
   const dateDrumRef = useRef(null);
-  const fillRef = useRef(null);
+  const litRef = useRef(null);
   const faceRefs = useRef([]);
   const bodyRefs = useRef([]);
   const presetRefs = useRef([]);
@@ -567,15 +616,20 @@ function TunerLayout() {
   };
 
   // Every card gets the height of the tallest one so the drum is a true polygon.
+  // Bodies stretch to fill their face (the footer is pinned to its foot), so the
+  // natural height is the sum of their parts: every gap inside is padding, which
+  // keeps that sum exact.
   useLayoutEffect(() => {
+    const bodies = bodyRefs.current.filter(Boolean);
+    const natural = (b) => Array.from(b.children).reduce((h, part) => h + part.offsetHeight, 0);
     const measure = () => {
-      const tallest = Math.max(...bodyRefs.current.filter(Boolean).map((b) => b.offsetHeight));
+      const tallest = Math.max(...bodies.map(natural));
       if (Number.isFinite(tallest)) setFaceH(Math.ceil(tallest + CARD_CHROME));
     };
     measure();
     if (typeof ResizeObserver === 'undefined') return undefined;
     const ro = new ResizeObserver(measure);
-    bodyRefs.current.filter(Boolean).forEach((b) => ro.observe(b));
+    bodies.forEach((b) => Array.from(b.children).forEach((part) => ro.observe(part)));
     return () => ro.disconnect();
   }, []);
 
@@ -602,13 +656,17 @@ function TunerLayout() {
     });
     const month = monthAt(s);
     dateDrum.style.transform = `translate3d(0,0,${-DATE_RADIUS}px) rotateX(${(TOP - month) * MONTH_ANGLE}deg)`;
-    const last = roles.length - 1;
-    if (fillRef.current) fillRef.current.style.transform = `scaleY(${clamp(s / last, 0, 1)})`;
-    presetRefs.current.forEach((p, i) => {
-      if (!p) return;
-      p.classList.toggle('is-on', Math.abs(i - s) < 0.5);
-      p.classList.toggle('is-passed', s > i + 0.5);
-    });
+    const tuned = s < -0.5 ? -1 : clamp(Math.round(s), 0, roles.length - 1);
+    if (tuned !== litRef.current) {
+      litRef.current = tuned;
+      lightBand(dateDrum, tuned);
+      presetRefs.current.forEach((key, i) => {
+        if (!key) return;
+        key.classList.toggle('is-on', i === tuned);
+        if (i === tuned) key.setAttribute('aria-current', 'true');
+        else key.removeAttribute('aria-current');
+      });
+    }
   };
 
   // Static first paint (before GSAP arrives): the drum parked a little below station one.
@@ -704,30 +762,31 @@ function TunerLayout() {
   return (
     <div ref={setSection} className="relative" style={{ height: `calc(100vh + ${(roles.length - 1) * STEP_VH}vh)` }}>
       <div className="xp-stage">
-        <div className="pt-12 pb-2 relative z-10">
+        <div className="xp-stage__head relative z-10">
           <Heading />
         </div>
 
         <div className="xp-tuner">
           <div className="xp-needle" aria-hidden="true">
-            <svg viewBox="0 0 90 14" preserveAspectRatio="none">
+            <svg viewBox="0 0 104 14" preserveAspectRatio="none">
               {/* blade: a hair at the tip, widening toward the hub */}
-              <path d="M0 7 L68 4.2 L68 9.8 Z" fill="#111" />
-              <circle cx="76" cy="7" r="6.2" fill="#fbfaf7" stroke="#2563eb" strokeWidth="2" />
-              <circle cx="76" cy="7" r="2" fill="#111" />
+              <path d="M0 7 L82 4.2 L82 9.8 Z" fill="#111" />
+              <circle cx="90" cy="7" r="6.2" fill="#fbfaf7" stroke="#2563eb" strokeWidth="2" />
+              <circle cx="90" cy="7" r="2" fill="#111" />
             </svg>
           </div>
 
           {/* Date drum */}
-          <div className="xp-window" aria-hidden="true">
+          <div className="xp-window xp-window--dates" aria-hidden="true">
             <div ref={dateDrumRef} className="xp-drum" style={{ '--pitch': `${PITCH}px` }}>
               {TICKS.map((t) => (
                 <span
                   key={t.m}
-                  className={`xp-tick xp-tick--${t.kind}${t.station ? ' xp-tick--station' : ''}`}
+                  className={`xp-tick xp-tick--${t.kind}`}
                   style={{ transform: `rotateX(${-t.k * MONTH_ANGLE}deg) translate3d(0,0,${DATE_RADIUS}px)` }}
                 >
-                  {t.kind !== 'year' && (t.kind === 'quarter' || t.station) && <span className="xp-tick__month">{MONTHS[t.m % 12]}</span>}
+                  <BandMarks bands={t.bands} />
+                  {t.kind === 'quarter' && <span className="xp-tick__month">{MONTHS[t.m % 12]}</span>}
                 </span>
               ))}
               {TICKS.filter((t) => t.kind === 'year').map((t) => (
@@ -738,30 +797,31 @@ function TunerLayout() {
             </div>
           </div>
 
-          {/* Station presets */}
-          <div className="xp-presets">
-            <div className="xp-presets__track">
-              <span ref={fillRef} className="xp-presets__fill" />
-              {roles.map((role, i) => (
-                <button
-                  key={role.id}
-                  ref={(el) => {
-                    presetRefs.current[i] = el;
-                  }}
-                  type="button"
-                  className="xp-preset"
-                  style={{ top: `${(i / (roles.length - 1)) * 100}%` }}
-                  onClick={() => goTo(i)}
-                  aria-label={`${role.title}, ${role.employer}`}
-                >
-                  <span />
-                </button>
-              ))}
-            </div>
+          {/* The pointer's rail: a plain slot the needle's hub rides in. */}
+          <div className="xp-presets" aria-hidden="true">
+            <div className="xp-presets__track" />
+          </div>
+
+          {/* Preset keys under the dial, as on the phone faceplate. */}
+          <div className="xp-bank" role="group" aria-label="Jump to a role">
+            {roles.map((role, i) => (
+              <button
+                key={role.id}
+                ref={(el) => {
+                  presetRefs.current[i] = el;
+                }}
+                type="button"
+                className="xp-pkey"
+                onClick={() => goTo(i)}
+                aria-label={`${role.title}, ${role.employer}`}
+              >
+                {pad(i + 1)}
+              </button>
+            ))}
           </div>
 
           {/* Station drum */}
-          <div className="xp-window" style={{ '--face-h': `${faceH}px` }}>
+          <div className="xp-window xp-window--faces" style={{ '--face-h': `${faceH}px` }}>
             <ol ref={faceDrumRef} className="xp-drum list-none m-0 p-0">
               {roles.map((role, i) => (
                 <li
@@ -776,6 +836,7 @@ function TunerLayout() {
                   <Card
                     role={role}
                     index={i}
+                    band={false}
                     bodyRef={(el) => {
                       bodyRefs.current[i] = el;
                     }}

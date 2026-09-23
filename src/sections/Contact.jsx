@@ -327,7 +327,7 @@ export default function Contact() {
           </div>
         </Reveal>
 
-        <p className="mt-3 text-xs text-gray-500 font-mono">click the terminal, type your answer, press enter.</p>
+        <p className="mt-3 text-xs text-gray-400 font-mono">click the terminal, type your answer, press enter.</p>
       </div>
     </section>
   );
