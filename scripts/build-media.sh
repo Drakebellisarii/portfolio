@@ -80,7 +80,18 @@ build_projects() {
   shot public/Flick-Findy.png        flickfinda 1200
   shot public/Mandel.png             mandel 1200
   shot public/Luma-Valen.png         lumavalen 1200
-  shot public/Trinav.png             trinnav 447
+  shot public/Foyer.png              foyer 1200
+  # TrinNav's screens came from a screen recording: paint the red recording dot
+  # in the Dynamic Island back to black before they go into the phone frames.
+  $FF -i public/Trinav.png -vf "format=rgb24,drawbox=x=139:y=22:w=20:h=19:color=black:t=fill" "$TMP/trinnav.png"
+  $FF -i public/Trinav-360.jpg -vf "format=rgb24,drawbox=x=279:y=43:w=35:h=35:color=black:t=fill" "$TMP/trinnav-360.png"
+  shot "$TMP/trinnav.png"     trinnav 447
+  shot "$TMP/trinnav-360.png" trinnav-360 447
+  # The app card sits on its own campus map, blurred into navy.
+  $FF -i public/Trinav.png \
+    -vf "crop=360:700:50:170,scale=1200:-2,crop=1200:600:0:(ih-600)/2,gblur=sigma=48:steps=4,eq=saturation=0.6:brightness=-0.1,colorchannelmixer=rr=0.26:gg=0.33:bb=0.55" \
+    "$TMP/trinnav-bg.png"
+  shot "$TMP/trinnav-bg.png" trinnav-bg 800
   clip public/CFAS-Hero.mp4 cfas
   clip public/Connie.mp4    gpp
   clip public/Drake.mp4     drakesites

@@ -24,7 +24,7 @@ export const SERIES = {
   kicker: 'Case study series',
   title: 'Building the internal platform',
   lede:
-    'I joined Queralt Solutions, an identity and cybersecurity company in Hartford, CT, as a web development intern and built its investor portal. That led to a software engineer role as the company’s sole developer for internal platforms.',
+    'I joined Queralt Solutions, an identity and cybersecurity company in Connecticut, as a web development intern and built its investor portal. That led to a role as lead engineer for the company’s internal platforms.',
   body: [
     'Queralt’s core product is built by a separate engineering team. The internal platforms are the systems the company runs on around it. Over the following months I designed and built three of them: a channel sales portal for partners, a pilot support portal for early product users, and a company hub that connects the others and serves as the starting point for everyone at Queralt.',
   ],
@@ -42,7 +42,7 @@ export const STUDIES = {
     oneLiner: 'A company-wide intranet that brings chat, calendars, tasks, projects and the company’s internal portals into one application.',
     hero: 'HubHome',
     meta: [
-      ['Role', 'Sole developer'],
+      ['Role', 'Lead engineer'],
       ['Year', '2026'],
       ['Stack', 'Next.js · Supabase · Entra ID'],
       ['Status', 'Company-wide; roadmap in progress'],
@@ -251,8 +251,7 @@ export const STUDIES = {
       {
         kind: 'spec',
         rows: [
-          ['Role', 'Sole developer: design, engineering and deployment'],
-          ['Team', 'Sole developer'],
+          ['Role', 'Lead engineer: design, engineering and deployment'],
           ['Year', '2026'],
           ['Platforms', 'Web, on desktop and phone'],
           ['Framework', 'Next.js (App Router), TypeScript, Tailwind'],
@@ -276,7 +275,7 @@ export const STUDIES = {
     oneLiner: 'A partner relationship management portal where Queralt’s resellers and integration partners register deals, find sales resources and message the Queralt team.',
     hero: 'PartnerDashboard',
     meta: [
-      ['Role', 'Sole developer'],
+      ['Role', 'Lead engineer'],
       ['Year', '2026'],
       ['Stack', 'Next.js · NextAuth v5 · Supabase'],
       ['Status', 'Functional; CRM integration pending'],
@@ -400,8 +399,7 @@ export const STUDIES = {
       {
         kind: 'spec',
         rows: [
-          ['Role', 'Sole developer: design, engineering and deployment'],
-          ['Team', 'Sole developer'],
+          ['Role', 'Lead engineer: design, engineering and deployment'],
           ['Year', '2026'],
           ['Design', 'Figma; eight-page product in Queralt’s brand'],
           ['Framework', 'Next.js, TypeScript, Tailwind'],

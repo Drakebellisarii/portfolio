@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Reveal from '../components/Reveal';
 import { useInView } from '../hooks/useInView';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { observe } from '../lib/observe';
 import { roles } from '../data/experience';
 import '../styles/experience.css';
 
@@ -40,7 +41,46 @@ for (let m = TOP; m >= BOTTOM; m -= 1) {
   });
 }
 
+// ── Pocket tuner (phones, tablets, short screens) ────────────────────────────
+// A portrait screen can't hold a drum of full cards, so the tuner splits in two:
+// a faceplate docked to the top carries the date drum, turned on its side like a
+// car radio's dial, and the station log scrolls natively beneath it. The page
+// itself becomes the second drum: cards roll up over its lower edge and wind
+// away under the faceplate, 1:1 with the thumb.
+const DIAL_PITCH = 25; // px per month at the front of the dial drum
+const LOCK_GAP = 40; // px between the docked faceplate and a tuned card's top edge
+const ENTER_BAND = 0.36; // share of the log view over which a card rolls up into place
+const EXIT_BAND = 0.2; // …and over which it winds away under the faceplate
+const ENTER_TILT = 30; // degrees
+const EXIT_TILT = 34;
+const BARS = [0, 1, 2, 3, 4];
+
 const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+const smooth = (t) => t * t * (3 - 2 * t);
+const pad = (n) => String(n).padStart(2, '0');
+
+/**
+ * Month label on the pocket dial. Stations carry their year so the needle reads
+ * unambiguously; a January station is already named by the year beside its tick,
+ * and a quarter label next to a station would collide with it.
+ */
+function dialLabel(t) {
+  if (t.station) return t.kind === 'year' ? null : `${MONTHS[t.m % 12]} ’${String(Math.floor(t.m / 12)).slice(2)}`;
+  if (t.kind !== 'quarter' || STATIONS.some((m) => Math.abs(m - t.m) <= 1)) return null;
+  return MONTHS[t.m % 12];
+}
+
+/**
+ * Station position for a month on the pocket dial, the inverse of pocketMonth:
+ * -1…0 over the pre-roll above the first station, then fractional stations.
+ */
+function stationAt(month) {
+  if (month > STATIONS[0]) return -clamp((month - STATIONS[0]) / (TOP - 1 - STATIONS[0]), 0, 1);
+  for (let i = 0; i < STATIONS.length - 1; i += 1) {
+    if (month >= STATIONS[i + 1]) return i + (STATIONS[i] - month) / (STATIONS[i] - STATIONS[i + 1]);
+  }
+  return STATIONS.length - 1;
+}
 
 /** Month under the needle for a (fractional) station position. */
 function monthAt(s) {
@@ -50,6 +90,9 @@ function monthAt(s) {
   const i = Math.floor(s);
   return STATIONS[i] + (STATIONS[i + 1] - STATIONS[i]) * (s - i);
 }
+
+/** The pocket dial pre-rolls over its whole -1…0 range rather than ENTRY of it. */
+const pocketMonth = (s) => monthAt(s < 0 ? s * ENTRY : s);
 
 const faceRadius = (h) => (h / 2 + FACE_GAP) / Math.tan(((FACE_ANGLE / 2) * Math.PI) / 180);
 
@@ -71,7 +114,6 @@ function useMediaQuery(query) {
 const CARD_CHROME = 30 + 34 + 2;
 
 function Card({ role, index, bodyRef }) {
-  const pad = (n) => String(n).padStart(2, '0');
   return (
     <article className="xp-card">
       <span className="xp-card__grille" aria-hidden="true" />
@@ -119,25 +161,387 @@ function Heading() {
   );
 }
 
-/** Phones, short screens and reduced motion: the same cards in a plain column. */
-function ListLayout() {
+/**
+ * Phones, tablets, short screens and reduced motion. With `still`, the dial
+ * steps from station to station and the cards stay flat.
+ */
+function PocketLayout({ still }) {
+  const rootRef = useRef(null);
+  const plateRef = useRef(null);
+  const dialRef = useRef(null);
+  const tickRefs = useRef([]);
+  const logRef = useRef(null);
+  const itemRefs = useRef([]);
+  const keyRefs = useRef([]);
+  const barRefs = useRef([]);
+  const tuneRef = useRef(null);
+  const [radius, setRadius] = useState(240);
+  const angle = (DIAL_PITCH / radius) * (180 / Math.PI); // degrees per month
+
+  // The drum's radius follows the dial's width so its rim always spans the glass.
+  useLayoutEffect(() => {
+    const dial = dialRef.current;
+    const measure = () => setRadius(Math.round(clamp(dial.clientWidth * 0.66, 200, 460)));
+    measure();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(measure);
+    ro.observe(dial);
+    return () => ro.disconnect();
+  }, []);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    const plate = plateRef.current;
+    const log = logRef.current;
+    const ticks = tickRefs.current;
+    const items = itemRefs.current;
+    const keys = keyRefs.current;
+    const bars = barRefs.current;
+    const last = roles.length - 1;
+
+    // Card offsets inside the log. Transforms never move them, so the curl a card
+    // is given can't feed back into where the maths thinks it is.
+    let offs = [];
+    const measure = () => {
+      offs = items.map((el) => ({ top: el.offsetTop, h: el.offsetHeight }));
+    };
+
+    // Everything a frame needs from layout, read before anything is written.
+    const read = () => {
+      const vh = window.innerHeight;
+      const plateH = plate.offsetHeight;
+      return {
+        vh,
+        plateH,
+        view: vh - plateH,
+        plateBottom: plate.getBoundingClientRect().bottom,
+        logTop: log.getBoundingClientRect().top,
+      };
+    };
+
+    // Where the scroll says the dial should be: -1 before the first station, then a
+    // fractional station index. A station holds while its card is being read and
+    // turns to the next only as that card rises the last stretch to the faceplate,
+    // which is what gives the dial its detents without ever touching the scroll.
+    const target = (g) => {
+      let s = -1;
+      for (let i = 0; i <= last; i += 1) {
+        const distance = g.logTop + offs[i].top - (g.plateH + LOCK_GAP);
+        const span = i === 0 ? 0.6 * g.vh : Math.min(0.6 * (offs[i].top - offs[i - 1].top), 0.42 * g.view);
+        s += smooth(clamp(1 - distance / span, 0, 1));
+      }
+      return s;
+    };
+
+    const lens = `perspective(${radius * 3}px) translate3d(0,0,${-radius}px)`;
+    const culled = [];
+    const prev = { near: null, lit: null, tuned: null, curls: [] };
+    const paint = (month, g) => {
+      const s = stationAt(month);
+      // Each tick is projected onto the drum on its own rather than inside a shared
+      // preserve-3d scene, which some engines flatten; ticks past the rim are culled.
+      TICKS.forEach((t, i) => {
+        const el = ticks[i];
+        const turn = (t.m - month) * angle;
+        const hidden = Math.abs(turn) > 84;
+        if (hidden !== culled[i]) {
+          culled[i] = hidden;
+          el.style.visibility = hidden ? 'hidden' : '';
+        }
+        if (!hidden) el.style.transform = `${lens} rotateY(${turn.toFixed(2)}deg) translate3d(0,0,${radius}px)`;
+      });
+
+      const near = s < -0.5 ? -1 : clamp(Math.round(s), 0, last);
+      if (near !== prev.near) {
+        prev.near = near;
+        keys.forEach((key, i) => {
+          key.classList.toggle('is-on', i === near);
+          if (i === near) key.setAttribute('aria-current', 'true');
+          else key.removeAttribute('aria-current');
+        });
+      }
+
+      // Signal meter: discrete bars, like the LEDs on a tuner, full only on a station.
+      const station = Math.max(0, Math.round(s));
+      const off = Math.abs(s - station);
+      const lit = Math.round(BARS.length * (1 - clamp(off * 2.4, 0, 1)));
+      if (lit !== prev.lit) {
+        prev.lit = lit;
+        bars.forEach((bar, i) => bar.classList.toggle('is-lit', i < lit));
+      }
+
+      const tuned = off < 0.06 ? station : -1;
+      if (tuned !== prev.tuned) {
+        prev.tuned = tuned;
+        items.forEach((el, i) => el.classList.toggle('is-tuned', i === tuned));
+        plate.classList.toggle('is-locked', tuned >= 0);
+      }
+
+      items.forEach((el, i) => {
+        let tilt = 0;
+        if (!still) {
+          const top = g.logTop + offs[i].top;
+          const bottom = top + offs[i].h;
+          // Angle grows linearly with distance travelled round the curve, as on a real drum.
+          const enter = clamp((top - (g.vh - ENTER_BAND * g.view)) / (ENTER_BAND * g.view), 0, 1);
+          const exit = clamp(1 - (bottom - g.plateBottom) / (EXIT_BAND * g.view), 0, 1);
+          tilt = enter > 0 ? -ENTER_TILT * enter : EXIT_TILT * exit;
+        }
+        tilt = Math.round(tilt * 100) / 100;
+        if (tilt === prev.curls[i]) return;
+        prev.curls[i] = tilt;
+        const shade = el.lastChild;
+        if (!tilt) {
+          el.style.transform = '';
+          shade.style.opacity = '0';
+          return;
+        }
+        // Entering, the card hinges on its top edge and its foot falls away; leaving,
+        // it hinges on its foot and the top winds back under the faceplate.
+        el.style.transformOrigin = tilt < 0 ? '50% 0' : '50% 100%';
+        el.style.transform = `perspective(1100px) rotateX(${tilt}deg)`;
+        shade.className = `xp-shade${tilt < 0 ? ' xp-shade--below' : ''}`;
+        shade.style.opacity = String(tilt < 0 ? (-tilt / ENTER_TILT) * 0.3 : (tilt / EXIT_TILT) * 0.42);
+      });
+    };
+
+    // Same spring as the desktop drums, integrated in fixed substeps. It acts on the
+    // month under the needle, not the station index, so the drum carries its
+    // momentum evenly whether the next station is one month away or twelve. The
+    // loop only runs while the dial is moving: scroll wakes it, rest puts it to sleep.
+    const settle = (goal) => (still ? (goal < -0.5 ? -1 : Math.round(goal)) : goal);
+    let m = null; // month under the needle
+    let v = 0;
+    let raf = 0;
+    let then = 0;
+    let onScreen = true;
+    let drag = null; // a finger turning the dial
+    let hold = null; // a station the dial heads straight for while the page glides to it
+
+    const frame = (now) => {
+      raf = 0;
+      const g = read();
+      let goal = target(g);
+      if (hold) {
+        // Released once the scroll agrees with it, so the hand-off is seamless.
+        if (Math.abs(goal - hold.station) < 0.001 || now > hold.until) hold = null;
+        else goal = hold.station;
+      }
+      const goalMonth = pocketMonth(settle(goal));
+      let dt = clamp((now - then) / 1000, 0, 1 / 20);
+      then = now;
+      let resting = true;
+      if (drag && drag.moved) {
+        m = drag.m;
+        v = 0;
+      } else if (m === null || still) {
+        m = goalMonth;
+      } else {
+        while (dt > 0) {
+          const h = Math.min(dt, 1 / 120);
+          v += (-STIFFNESS * (m - goalMonth) - DAMPING * v) * h;
+          m += v * h;
+          dt -= h;
+        }
+        resting = Math.abs(goalMonth - m) < 0.002 && Math.abs(v) < 0.002;
+        if (resting) m = goalMonth;
+      }
+      if (resting) v = 0;
+      paint(m, g);
+      if ((!resting || hold) && onScreen) raf = requestAnimationFrame(frame);
+    };
+    const wake = () => {
+      if (raf || !onScreen) return;
+      then = performance.now();
+      raf = requestAnimationFrame(frame);
+    };
+
+    // Presets and a released dial both land here: the page glides to the card while
+    // the dial swings straight to its station instead of stopping at every one between.
+    tuneRef.current = (i) => {
+      const top = window.scrollY + log.getBoundingClientRect().top + offs[i].top - (plate.offsetHeight + LOCK_GAP);
+      hold = { station: i, until: performance.now() + 2400 };
+      window.scrollTo({ top, behavior: still ? 'auto' : 'smooth' });
+      wake();
+    };
+    // Any hand on the page takes the scroll back.
+    const release = () => {
+      hold = null;
+    };
+
+    // Turning the dial by hand. Vertical swipes still scroll the page (touch-action:
+    // pan-y); a sideways drag spins the drum under the finger, and letting go flings
+    // it on to the nearest station.
+    const dial = dialRef.current;
+    const onDown = (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      hold = null;
+      const m0 = clamp(m, STATIONS[last], STATIONS[0]);
+      drag = { id: e.pointerId, x0: e.clientX, m0, m: m0, lx: e.clientX, lt: e.timeStamp, vx: 0, moved: false, near: Math.round(stationAt(m0)) };
+    };
+    const onMove = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x0;
+      if (!drag.moved) {
+        if (Math.abs(dx) < 6) return;
+        drag.moved = true;
+        dial.setPointerCapture(e.pointerId);
+        dial.classList.add('is-turning');
+      }
+      const dt = e.timeStamp - drag.lt;
+      if (dt > 0) drag.vx = 0.7 * ((e.clientX - drag.lx) / dt) + 0.3 * drag.vx;
+      drag.lx = e.clientX;
+      drag.lt = e.timeStamp;
+      drag.m = clamp(drag.m0 - dx / DIAL_PITCH, STATIONS[last], STATIONS[0]);
+      // A detent you can feel, where the hardware allows it.
+      const at = stationAt(drag.m);
+      const near = Math.round(at);
+      if (near !== drag.near && Math.abs(at - near) < 0.08) {
+        drag.near = near;
+        const active = navigator.userActivation ? navigator.userActivation.hasBeenActive : false;
+        if (active && typeof navigator.vibrate === 'function') navigator.vibrate(6);
+      }
+      wake();
+    };
+    const onUp = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const done = drag;
+      drag = null;
+      dial.classList.remove('is-turning');
+      if (!done.moved) return;
+      if (e.type === 'pointercancel') {
+        wake();
+        return;
+      }
+      // Carry the flick a little further, then settle on the station nearest the needle.
+      const month = clamp(done.m - (done.vx * 160) / DIAL_PITCH, STATIONS[last], STATIONS[0]);
+      let pick = 0;
+      STATIONS.forEach((m, i) => {
+        if (Math.abs(m - month) < Math.abs(STATIONS[pick] - month)) pick = i;
+      });
+      tuneRef.current(pick);
+    };
+
+    measure();
+    const g = read();
+    m = pocketMonth(settle(target(g)));
+    paint(m, g);
+
+    const onResize = () => {
+      measure();
+      wake();
+    };
+    window.addEventListener('scroll', wake, { passive: true });
+    window.addEventListener('resize', onResize);
+    window.addEventListener('wheel', release, { passive: true });
+    window.addEventListener('touchstart', release, { passive: true });
+    dial.addEventListener('pointerdown', onDown);
+    dial.addEventListener('pointermove', onMove);
+    dial.addEventListener('pointerup', onUp);
+    dial.addEventListener('pointercancel', onUp);
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(onResize);
+    items.forEach((el) => ro && ro.observe(el));
+    const stop = observe(
+      root,
+      (visible) => {
+        onScreen = visible;
+        wake();
+      },
+      { rootMargin: '120px 0px' },
+    );
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', wake);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('wheel', release);
+      window.removeEventListener('touchstart', release);
+      dial.removeEventListener('pointerdown', onDown);
+      dial.removeEventListener('pointermove', onMove);
+      dial.removeEventListener('pointerup', onUp);
+      dial.removeEventListener('pointercancel', onUp);
+      if (ro) ro.disconnect();
+      stop();
+      tuneRef.current = null;
+    };
+  }, [still, radius, angle]);
+
   return (
-    <div className="xp-list relative z-10 max-w-3xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
-      <div className="mb-12">
+    <div ref={rootRef} className="xp-pocket relative z-10">
+      <div className="xp-pocket__intro">
         <Heading />
       </div>
-      <div className="relative pl-7 sm:pl-9">
-        <span className="xp-list-rail" aria-hidden="true" />
-        <ol className="list-none m-0 p-0 space-y-8">
-          {roles.map((role, i) => (
-            <li key={role.id} className="relative">
-              <span className="xp-list-dot" style={{ left: 'calc(-1 * (1.75rem + 5px))' }} aria-hidden="true" />
-              <span className="xp-list-date" aria-hidden="true">
-                {MONTHS[monthIndex(role.start) % 12]} {role.start.slice(0, 4)}
+
+      <div className="xp-pocket__body">
+        {/* The faceplate: dial, preset keys and signal meter, docked while the log scrolls. */}
+        <div ref={plateRef} className="xp-plate">
+          <div className="xp-plate__inner">
+            <div ref={dialRef} className="xp-dial" aria-hidden="true" style={{ '--pitch': `${DIAL_PITCH}px` }}>
+              {TICKS.map((t, i) => {
+                const label = dialLabel(t);
+                return (
+                  <span
+                    key={t.m}
+                    ref={(el) => {
+                      tickRefs.current[i] = el;
+                    }}
+                    className={`xp-dtick xp-dtick--${t.kind}${t.station ? ' xp-dtick--station' : ''}`}
+                  >
+                    {t.kind === 'year' && <span className="xp-dtick__year">{t.m / 12}</span>}
+                    {label && <span className="xp-dtick__label">{label}</span>}
+                  </span>
+                );
+              })}
+              <svg className="xp-dial__needle" viewBox="0 0 14 28" preserveAspectRatio="none">
+                {/* blade: a hair at the tip, widening toward the hub */}
+                <path d="M7 0 L9.4 18 L4.6 18 Z" fill="#111" />
+                <circle cx="7" cy="21" r="5.4" fill="#fbfaf7" stroke="#2563eb" strokeWidth="1.8" />
+                <circle className="xp-dial__lamp" cx="7" cy="21" r="2" fill="#111" />
+              </svg>
+            </div>
+
+            <div className="xp-plate__row">
+              <div className="xp-plate__keys" role="group" aria-label="Jump to a role">
+                {roles.map((role, i) => (
+                  <button
+                    key={role.id}
+                    ref={(el) => {
+                      keyRefs.current[i] = el;
+                    }}
+                    type="button"
+                    className="xp-pkey"
+                    onClick={() => tuneRef.current && tuneRef.current(i)}
+                    aria-label={`${role.title}, ${role.employer}`}
+                  >
+                    {pad(i + 1)}
+                  </button>
+                ))}
+              </div>
+              <span className="xp-signal" aria-hidden="true">
+                {BARS.map((b) => (
+                  <i
+                    key={b}
+                    ref={(el) => {
+                      barRefs.current[b] = el;
+                    }}
+                  />
+                ))}
               </span>
-              <Reveal className="xp-roll">
-                <Card role={role} index={i} />
-              </Reveal>
+            </div>
+          </div>
+        </div>
+
+        <ol ref={logRef} className="xp-log" style={{ paddingTop: LOCK_GAP }}>
+          {roles.map((role, i) => (
+            <li
+              key={role.id}
+              ref={(el) => {
+                itemRefs.current[i] = el;
+              }}
+              className="xp-log__item"
+            >
+              <Card role={role} index={i} />
+              <span className="xp-shade" aria-hidden="true" />
             </li>
           ))}
         </ol>
@@ -391,7 +795,7 @@ export default function Experience() {
   const roomy = useMediaQuery('(min-width: 1024px) and (min-height: 680px)');
   return (
     <section id="experience" className="xp">
-      {roomy && !reducedMotion ? <TunerLayout /> : <ListLayout />}
+      {roomy && !reducedMotion ? <TunerLayout /> : <PocketLayout still={reducedMotion} />}
     </section>
   );
 }

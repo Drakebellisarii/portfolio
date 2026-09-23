@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ExternalLink, Smartphone, Lock, Play, Compass } from 'lucide-react';
+import { ExternalLink, Smartphone, Lock, Play } from 'lucide-react';
 import Picture from '../components/Picture';
 import Reveal from '../components/Reveal';
 import SmartVideo from '../components/SmartVideo';
@@ -17,42 +17,51 @@ function getDomain(link) {
 
 const MEDIA_HOVER = 'transition-transform duration-500 group-hover:scale-[1.04]';
 
-function ProjectVisual({ project }) {
-  // Mobile app: device mockup with a play affordance for the demo
-  if (project.modal) {
-    return (
-      <div className="relative rounded-t-lg overflow-hidden border border-b-0 border-gray-800 bg-[#0d1117]">
-        <div className="flex items-center gap-2 px-3.5 py-2.5 bg-[#161b22] border-b border-gray-800">
-          <Smartphone size={12} className="text-gray-500" aria-hidden="true" />
-          <span className="text-[10.5px] text-gray-400 font-mono tracking-wide">iOS &middot; SwiftUI</span>
-        </div>
+/** One real app screen in an iPhone frame. Every dimension is a percentage of the stage, so it scales with the card. */
+function Phone({ screen, alt, className }) {
+  return (
+    <div className={`app-phone ${className}`}>
+      <div className="app-phone__screen">
+        <Picture webp={screen.webp} src={screen.src} alt={alt} className="app-phone__img" />
+      </div>
+    </div>
+  );
+}
 
-        <div className="relative aspect-[2/1] overflow-hidden bg-gradient-to-br from-blue-950 via-[#0d1117] to-[#0d1117] flex items-center justify-center">
-          <div className="relative w-[100px] sm:w-[116px] aspect-[9/19] rounded-[20px] border-[3px] border-gray-700/80 bg-black shadow-2xl overflow-hidden transition-transform duration-500 group-hover:scale-[1.05]">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-9 h-2.5 bg-gray-900 rounded-b-lg z-10" aria-hidden="true" />
-            {project.image ? (
-              <Picture
-                webp={project.image.webp}
-                src={project.image.src}
-                alt={`${project.title} preview`}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-600/30 via-gray-900 to-gray-950 flex items-center justify-center">
-                <Compass size={22} className="text-blue-300/60" strokeWidth={1.5} aria-hidden="true" />
-              </div>
-            )}
-          </div>
-
-          <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/25 transition-colors duration-300">
-            <span className="w-10 h-10 rounded-full bg-white/95 flex items-center justify-center shadow-xl opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-[opacity,transform] duration-300">
-              <Play size={14} className="text-gray-900 ml-0.5" fill="currentColor" aria-hidden="true" />
-            </span>
+/** Mobile app: an app bar in place of browser chrome, and two real screens rising out of the card. */
+function AppVisual({ project }) {
+  const [front, back] = project.screens;
+  return (
+    <div className="relative rounded-t-lg overflow-hidden border border-b-0 border-gray-800 bg-[#0d1117]">
+      <div className="flex items-center gap-2 px-3.5 py-2.5 bg-[#161b22] border-b border-gray-800">
+        <span className="app-icon" aria-hidden="true">T</span>
+        <span className="text-[11px] font-semibold text-gray-200 tracking-wide">{project.title}</span>
+        <div className="flex-1 flex justify-end min-w-0">
+          <div className="flex items-center gap-1.5 bg-black/30 rounded-full px-3 py-[3px] text-[10.5px] text-gray-400 font-mono">
+            <Smartphone size={9} className="text-gray-500 flex-shrink-0" aria-hidden="true" />
+            <span className="truncate">iOS app &middot; SwiftUI</span>
           </div>
         </div>
       </div>
-    );
-  }
+
+      <div className="app-stage relative aspect-[2/1] overflow-hidden">
+        <Picture webp={project.backdrop.webp} src={project.backdrop.src} className="absolute inset-0 w-full h-full object-cover" />
+        <div className="app-stage__glow" aria-hidden="true" />
+        <Phone screen={back} alt={`${project.title} 360° campus view`} className="app-phone--back" />
+        <Phone screen={front} alt={`${project.title} route map`} className="app-phone--front" />
+
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center">
+          <span className="inline-flex items-center gap-1.5 bg-white text-gray-900 text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-[opacity,transform] duration-300">
+            View project <Play size={11} fill="currentColor" aria-hidden="true" />
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectVisual({ project }) {
+  if (project.screens) return <AppVisual project={project} />;
 
   // Live website: browser chrome mockup
   const domain = getDomain(project.link);
@@ -130,9 +139,9 @@ function ProjectCard({ project, onOpenModal }) {
           )}
         </div>
 
-        <p className="text-gray-600 text-sm leading-relaxed mb-4 flex-1 line-clamp-4">{project.description}</p>
+        <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-4">{project.description}</p>
 
-        <ul className="flex flex-wrap gap-1.5 list-none m-0 p-0" aria-label="Technologies">
+        <ul className="mt-auto flex flex-wrap gap-1.5 list-none m-0 p-0" aria-label="Technologies">
           {project.tech.map((tech) => (
             <li
               key={tech}
@@ -181,7 +190,7 @@ function CaseStudySeries() {
             Building the internal platform
           </Link>
         </h4>
-        <p className="qx-card__text">Three internal platforms I designed and built as the sole developer.</p>
+        <p className="qx-card__text">Three internal platforms I designed and built as lead engineer.</p>
         <ol className="qx-card__list">
           {SERIES_STUDIES.map((s) => (
             <li key={s.index}>

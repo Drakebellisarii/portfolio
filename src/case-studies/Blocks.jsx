@@ -12,7 +12,7 @@ export function Visual({ name, priority = false }) {
       <C />
       {recreation && (
         <figcaption className="cs-caption">
-          Recreated in code with fictional data<span className="cs-caption__swipe"> · swipe to explore</span>
+          Recreated in code with fictional data
         </figcaption>
       )}
     </figure>
@@ -27,8 +27,9 @@ const Eyebrow = ({ number, children }) => (
 );
 
 export function Chapter({ block }) {
-  const { number, eyebrow, title, body, visual, tone = 'paper', flip, wide, aside, closing } = block;
-  const layout = !visual ? 'cs-chapter--text' : wide ? 'cs-chapter--wide' : flip ? 'cs-chapter--flip' : '';
+  const { number, eyebrow, title, body, visual, tone = 'paper', aside, closing } = block;
+  // Every chapter with a visual uses the wide layout: text on top, the visual at full width below.
+  const layout = visual ? 'cs-chapter--wide' : 'cs-chapter--text';
   return (
     <section className={`cs-chapter cs-tone-${tone} ${layout}${closing ? ' cs-chapter--closing' : ''}`} aria-labelledby={`ch-${number}`}>
       <div className="cs-wrap cs-chapter__grid">

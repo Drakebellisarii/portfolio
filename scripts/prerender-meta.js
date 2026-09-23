@@ -53,7 +53,7 @@ const renderRoute = (route) =>
 
 // Sizes every scaled recreation for this screen before first paint, with the
 // same rule as <Scaled>, so React's later render changes nothing visible.
-const SIZE_SCRIPT = `<script>(function(){var M=0.5;document.querySelectorAll('#root .cs-scaled[data-w]').forEach(function(el){var w=+el.dataset.w,h=+el.dataset.h,f=el.clientWidth/w,s=Math.min(1,Math.max(f,M)),o=f<M;el.style.height=(h*s+(o?10:0))+'px';if(o){el.classList.add('cs-scaled--pan');el.tabIndex=0;}var t=el.firstElementChild;t.style.width=w*s+'px';t.style.height=h*s+'px';t.firstElementChild.style.transform='scale('+s+')';});})();</script>`;
+const SIZE_SCRIPT = `<script>(function(){document.querySelectorAll('#root .cs-scaled[data-w]').forEach(function(el){var W=+el.dataset.w,H=+el.dataset.h,cw=el.clientWidth,i=el.firstElementChild;if(!cw||!i)return;if(cw<760&&!el.closest('[data-no-compact]')){var w=Math.max(340,cw),s=Math.min(1,cw/w);i.classList.add('ui-compact');i.style.width=w+'px';i.style.height='auto';i.style.left='0px';i.style.transform='scale('+s+')';el.style.height=(i.offsetHeight*s)+'px';}else{var s2=Math.min(1,cw/W);i.style.transform='scale('+s2+')';i.style.left=Math.max(0,(cw-W*s2)/2)+'px';el.style.height=(H*s2)+'px';}});})();</script>`;
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 

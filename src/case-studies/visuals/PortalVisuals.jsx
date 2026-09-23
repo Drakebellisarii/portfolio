@@ -1,8 +1,16 @@
 import React from 'react';
+import { BookOpen, ClipboardList, Compass, FileText, HelpCircle, LayoutDashboard, Library, Lock, Presentation, Route, ShieldCheck } from 'lucide-react';
 import { BrowserFrame, Scaled } from './Frames';
 
 // Fictional partners, customers and people only.
-const PARTNER_NAV = ['Dashboard', 'Deal registration', 'Resources', 'Onboarding', 'Implementation', 'Discovery', 'Help', 'Settings'];
+const PARTNER_NAV = [
+  ['Dashboard', LayoutDashboard],
+  ['Deal registration', ClipboardList],
+  ['Resources', Library],
+  ['Onboarding', BookOpen],
+  ['Implementation', Route],
+  ['Discovery', Compass],
+];
 
 function PartnerSide({ active = 0 }) {
   return (
@@ -10,10 +18,10 @@ function PartnerSide({ active = 0 }) {
       <div className="ui-side__brand">
         <span className="ui-side__mark" /> Partner Portal
       </div>
-      <nav>
-        {PARTNER_NAV.slice(0, 6).map((l, i) => (
+      <nav className="ui-side__nav">
+        {PARTNER_NAV.map(([l, Icon], i) => (
           <div key={l} className={`ui-side__item${i === active ? ' is-active' : ''}`}>
-            <span className="ui-side__icon" />
+            <Icon size={15} strokeWidth={1.8} className="ui-side__icon" />
             {l}
           </div>
         ))}
@@ -30,7 +38,7 @@ function PartnerSide({ active = 0 }) {
 }
 
 export const PartnerDashboard = () => (
-  <Scaled width={1080} height={660} label="Recreation of the partner dashboard for a fictional partner, Brightline MSP: deals by stage, recent registrations and messages from the Queralt team.">
+  <Scaled width={1080} height={640} label="Recreation of the partner dashboard for a fictional partner, Brightline MSP: deals by stage, recent registrations and messages from the Queralt team.">
     <BrowserFrame title="Partner Portal · Dashboard">
       <div className="ui-app">
         <PartnerSide />
@@ -48,8 +56,8 @@ export const PartnerDashboard = () => (
               ['In review', 2],
               ['Approved', 3],
               ['Won', 1],
-            ].map(([s, n]) => (
-              <div key={s} className="ui-stage">
+            ].map(([s, n], i) => (
+              <div key={s} className="ui-stage ui-anim-rise" style={{ '--d': `${i * 70}ms` }}>
                 <span>{s}</span>
                 <b>{n}</b>
               </div>
@@ -71,7 +79,7 @@ export const PartnerDashboard = () => (
             </section>
             <section className="ui-panel">
               <p className="ui-panel__title">From the Queralt team</p>
-              {['Crestview: can you share seat count?', 'New battlecard in Resources', 'Onboarding step 3 unlocked'].map((m) => (
+              {['Crestview: can you share the seat count?', 'New battlecard in Resources', 'Onboarding step 3 unlocked'].map((m) => (
                 <div key={m} className="ui-row">
                   <span className="ui-dotmark" />
                   <span className="ui-row__title">{m}</span>
@@ -86,40 +94,155 @@ export const PartnerDashboard = () => (
 );
 
 export const PartnerTypes = () => (
-  <Scaled width={1000} height={520} label="The three kinds of channel partner: resellers, managed service providers and integrators, with fictional example partners.">
+  <Scaled width={1000} height={440} label="The three kinds of channel partner: resellers, managed service providers and integrators, with fictional example partners.">
     <div className="ui-types">
       {[
         ['Resellers', 'Sell the product to their own customers.', 'Northwind Security'],
         ['MSPs', 'Run it for customers as a managed service.', 'Brightline MSP'],
         ['Integrators', 'Build it into the systems customers already use.', 'Halcyon IT'],
       ].map(([t, d, ex], i) => (
-        <div key={t} className="ui-type" style={{ transform: `translateY(${[0, 36, 12][i]}px)` }}>
+        <div key={t} className="ui-type ui-anim-rise" style={{ '--d': `${i * 110}ms` }}>
           <p className="ui-type__n">0{i + 1}</p>
           <p className="ui-type__t">{t}</p>
           <p className="ui-type__d">{d}</p>
-          <p className="ui-type__ex">e.g. {ex}</p>
+          <p className="ui-type__ex">Example partner · {ex}</p>
         </div>
       ))}
     </div>
   </Scaled>
 );
 
+/** Each Figma artboard is a miniature of its page, with real content rather than grey boxes. */
+const BOARDS = [
+  {
+    name: 'Dashboard',
+    body: (
+      <>
+        <div className="ab-stats">
+          <span>
+            <b>4</b>Registered
+          </span>
+          <span>
+            <b>2</b>In review
+          </span>
+          <span>
+            <b>3</b>Approved
+          </span>
+        </div>
+        <p className="ab-row">Crestview Health · In review</p>
+        <p className="ab-row">Harbor &amp; Pine Legal · Approved</p>
+      </>
+    ),
+  },
+  {
+    name: 'Deal registration',
+    body: (
+      <>
+        {['Customer', 'Seats', 'Expected close', 'Use case'].map((f) => (
+          <p key={f} className="ab-field">
+            <span>{f}</span>
+          </p>
+        ))}
+        <p className="ab-btn">Submit for review</p>
+      </>
+    ),
+  },
+  {
+    name: 'Resource library',
+    body: (
+      <div className="ab-tiles">
+        {['Overview deck', 'Battlecard', 'One-pager', 'Setup guide'].map((t) => (
+          <span key={t}>{t}</span>
+        ))}
+      </div>
+    ),
+  },
+  {
+    name: 'Onboarding',
+    body: (
+      <>
+        {[
+          ['Sign partner agreement', true],
+          ['Complete product training', true],
+          ['Register a first deal', false],
+          ['Book a kickoff call', false],
+        ].map(([t, done]) => (
+          <p key={t} className={`ab-check${done ? ' is-done' : ''}`}>
+            {t}
+          </p>
+        ))}
+      </>
+    ),
+  },
+  {
+    name: 'Implementation tracker',
+    body: (
+      <>
+        {['Kickoff', 'Configuration', 'Pilot', 'Go-live'].map((s, i) => (
+          <p key={s} className={`ab-step${i < 2 ? ' is-done' : i === 2 ? ' is-now' : ''}`}>
+            {s}
+          </p>
+        ))}
+      </>
+    ),
+  },
+  {
+    name: 'Customer discovery',
+    body: (
+      <>
+        {['How do users sign in today?', 'Which systems must it work with?', 'Who approves security changes?'].map((q) => (
+          <p key={q} className="ab-row">
+            {q}
+          </p>
+        ))}
+      </>
+    ),
+  },
+  {
+    name: 'Help',
+    body: (
+      <>
+        {['How do I register a deal?', 'Where are the sales decks?', 'Who is my partner manager?'].map((q) => (
+          <p key={q} className="ab-faq">
+            {q}
+          </p>
+        ))}
+      </>
+    ),
+  },
+  {
+    name: 'Settings',
+    body: (
+      <>
+        {[
+          ['Email notifications', true],
+          ['Weekly summary', true],
+          ['Share deals with team', false],
+        ].map(([t, on]) => (
+          <p key={t} className="ab-toggle">
+            {t}
+            <i className={on ? 'is-on' : ''} />
+          </p>
+        ))}
+      </>
+    ),
+  },
+];
+
 export const FigmaBoard = () => (
-  <Scaled width={1080} height={660} label="The eight-page product concept designed in Figma: dashboard, deal registration, resource library, onboarding, implementation tracker, customer discovery, help and settings.">
+  <Scaled width={1080} height={640} label="The eight-page product concept designed in Figma: dashboard, deal registration, resource library, onboarding, implementation tracker, customer discovery, help and settings.">
     <div className="ui-figma">
       <div className="ui-figma__bar">
         <span>Partner Portal · Concept</span>
         <span>8 pages</span>
       </div>
       <div className="ui-figma__grid">
-        {['Dashboard', 'Deal registration', 'Resource library', 'Onboarding', 'Implementation tracker', 'Customer discovery', 'Help', 'Settings'].map((p, i) => (
-          <div key={p} className="ui-board">
-            <p className="ui-board__label">{p}</p>
-            <div className={`ui-board__art ui-board__art--${i % 4}`}>
-              <i />
-              <i />
-              <i />
-              <i />
+        {BOARDS.map((b, i) => (
+          <div key={b.name} className="ui-board ui-anim-rise" style={{ '--d': `${i * 50}ms` }}>
+            <p className="ui-board__label">{b.name}</p>
+            <div className="ui-board__art">
+              <p className="ab-title">{b.name}</p>
+              {b.body}
             </div>
           </div>
         ))}
@@ -129,7 +252,7 @@ export const FigmaBoard = () => (
 );
 
 export const DealRegistration = () => (
-  <Scaled width={1000} height={620} label="Recreation of the deal registration form, filled in for a fictional customer.">
+  <Scaled width={1000} height={520} label="Recreation of the deal registration form, filled in for a fictional customer.">
     <BrowserFrame title="Partner Portal · Register a deal">
       <div className="ui-form">
         <p className="ui-kicker">Step 2 of 3</p>
@@ -161,7 +284,7 @@ export const DealRegistration = () => (
 );
 
 export const DealThread = () => (
-  <Scaled width={1000} height={620} label="Recreation of a deal with its message thread between a partner and the Queralt team. Fictional data.">
+  <Scaled width={1000} height={510} label="Recreation of a deal with its message thread between a partner and the Queralt team. Fictional data.">
     <BrowserFrame title="Partner Portal · Crestview Health">
       <div className="ui-thread">
         <div className="ui-thread__deal">
@@ -183,9 +306,9 @@ export const DealThread = () => (
             ['partner', 'Jordan · Brightline MSP', 'Registered. They want to start with one site.'],
             ['team', 'Theo · Queralt', 'Great. Can you confirm the seat count for that site?'],
             ['partner', 'Jordan · Brightline MSP', 'About 90 to start, 250 across all three.'],
-            ['team', 'Theo · Queralt', 'Approved for review. Implementation guide is in Resources.'],
-          ].map(([side, who, text]) => (
-            <div key={text} className={`ui-bubble ui-bubble--${side}`}>
+            ['team', 'Theo · Queralt', 'Approved for review. The implementation guide is in Resources.'],
+          ].map(([side, who, text], i) => (
+            <div key={text} className={`ui-bubble ui-bubble--${side} ui-anim-rise`} style={{ '--d': `${i * 130}ms` }}>
               <p className="ui-bubble__who">{who}</p>
               <p>{text}</p>
             </div>
@@ -198,7 +321,7 @@ export const DealThread = () => (
 );
 
 export const AssetLibrary = () => (
-  <Scaled width={1000} height={600} label="Recreation of the partner asset library: sales collateral organized by type. Fictional data.">
+  <Scaled width={1000} height={580} label="Recreation of the partner asset library: sales collateral organized by type. Fictional data.">
     <BrowserFrame title="Partner Portal · Resources">
       <div className="ui-assets">
         <div className="ui-pilot__head">
@@ -213,17 +336,22 @@ export const AssetLibrary = () => (
         </div>
         <div className="ui-assets__grid">
           {[
-            ['Product overview', 'Deck'],
-            ['Implementation guide', 'Guide'],
-            ['Competitive battlecard', 'Battlecard'],
-            ['Discovery questions', 'Guide'],
-            ['Customer one-pager', 'Deck'],
-            ['Onboarding checklist', 'Guide'],
-          ].map(([t, k], i) => (
-            <div key={t} className="ui-asset">
-              <div className={`ui-asset__cover ui-asset__cover--${i % 3}`} />
+            ['Product overview', 'Deck', 'Updated this month', Presentation],
+            ['Implementation guide', 'Guide', 'v2.1', BookOpen],
+            ['Competitive battlecard', 'Battlecard', 'Updated this week', ShieldCheck],
+            ['Discovery questions', 'Guide', '12 questions', HelpCircle],
+            ['Customer one-pager', 'Deck', '1 page', FileText],
+            ['Onboarding checklist', 'Guide', '8 steps', ClipboardList],
+          ].map(([t, k, meta, Icon], i) => (
+            <div key={t} className="ui-asset ui-anim-rise" style={{ '--d': `${i * 60}ms` }}>
+              <div className={`ui-asset__cover ui-asset__cover--${k.toLowerCase()}`}>
+                <Icon size={20} strokeWidth={1.6} />
+                <span>{t}</span>
+              </div>
               <p className="ui-asset__t">{t}</p>
-              <p className="ui-asset__k">{k}</p>
+              <p className="ui-asset__k">
+                {k} · {meta}
+              </p>
             </div>
           ))}
         </div>
@@ -233,28 +361,45 @@ export const AssetLibrary = () => (
 );
 
 export const InvestorSignIn = () => (
-  <Scaled width={1000} height={600} label="Recreation of the original investor portal sign-in, with its session held in an HTTP-only cookie.">
+  <Scaled width={1000} height={540} label="Recreation of the original investor portal: a signed-in investor's list of updates and materials, with the session held in an HTTP-only cookie. Fictional data.">
     <div className="ui-investor">
-      <div className="ui-card ui-card--signin">
-        <p className="ui-kicker">Investor access</p>
-        <h4 className="ui-h2">Sign in to view updates</h4>
-        <label className="ui-field">
-          <span>Email</span>
-          <span className="ui-input">investor@example.com</span>
-        </label>
-        <label className="ui-field">
-          <span>Password</span>
-          <span className="ui-input">••••••••••••</span>
-        </label>
-        <span className="ui-btn ui-btn--block">Sign in</span>
-      </div>
+      <BrowserFrame title="Investor Portal · Updates">
+        <div className="ui-inv">
+          <div className="ui-inv__head">
+            <div>
+              <p className="ui-kicker">Signed in</p>
+              <h4 className="ui-h2">Alex Morgan</h4>
+            </div>
+            <span className="ui-inv__lock">
+              <Lock size={13} strokeWidth={2} /> Private
+            </span>
+          </div>
+          {[
+            ['Quarterly update', 'Update', 'Oct'],
+            ['Product roadmap summary', 'Material', 'Sep'],
+            ['Pilot program overview', 'Material', 'Aug'],
+            ['Quarterly update', 'Update', 'Jul'],
+          ].map(([t, k, m], i) => (
+            <div key={t + m} className="ui-inv__row ui-anim-rise" style={{ '--d': `${i * 80}ms` }}>
+              <FileText size={16} strokeWidth={1.6} />
+              <span className="ui-inv__t">{t}</span>
+              <span className="ui-chip">{k}</span>
+              <span className="ui-inv__m">{m}</span>
+            </div>
+          ))}
+        </div>
+      </BrowserFrame>
       <div className="ui-cookie">
         <p className="ui-cookie__k">Set-Cookie</p>
         <p>
-          session=<i>…</i>; <b>HttpOnly</b>; <b>Secure</b>; <b>SameSite</b>
+          session=<i>…</i>;
         </p>
-        <p className="ui-cookie__note">Unreadable by page scripts</p>
+        <p>
+          <b>HttpOnly</b>; <b>Secure</b>; <b>SameSite</b>
+        </p>
+        <p className="ui-cookie__note">The session token cannot be read by page scripts.</p>
       </div>
     </div>
   </Scaled>
 );
+

@@ -1,4 +1,25 @@
 import React from 'react';
+import {
+  CalendarDays,
+  CheckSquare,
+  Compass,
+  FileText,
+  Files,
+  FolderKanban,
+  Gauge,
+  Hash,
+  HeartHandshake,
+  Home,
+  LayoutDashboard,
+  ListChecks,
+  Megaphone,
+  MessageSquare,
+  MoreHorizontal,
+  Plug,
+  Search,
+  Target,
+  Users,
+} from 'lucide-react';
 import { BrowserFrame, PhoneFrame, Scaled } from './Frames';
 
 // Fictional people and organizations only.
@@ -17,8 +38,36 @@ export const Avatar = ({ p, size = 26 }) => (
   </span>
 );
 
-const NAV_AFTER = ['Home', 'Messages', 'My work', 'Calendar', 'Projects', 'Documents', 'People', 'Goals'];
-const NAV_BEFORE = ['Dashboard', 'Announcements', 'Channels', 'Direct messages', 'Tasks', 'My tasks', 'Projects', 'Calendar', 'Documents', 'Files', 'Directory', 'Goals', 'Vision', 'Scorecard', 'Kudos', 'Portals'];
+const ICON = { size: 15, strokeWidth: 1.8 };
+
+const NAV_AFTER = [
+  ['Home', Home],
+  ['Messages', MessageSquare],
+  ['My work', ListChecks],
+  ['Calendar', CalendarDays],
+  ['Projects', FolderKanban],
+  ['Documents', FileText],
+  ['People', Users],
+  ['Goals', Target],
+];
+const NAV_BEFORE = [
+  ['Dashboard', LayoutDashboard],
+  ['Announcements', Megaphone],
+  ['Channels', Hash],
+  ['Direct messages', MessageSquare],
+  ['Tasks', CheckSquare],
+  ['My tasks', ListChecks],
+  ['Projects', FolderKanban],
+  ['Calendar', CalendarDays],
+  ['Documents', FileText],
+  ['Files', Files],
+  ['Directory', Users],
+  ['Goals', Target],
+  ['Vision', Compass],
+  ['Scorecard', Gauge],
+  ['Kudos', HeartHandshake],
+  ['Portals', Plug],
+];
 
 function Sidebar({ items, active = 0, dense = false }) {
   return (
@@ -26,10 +75,10 @@ function Sidebar({ items, active = 0, dense = false }) {
       <div className="ui-side__brand">
         <span className="ui-side__mark" /> Hub
       </div>
-      <nav>
-        {items.map((label, i) => (
+      <nav className="ui-side__nav">
+        {items.map(([label, Icon], i) => (
           <div key={label} className={`ui-side__item${i === active ? ' is-active' : ''}`}>
-            <span className="ui-side__icon" />
+            <Icon {...ICON} className="ui-side__icon" />
             {label}
           </div>
         ))}
@@ -49,11 +98,12 @@ function HomeScreen() {
             <h4 className="ui-h1">Good morning, Maya</h4>
           </div>
           <div className="ui-search">
+            <Search size={14} strokeWidth={2} />
             <span>Search or jump to</span>
             <kbd>⌘K</kbd>
           </div>
         </div>
-        <section className="ui-panel">
+        <section className="ui-panel ui-anim-rise" style={{ '--d': '80ms' }}>
           <p className="ui-panel__title">Today</p>
           {[
             ['9:30', 'Stand-up', 'Everyone', 'blue'],
@@ -68,7 +118,7 @@ function HomeScreen() {
           ))}
         </section>
         <div className="ui-grid2">
-          <section className="ui-panel">
+          <section className="ui-panel ui-anim-rise" style={{ '--d': '180ms' }}>
             <p className="ui-panel__title">Your tasks</p>
             {[
               ['Send pilot install guide', 'Today', true],
@@ -82,7 +132,7 @@ function HomeScreen() {
               </div>
             ))}
           </section>
-          <section className="ui-panel">
+          <section className="ui-panel ui-anim-rise" style={{ '--d': '280ms' }}>
             <p className="ui-panel__title">Messages</p>
             {[
               [P.theo, '#partners', 'Northwind registered a new deal'],
@@ -113,24 +163,31 @@ export const HubHome = () => (
 
 export const HubBefore = () => (
   <Scaled width={1080} height={660} label="Recreation of the first Hub version: sixteen sidebar items, duplicated statistics and empty widgets. Fictional data.">
-    <BrowserFrame title="Hub · Dashboard (v1)">
-      <div className="ui-app">
+    <BrowserFrame title="Hub · Dashboard (version one)">
+      <div className="ui-app ui-app--before">
         <Sidebar items={NAV_BEFORE} dense />
         <main className="ui-main">
           <h4 className="ui-h1">Dashboard</h4>
           <div className="ui-stats">
-            {['Open tasks 14', 'Tasks open 14', 'Projects 5', 'Active projects 5', 'Messages 32', 'Unread 32'].map((s) => (
-              <div key={s} className="ui-stat">
-                <span>{s.replace(/ \d+$/, '')}</span>
-                <b>{s.match(/\d+$/)[0]}</b>
+            {[
+              ['Open tasks', 14],
+              ['Tasks open', 14],
+              ['Projects', 5],
+              ['Active projects', 5],
+              ['Messages', 32],
+              ['Unread', 32],
+            ].map(([k, v]) => (
+              <div key={k} className="ui-stat">
+                <span>{k}</span>
+                <b>{v}</b>
               </div>
             ))}
           </div>
           <div className="ui-grid3">
-            {['Recent files', 'Kudos', 'Upcoming', 'Goals', 'Vision', 'Portal activity'].map((w, i) => (
+            {['Recent files', 'Kudos', 'Upcoming', 'Goals', 'Vision', 'Portal activity'].map((w) => (
               <section key={w} className="ui-panel ui-panel--empty">
                 <p className="ui-panel__title">{w}</p>
-                <p className="ui-empty">{i % 2 ? 'No data yet' : 'Nothing to show'}</p>
+                <p className="ui-empty">Nothing here yet</p>
               </section>
             ))}
           </div>
@@ -148,7 +205,8 @@ export const Discovery = () => (
         ['What do they need first each morning?', 'Today’s meetings. Then tasks. Then messages.'],
         ['At a desk or on a phone?', 'Both.'],
       ].map(([q, a], i) => (
-        <div key={q} className="ui-note" style={{ transform: `rotate(${[-1.6, 1.1, -0.6][i]}deg)` }}>
+        <div key={q} className="ui-note ui-anim-rise" style={{ '--r': `${[-1.6, 1.1, -0.6][i]}deg`, '--d': `${i * 120}ms` }}>
+          <p className="ui-note__n">0{i + 1}</p>
           <p className="ui-note__q">{q}</p>
           <p className="ui-note__a">{a}</p>
         </div>
@@ -159,13 +217,15 @@ export const Discovery = () => (
 
 export const CommandPalette = () => (
   <Scaled width={1080} height={660} label="Recreation of the command palette: typing 'north' finds a partner deal, a task and a document at once. Fictional data.">
-    <BrowserFrame title="Hub · ⌘K">
+    <BrowserFrame title="Hub · Command palette">
       <div className="ui-app ui-app--dim">
         <Sidebar items={NAV_AFTER} />
-        <main className="ui-main" />
-        <div className="ui-palette">
+        <main className="ui-main ui-main--ghost">
+          <h4 className="ui-h1">Good morning, Maya</h4>
+        </main>
+        <div className="ui-palette ui-anim-drop">
           <div className="ui-palette__input">
-            <span className="ui-palette__glass" />
+            <Search size={18} strokeWidth={2} className="ui-palette__glass" />
             north<span className="ui-caret" />
           </div>
           {[
@@ -189,8 +249,16 @@ export const CommandPalette = () => (
   </Scaled>
 );
 
+const TABS = [
+  ['Home', Home],
+  ['Messages', MessageSquare],
+  ['My work', ListChecks],
+  ['Calendar', CalendarDays],
+  ['More', MoreHorizontal],
+];
+
 export const MobileTabBar = () => (
-  <Scaled width={1080} height={660} label="Recreation of the Hub on a phone: today's meetings and tasks with a bottom tab bar for the primary places. Fictional data.">
+  <Scaled width={1080} height={660} label="Recreation of the Hub on a phone: today's meetings and tasks with a bottom tab bar for the primary sections. Fictional data.">
     <div className="ui-phone-stage">
       <PhoneFrame>
         <div className="ui-m">
@@ -218,9 +286,9 @@ export const MobileTabBar = () => (
           ))}
         </div>
         <div className="ui-tabbar">
-          {['Home', 'Messages', 'My work', 'Calendar', 'More'].map((t, i) => (
+          {TABS.map(([t, Icon], i) => (
             <span key={t} className={i === 0 ? 'is-on' : ''}>
-              <i />
+              <Icon size={19} strokeWidth={1.8} />
               {t}
             </span>
           ))}
@@ -231,9 +299,9 @@ export const MobileTabBar = () => (
 );
 
 export const CheckIn = () => (
-  <Scaled width={900} height={620} label="Recreation of an on-request check-in: the assignee answers On track, At risk or Blocked with a note, and each answer joins the task's status timeline. Fictional data.">
+  <Scaled width={960} height={470} label="Recreation of an on-request check-in: the assignee answers On track, At risk or Blocked with a note, and each answer joins the task's status timeline. Fictional data.">
     <div className="ui-checkin">
-      <div className="ui-card">
+      <div className="ui-card ui-anim-rise">
         <p className="ui-kicker">Update requested by Theo Grant</p>
         <h4 className="ui-h2">Send pilot install guide</h4>
         <div className="ui-seg">
@@ -245,12 +313,13 @@ export const CheckIn = () => (
         <div className="ui-btn">Send update</div>
       </div>
       <div className="ui-timeline">
+        <p className="ui-panel__title">Status timeline</p>
         {[
           ['ok', 'On track', 'Draft is done. Review with Sam on Thursday.', 'Today'],
           ['risk', 'At risk', 'Waiting on screenshots from the pilot team.', 'Mon'],
           ['ok', 'On track', 'Outline agreed.', 'Last week'],
         ].map(([k, s, note, when], i) => (
-          <div key={when} className="ui-timeline__item">
+          <div key={when} className={`ui-timeline__item${i === 0 ? ' ui-anim-slide' : ''}`} style={{ '--d': '420ms' }}>
             <span className={`ui-pip ui-pip--${k}`} />
             <div>
               <p className="ui-timeline__head">
@@ -267,44 +336,63 @@ export const CheckIn = () => (
 );
 
 export const ChatChannel = () => (
-  <Scaled width={1080} height={640} label="Recreation of a Hub channel: a pinned announcement, real-time messages and a kudos. Fictional data.">
+  <Scaled width={1080} height={540} label="Recreation of a Hub channel: a pinned announcement, real-time messages and a kudos. Fictional data.">
     <BrowserFrame title="Hub · #launch">
       <div className="ui-app">
         <aside className="ui-side ui-side--channels">
           <div className="ui-side__brand">
             <span className="ui-side__mark" /> Messages
           </div>
-          {['# general', '# launch', '# partners', '# pilot', 'Priya Nair', 'Theo Grant'].map((c, i) => (
+          {['general', 'launch', 'partners', 'pilot'].map((c, i) => (
             <div key={c} className={`ui-side__item${i === 1 ? ' is-active' : ''}`}>
-              {c}
+              <span>
+                <Hash size={13} strokeWidth={2} className="ui-side__hash" />
+                {c}
+              </span>
               {i === 3 && <span className="ui-badge">2</span>}
+            </div>
+          ))}
+          <p className="ui-side__label">Direct</p>
+          {[P.priya, P.theo].map((p) => (
+            <div key={p.name} className="ui-side__item">
+              <span>
+                <Avatar p={p} size={18} /> {p.name}
+              </span>
             </div>
           ))}
         </aside>
         <main className="ui-main ui-chat">
           <div className="ui-announce">
-            <b>Announcement</b> Pilot kickoff moves to Thursday. Agenda is in Documents.
+            <Megaphone size={15} strokeWidth={2} />
+            <span>
+              <b>Announcement</b> Pilot kickoff moves to Thursday. Agenda is in Documents.
+            </span>
           </div>
           {[
-            [P.priya, 'Final deck is in the library, v4.'],
-            [P.theo, 'Northwind wants a demo next week. Can we fit it in?'],
-            [P.maya, 'Yes. I’ll turn it into a task for Sam.'],
-          ].map(([p, t]) => (
-            <div key={t} className="ui-msg">
+            [P.priya, '10:41', 'Final deck is in the library, v4.'],
+            [P.theo, '10:44', 'Northwind wants a demo next week. Can we fit it in?'],
+            [P.maya, '10:46', 'Yes. I’ll turn it into a task for Sam.'],
+          ].map(([p, at, t], i) => (
+            <div key={t} className="ui-msg ui-anim-rise" style={{ '--d': `${i * 140}ms` }}>
               <Avatar p={p} size={30} />
               <div>
                 <p className="ui-msg__who">
-                  {p.name} <span>10:4{t.length % 9}</span>
+                  {p.name} <span>{at}</span>
                 </p>
                 <p className="ui-msg__text">{t}</p>
               </div>
             </div>
           ))}
-          <div className="ui-kudos">
-            <span>★</span> <b>Kudos</b> to Lena for turning pilot feedback around in a day
+          <div className="ui-kudos ui-anim-rise" style={{ '--d': '480ms' }}>
+            <HeartHandshake size={15} strokeWidth={2} /> <b>Kudos</b> to Lena for turning pilot feedback around in a day
           </div>
           <div className="ui-composer">
-            Message #launch <span className="ui-typing">Sam is typing…</span>
+            <span>Message #launch</span>
+            <span className="ui-typing">
+              Sam is typing<i />
+              <i />
+              <i />
+            </span>
           </div>
         </main>
       </div>
@@ -313,38 +401,38 @@ export const ChatChannel = () => (
 );
 
 export const GoalsScorecard = () => (
-  <Scaled width={1000} height={600} label="Recreation of goals and a scorecard: company and personal goals with progress beside weekly measures. Fictional data.">
+  <Scaled width={1000} height={470} label="Recreation of goals and a scorecard: company and personal goals with progress beside weekly measures. Fictional data.">
     <BrowserFrame title="Hub · Goals">
       <div className="ui-goals">
         <div>
           <p className="ui-kicker">Vision</p>
-          <p className="ui-vision">A sample vision statement lives here.</p>
+          <p className="ui-vision">Make secure identity the easy part of every customer’s day.</p>
           <p className="ui-panel__title" style={{ marginTop: 26 }}>
-            Company goals
+            Company goals · this quarter
           </p>
           {[
             ['Launch the partner program', 0.7],
             ['Complete pilot onboarding', 0.45],
             ['Publish the implementation guide', 0.2],
-          ].map(([g, v]) => (
+          ].map(([g, v], i) => (
             <div key={g} className="ui-goal">
               <span>{g}</span>
               <span className="ui-bar">
-                <i style={{ width: `${v * 100}%` }} />
+                <i style={{ width: `${v * 100}%`, '--d': `${i * 120}ms` }} />
               </span>
+              <span className="ui-goal__pct">{Math.round(v * 100)}%</span>
             </div>
           ))}
           <p className="ui-panel__title" style={{ marginTop: 22 }}>
             My goals
           </p>
-          {[['Ship onboarding flow', 0.6]].map(([g, v]) => (
-            <div key={g} className="ui-goal">
-              <span>{g}</span>
-              <span className="ui-bar">
-                <i style={{ width: `${v * 100}%` }} />
-              </span>
-            </div>
-          ))}
+          <div className="ui-goal">
+            <span>Ship onboarding flow</span>
+            <span className="ui-bar">
+              <i style={{ width: '60%', '--d': '360ms' }} />
+            </span>
+            <span className="ui-goal__pct">60%</span>
+          </div>
         </div>
         <div className="ui-score">
           <p className="ui-panel__title">Scorecard · this week</p>
@@ -365,7 +453,7 @@ export const GoalsScorecard = () => (
 );
 
 export const Directory = () => (
-  <Scaled width={1000} height={600} label="Recreation of the company directory with profiles synced from Microsoft Entra ID, beside the document library. Fictional data.">
+  <Scaled width={1000} height={450} label="Recreation of the company directory with profiles synced from Microsoft Entra ID, beside the document library. Fictional data.">
     <BrowserFrame title="Hub · People">
       <div className="ui-dir">
         <div className="ui-dir__head">
@@ -382,8 +470,8 @@ export const Directory = () => (
             [P.sam, 'Customer success'],
             [P.jordan, 'Finance'],
             [P.lena, 'Product'],
-          ].map(([p, team]) => (
-            <div key={p.name} className="ui-person">
+          ].map(([p, team], i) => (
+            <div key={p.name} className="ui-person ui-anim-rise" style={{ '--d': `${i * 60}ms` }}>
               <Avatar p={p} size={40} />
               <div>
                 <p className="ui-person__name">{p.name}</p>
@@ -396,10 +484,18 @@ export const Directory = () => (
           Documents
         </p>
         <div className="ui-files">
-          {['Partner program overview', 'Pilot install guide', 'Brand guidelines', 'Board update'].map((f) => (
+          {[
+            ['Partner program overview', 'PDF'],
+            ['Pilot install guide', 'DOCX'],
+            ['Brand guidelines', 'PDF'],
+            ['Board update, Q3', 'PPTX'],
+          ].map(([f, k]) => (
             <div key={f} className="ui-file">
-              <span className="ui-file__icon" />
-              {f}
+              <FileText size={18} strokeWidth={1.6} className="ui-file__icon" />
+              <span>
+                <b>{f}</b>
+                <i>{k}</i>
+              </span>
             </div>
           ))}
         </div>
@@ -409,20 +505,20 @@ export const Directory = () => (
 );
 
 export const AskHub = () => (
-  <Scaled width={900} height={560} label="Recreation of the optional assistant answering a question with a cited source. Fictional data.">
+  <Scaled width={900} height={390} label="Recreation of the optional assistant answering a question with cited sources. Fictional data.">
     <div className="ui-ask">
       <div className="ui-ask__bar">
         <span className="ui-ask__spark">✦</span> Ask the hub
         <span className="ui-toggle">
-          <i /> Off until configured
+          <i /> On · configured by an admin
         </span>
       </div>
       <div className="ui-ask__q">
         <Avatar p={P.maya} size={26} /> What did we decide about the pilot kickoff?
       </div>
-      <div className="ui-ask__a">
+      <div className="ui-ask__a ui-anim-rise" style={{ '--d': '200ms' }}>
         <p>
-          The kickoff moved to Thursday, and the agenda lives in Documents. <span className="ui-cite">1</span>
+          The kickoff moved to Thursday, and the agenda is in Documents. <span className="ui-cite">1</span>
         </p>
         <p>
           Sam owns the install guide, due before the kickoff. <span className="ui-cite">2</span>
@@ -441,45 +537,44 @@ export const AskHub = () => (
 );
 
 export const ScatteredTools = () => (
-  <Scaled width={1000} height={640} label="Illustration: chat, email, files and three separate portals scattered apart, surrounded by unanswered questions.">
+  <Scaled width={1000} height={600} label="Illustration: chat, email, files and three separate portals, each holding part of the picture, surrounded by questions that have no single place to be answered.">
     <div className="ui-scatter">
       {[
-        ['Teams chat', 70, 70, -4],
-        ['Outlook', 420, 30, 3],
-        ['SharePoint', 740, 110, -2],
-        ['Partner portal', 90, 380, 2],
-        ['Pilot portal', 430, 440, -3],
-        ['Investor portal', 740, 400, 4],
-      ].map(([t, x, y, r]) => (
-        <div key={t} className="ui-tile" style={{ left: x, top: y, transform: `rotate(${r}deg)` }}>
+        ['Teams chat', 'Where is the latest deck?', 60, 60, -4],
+        ['Outlook', 'RE: pilot timeline (4)', 400, 24, 3],
+        ['SharePoint', 'Proposal_v3_FINAL.docx', 720, 96, -2],
+        ['Partner portal', 'Deal registered: Crestview', 80, 350, 2],
+        ['Pilot portal', 'New ticket: setup step', 420, 400, -3],
+        ['Investor portal', 'Q3 update posted', 730, 370, 4],
+      ].map(([t, line, x, y, r], i) => (
+        <div key={t} className="ui-tile ui-anim-float" style={{ left: x, top: y, '--r': `${r}deg`, '--d': `${i * -0.9}s` }}>
           <span className="ui-tile__bar">
             <i />
             <i />
             <i />
           </span>
           <b>{t}</b>
-          <span className="ui-tile__lines">
-            <i />
-            <i style={{ width: '60%' }} />
-          </span>
+          <span className="ui-tile__line">{line}</span>
         </div>
       ))}
-      {[
-        ['Who is working on what?', 330, 250],
-        ['What is overdue?', 60, 245],
-        ['Where is the latest version?', 640, 285],
-        ['What did we decide?', 380, 600],
-      ].map(([q, x, y]) => (
-        <span key={q} className="ui-question" style={{ left: x, top: y }}>
-          {q}
-        </span>
-      ))}
+      <ul className="ui-questions">
+        {[
+          ['Who is working on what?', 320, 235],
+          ['What is overdue?', 60, 225],
+          ['Where is the current version?', 640, 265],
+          ['What did we decide?', 360, 560],
+        ].map(([q, x, y]) => (
+          <li key={q} className="ui-question" style={{ left: x, top: y }}>
+            {q}
+          </li>
+        ))}
+      </ul>
     </div>
   </Scaled>
 );
 
 export const PilotTimeline = () => (
-  <Scaled width={1000} height={600} label="Recreation of the Pilot Support Portal admin timeline: entries filterable by type with CSV export. Fictional data.">
+  <Scaled width={1000} height={440} label="Recreation of the Pilot Support Portal admin timeline: entries filterable by type with CSV export. Fictional data.">
     <BrowserFrame title="Pilot Support · Admin">
       <div className="ui-pilot">
         <div className="ui-pilot__head">
@@ -498,8 +593,8 @@ export const PilotTimeline = () => (
           ['Feedback', 'Guide was clear; a video walkthrough would help', 'Northwind Security', 'Today'],
           ['Error', 'Error message after the latest update', 'Halcyon IT', 'Yesterday'],
           ['Feedback', 'Would like a summary view for our team', 'Brightline MSP', 'Mon'],
-        ].map(([k, t, org, when]) => (
-          <div key={t} className="ui-entry">
+        ].map(([k, t, org, when], i) => (
+          <div key={t} className="ui-entry ui-anim-rise" style={{ '--d': `${i * 90}ms` }}>
             <span className={`ui-kind ui-kind--${k.toLowerCase()}`}>{k}</span>
             <span className="ui-entry__title">{t}</span>
             <span className="ui-entry__org">{org}</span>

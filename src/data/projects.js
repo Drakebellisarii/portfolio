@@ -21,22 +21,13 @@ export const projects = [
     image: media('atlantic'),
   },
   {
-    id: 'flickfinda',
-    title: 'AI-Powered Movie Selector',
+    id: 'foyer',
+    title: 'Foyer',
     description:
-      'Designed a cloud native movie selection platform to minimize the time it takes to select a title for movie night. Make an account or browse as a guest if you would like to check out my work',
-    tech: ['Javascript', 'Python', 'SQL', 'HTML/CSS', 'API Integration', 'Credential Managment'],
-    link: 'https://www.flickfinda.com',
-    image: media('flickfinda'),
-  },
-  {
-    id: 'trinnav',
-    title: 'TrinNav',
-    description:
-      'Senior capstone iOS app — a graph-driven campus navigation system for Trinity College. Built with SwiftUI, MapKit, and SceneKit to deliver panoramic 360° views at each node, real-time route resolution across a custom JSON node topology, and CoreLocation-based positioning. Not publicly hosted; click to view the full project description.',
-    tech: ['Swift', 'SwiftUI', 'MapKit', 'SceneKit', 'AVFoundation', 'CoreLocation', 'Xcode'],
-    modal: true,
-    image: media('trinnav'),
+      'A simple test site I made to get better at designing in a SaaS style for a more commercial software product with multiple functions. Foyer is a concept partner relationship management platform, with a partner dashboard, deal registration, lead routing with SLAs, and a light and dark theme.',
+    tech: ['Next.js', 'React', 'Vercel', 'UI/UX Design'],
+    link: 'https://foyer-two-pi.vercel.app',
+    image: media('foyer'),
   },
   {
     id: 'cfas',
@@ -48,15 +39,6 @@ export const projects = [
     video: clip('cfas', { webm: false }),
   },
   {
-    id: 'lumavalen',
-    title: 'Luma Valen',
-    description:
-      'Built the official website for recording artist Luma Valen, bringing her music, videos, and merch together under one cinematic, star-field visual identity. Includes streaming links, an upcoming merch collection, and a newsletter signup to grow her fan list.',
-    tech: ['Next.js', 'React', 'Vercel'],
-    link: 'https://luma-valen-site.vercel.app',
-    image: media('lumavalen'),
-  },
-  {
     id: 'mandel',
     title: 'Mandel Moving',
     description:
@@ -64,6 +46,15 @@ export const projects = [
     tech: ['Next.js', 'React', 'SEO Optimization'],
     link: 'https://mandel-moving.vercel.app/',
     image: media('mandel'),
+  },
+  {
+    id: 'lumavalen',
+    title: 'Luma Valen',
+    description:
+      'Built the official website for recording artist Luma Valen, bringing her music, videos, and merch together under one cinematic, star-field visual identity. Includes streaming links, an upcoming merch collection, and a newsletter signup to grow her fan list.',
+    tech: ['Next.js', 'React', 'Vercel'],
+    link: 'https://luma-valen-site.vercel.app',
+    image: media('lumavalen'),
   },
   {
     id: 'gpp',
@@ -82,5 +73,26 @@ export const projects = [
     tech: ['Next.js', 'React', 'Vercel', 'Tailwind CSS'],
     link: 'https://drakesites.dev',
     video: clip('drakesites'),
+  },
+  {
+    id: 'flickfinda',
+    title: 'AI-Powered Movie Selector',
+    description:
+      'Designed a cloud native movie selection platform to minimize the time it takes to select a title for movie night. Make an account or browse as a guest if you would like to check out my work',
+    tech: ['Javascript', 'Python', 'SQL', 'HTML/CSS', 'API Integration', 'Credential Managment'],
+    link: 'https://www.flickfinda.com',
+    image: media('flickfinda'),
+  },
+  {
+    id: 'trinnav',
+    title: 'TrinNav',
+    description:
+      'Senior capstone iOS app — a graph-driven campus navigation system for Trinity College. Built with SwiftUI, MapKit, and SceneKit to deliver panoramic 360° views at each node, real-time route resolution across a custom JSON node topology, and CoreLocation-based positioning. Not publicly hosted; click to view the full project description.',
+    tech: ['Swift', 'SwiftUI', 'MapKit', 'SceneKit', 'AVFoundation', 'CoreLocation', 'Xcode'],
+    modal: true,
+    image: media('trinnav'),
+    // Shown as an app, not a site: real screens in phone frames over a blurred map.
+    screens: [media('trinnav'), media('trinnav-360')],
+    backdrop: media('trinnav-bg'),
   },
 ];

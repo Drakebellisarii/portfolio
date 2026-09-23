@@ -11,6 +11,7 @@
   --ink-3: #7a7873;
   --rule: rgba(17, 17, 17, 0.14);
   --needle: #2563eb;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   position: relative;
   background: var(--paper);
   color: var(--ink);
@@ -23,7 +24,7 @@
   inset: 0;
   pointer-events: none;
   opacity: 0.07;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: var(--grain);
   z-index: 0;
 }
 
@@ -432,83 +433,304 @@
     0 2px 0 rgba(17, 17, 17, 0.55);
 }
 
-/* ── List (phones, short screens, reduced motion) ─────────────────────────── */
-.xp-list-rail {
+
+/* ── Pocket tuner (phones, tablets, short screens, reduced motion) ──────────
+   A car radio rather than a hi-fi: the date drum lies on its side in a slim
+   faceplate that docks to the top of the screen, with four preset keys and an
+   LED signal meter beneath it. The log scrolls natively under the faceplate. */
+.xp-pocket {
+  /* The small viewport height doesn't move while a mobile toolbar collapses, so
+     faceplate sizes derived from it never change mid-scroll. */
+  --svh: 1vh;
+  padding-bottom: 104px;
+}
+@supports (height: 1svh) {
+  .xp-pocket {
+    --svh: 1svh;
+  }
+}
+.xp-pocket__intro {
+  padding: 92px 20px 40px;
+}
+
+.xp-plate {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  border-bottom: 3px double rgba(17, 17, 17, 0.55);
+}
+/* The same grain as the section, so the faceplate reads as the same sheet. */
+.xp-plate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: var(--grain);
+}
+/* Content fades as it slides under the faceplate's lip. */
+.xp-plate::after {
+  content: '';
   position: absolute;
   left: 0;
-  top: 10px;
-  bottom: 0;
-  width: 1px;
-  background: var(--rule);
+  right: 0;
+  top: calc(100% + 3px);
+  height: 30px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(241, 239, 234, 0.95), rgba(241, 239, 234, 0));
 }
-.xp-list-dot {
+.xp-plate__inner {
+  position: relative;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 12px 20px 10px;
+  /* Slimmer on short phones. */
+  padding-top: clamp(8px, calc(3.6 * var(--svh) - 12px), 12px);
+  padding-bottom: clamp(8px, calc(1.8 * var(--svh) - 2px), 10px);
+}
+
+/* The dial: a horizontal drum behind glass, edges falling away into the plate. */
+.xp-dial {
+  position: relative;
+  height: 72px;
+  height: clamp(62px, calc(9 * var(--svh) + 13px), 72px);
+  /* Vertical swipes scroll the page; sideways drags turn the dial. */
+  touch-action: pan-y;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 24%, #000 76%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 24%, #000 76%, transparent 100%);
+}
+.xp-dial.is-turning {
+  cursor: grabbing;
+}
+.xp-dtick {
   position: absolute;
-  left: -5px;
-  top: 6px;
-  width: 11px;
-  height: 11px;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - var(--pitch) / 2);
+  width: var(--pitch);
+  will-change: transform;
+}
+.xp-dtick::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  height: 7px;
+  margin-left: -0.5px;
+  background: rgba(17, 17, 17, 0.3);
+}
+.xp-dtick--quarter::after {
+  height: 12px;
+  background: rgba(17, 17, 17, 0.5);
+}
+.xp-dtick--year::after {
+  width: 2px;
+  height: 20px;
+  margin-left: -1px;
+  background: var(--ink);
+}
+/* Stations are marked by a blue dot the needle's tip comes to rest on; the
+   ticks themselves stay ink so a neighbouring station never reads as the needle. */
+.xp-dtick--station::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 21px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
   border-radius: 50%;
   background: var(--needle);
-  box-shadow: 0 0 0 4px var(--paper);
 }
-.xp-list .xp-card {
+.xp-dtick__year {
+  position: absolute;
+  top: 0;
+  left: calc(50% + 6px);
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-size: clamp(26px, calc(3.6 * var(--svh) + 6px), 30px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.xp-dtick__label {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.xp-dtick--station .xp-dtick__label {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+.xp-dial__needle {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 14px;
+  height: 28px;
+  margin-left: -7px;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(17, 17, 17, 0.2));
+}
+/* The tuning lamp in the hub lights once a station is locked in. */
+.xp-dial__lamp {
+  transition: fill 0.35s ease;
+}
+.xp-plate.is-locked .xp-dial__lamp {
+  fill: var(--needle);
+}
+
+.xp-plate__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  margin-top: clamp(8px, calc(3.6 * var(--svh) - 12px), 12px);
+}
+.xp-plate__keys {
+  display: flex;
+  gap: 8px;
+}
+/* Preset keys, pressed in while their station plays. */
+.xp-pkey {
+  position: relative;
+  width: 44px;
+  padding: 7px 0 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-indent: 0.12em;
+  color: var(--ink);
+  background: linear-gradient(to bottom, #fffdf8, #ebe6da);
+  border: 1px solid rgba(17, 17, 17, 0.6);
+  border-radius: 1px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 2px 0 rgba(17, 17, 17, 0.55);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.28s var(--ease-spring),
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+/* A finger-sized hit area around the key. */
+.xp-pkey::before {
+  content: '';
+  position: absolute;
+  inset: -8px -4px;
+}
+.xp-pkey.is-on,
+.xp-pkey:active {
+  transform: translate3d(0, 2px, 0);
+  color: var(--accent-ink);
+  background: linear-gradient(to bottom, #e9e4d8, #f3efe5);
+  box-shadow:
+    0 1px 2px rgba(17, 17, 17, 0.18) inset,
+    0 0 0 rgba(17, 17, 17, 0.55);
+}
+.xp-pkey:focus-visible {
+  outline: 2px solid var(--needle);
+  outline-offset: 3px;
+}
+
+/* Signal meter: five LED bars that light as the needle nears a station. */
+.xp-signal {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 16px;
+}
+.xp-signal i {
+  display: block;
+  width: 3px;
+  background: var(--ink);
+  opacity: 0.14;
+  transition: opacity 0.14s ease;
+}
+.xp-signal i:nth-child(1) { height: 20%; }
+.xp-signal i:nth-child(2) { height: 40%; }
+.xp-signal i:nth-child(3) { height: 60%; }
+.xp-signal i:nth-child(4) { height: 80%; }
+.xp-signal i:nth-child(5) { height: 100%; }
+.xp-signal i.is-lit {
+  opacity: 0.88;
+}
+
+/* The log */
+.xp-log {
+  position: relative;
+  list-style: none;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: grid;
+  gap: 112px;
+}
+.xp-log__item {
+  position: relative;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.xp-pocket .xp-card {
   height: auto;
   padding: 26px 26px 28px 64px;
 }
-.xp-list .xp-card__grille {
+.xp-pocket .xp-card__grille {
   left: 16px;
   width: 26px;
 }
-/* The timeline label above each card already carries the date. */
-.xp-list .xp-card__freq {
-  display: none;
-}
-.xp-list .xp-card__logo {
+.xp-pocket .xp-card__logo {
   top: 66px;
   right: 22px;
   height: 56px;
   width: 34%;
 }
-.xp-list .xp-card__title {
+.xp-pocket .xp-card__title {
   font-size: 26px;
 }
-
-/* Phones: each card rolls up off the drum as it arrives, tipping forward on
-   its top edge the way a station card turns into the dial window. */
-.xp-roll {
-  opacity: 0;
-  transform: perspective(900px) translate3d(0, 44px, 0) rotateX(-32deg);
-  transform-origin: 50% 0%;
+/* The pointer is a lamp: grey until its station is tuned in, then it lights,
+   and the station's logo comes up in colour the way hover does on desktop. */
+.xp-pocket .xp-card__pointer {
+  background: rgba(17, 17, 17, 0.45);
+  box-shadow: none;
   transition:
-    opacity 0.7s ease,
-    transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    background-color 0.4s ease,
+    box-shadow 0.6s ease;
 }
-.xp-roll.is-visible {
-  opacity: 1;
-  transform: none;
+.xp-log__item.is-tuned .xp-card__pointer {
+  background: var(--needle);
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
 }
-.xp-list-date {
-  display: block;
-  margin-bottom: 10px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: var(--needle);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .xp-roll { opacity: 1; transform: none; }
+.xp-log__item.is-tuned .xp-card__logo {
+  filter: grayscale(0) contrast(1);
+  opacity: 0.95;
 }
 
 @media (max-width: 640px) {
-  .xp-list .xp-card {
-    padding: 22px 20px 24px;
+  .xp-pocket .xp-card {
+    padding: 24px 20px 26px;
   }
-  .xp-list .xp-card__grille {
+  .xp-pocket .xp-card__grille {
     display: none;
   }
-  .xp-list .xp-card__logo {
+  .xp-pocket .xp-card__logo {
     position: static;
     display: block;
     height: 34px;
@@ -517,7 +739,30 @@
     margin-bottom: 18px;
     object-position: left center;
   }
-  .xp-list .xp-card__head {
+  .xp-pocket .xp-card__head {
     max-width: none;
+  }
+  .xp-pocket .xp-card__band {
+    gap: 12px;
+  }
+}
+
+/* Phones on their side: dial and keys share one row so the log keeps the room. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .xp-plate__inner {
+    display: flex;
+    align-items: flex-end;
+    gap: 28px;
+    padding-top: 6px;
+    padding-bottom: 8px;
+  }
+  .xp-dial {
+    flex: 1;
+    height: 64px;
+  }
+  .xp-plate__row {
+    margin-top: 0;
+    gap: 20px;
+    padding-bottom: 2px;
   }
 }

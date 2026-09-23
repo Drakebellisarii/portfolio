@@ -195,7 +195,7 @@ function SeriesPage() {
                       <span className="cs-index__name">{s.name}</span>
                       <span className="cs-index__line">{s.oneLiner}</span>
                     </span>
-                    <span className="cs-index__visual">
+                    <span className="cs-index__visual" data-no-compact="">
                       <Visual name={s.hero} />
                     </span>
                   </Link>
