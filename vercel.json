@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/((?!static/|media/|fonts/|.*\\.[a-z0-9]+$).*)", "destination": "/index.html" }]
+}

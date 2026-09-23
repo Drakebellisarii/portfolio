@@ -147,13 +147,15 @@ export default function Hero({ onContact }) {
           </h1>
 
           <p ref={bioRef} className="hero__bio">
-            I've been coding for eight years now, and I graduated from Trinity College with a B.S. in
-            Computer Science and an experiential certificate in cybersecurity. I love living in that
-            seam between creativity and code talking through it, creating it, all of it. The part of
-            me that loves to make things is also scared of a world where machines do all the imagining
-            for us. So I build software for people, the kind that actually helps people, and I try to
-            keep human fingerprints on everything I make. Drop a message, I would love to chat with
-            whoever.
+            Most of what I build starts as a note on my phone that made more sense at 2 a.m. The few
+            that still make sense in the morning are the ones I build, and turning them into real
+            software is what I've spent the last eight years learning to do. It started with tinkering
+            in middle school, got serious in high school, and led me to Trinity College, where I just
+            graduated with a B.S. in Computer Science and an experiential certificate in cybersecurity.
+            Somewhere along the way, I found where I like to work: the seam between creativity and
+            code. The tools keep getting smarter, and I'm glad they do. But the imagining is the one
+            part I won't hand off. It's what makes software feel like someone made it for you. Say
+            hello; I'd love to hear what you're working on.
           </p>
 
           <div ref={metaRef} className="hero__meta">

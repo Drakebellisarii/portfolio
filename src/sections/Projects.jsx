@@ -4,6 +4,7 @@ import Picture from '../components/Picture';
 import Reveal from '../components/Reveal';
 import SmartVideo from '../components/SmartVideo';
 import TrinNavModal from './TrinNavModal';
+import { Link } from '../lib/router';
 import { projects } from '../data/projects';
 
 function getDomain(link) {
@@ -107,7 +108,7 @@ function ProjectVisual({ project }) {
 }
 
 const CARD_CLASS =
-  'group block h-full w-full text-left bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col cursor-pointer ' +
+  'group block h-full w-full text-left bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col items-stretch cursor-pointer ' +
   'transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:border-blue-300 ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2';
 
@@ -119,9 +120,9 @@ function ProjectCard({ project, onOpenModal }) {
 
       <div className="p-4 sm:p-5 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2 mb-2">
-          <h3 className="text-base sm:text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+          <h4 className="text-base sm:text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
             {project.title}
-          </h3>
+          </h4>
           {project.modal ? (
             <Play size={13} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
           ) : (
@@ -160,6 +161,61 @@ function ProjectCard({ project, onOpenModal }) {
   );
 }
 
+
+const SERIES_STUDIES = [
+  { index: '01', name: 'Queralt Hub', to: '/work/queralt/hub' },
+  { index: '02', name: 'Channel Sales Portal', to: '/work/queralt/channel-portal' },
+  { index: '03', name: 'Investor Portal', to: '/work/queralt/investor-portal' },
+];
+
+/** The Queralt case study series, set in Queralt's own brand: navy type, a gold hairline, Rubik, lots of white. */
+function CaseStudySeries() {
+  return (
+    <article className="qx-card">
+      <div className="qx-card__brand">
+        <img className="qx-card__logo" src="/queralt-logo.svg" alt="Queralt Solutions" width="864" height="289" loading="lazy" decoding="async" />
+      </div>
+      <div className="qx-card__main">
+        <h4 className="qx-card__title">
+          <Link to="/work/queralt" className="qx-card__title-link">
+            Building the internal platform
+          </Link>
+        </h4>
+        <p className="qx-card__text">Three internal platforms I designed and built as the sole developer.</p>
+        <ol className="qx-card__list">
+          {SERIES_STUDIES.map((s) => (
+            <li key={s.index}>
+              <Link to={s.to} className="qx-card__item">
+                <span className="qx-card__n">{s.index}</span>
+                {s.name}
+              </Link>
+            </li>
+          ))}
+        </ol>
+        <Link to="/work/queralt" className="qx-card__cta">
+          Read the case studies <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+/** One half of the section: a numbered header and a rule, then its work. */
+function ProjectGroup({ id, index, title, note, children }) {
+  return (
+    <section className="proj-group" aria-labelledby={id}>
+      <Reveal>
+        <header className="proj-group__head">
+          <span className="proj-group__n" aria-hidden="true">{index}</span>
+          <h3 id={id} className="proj-group__title">{title}</h3>
+          <p className="proj-group__note">{note}</p>
+        </header>
+      </Reveal>
+      {children}
+    </section>
+  );
+}
+
 export default function Projects() {
   const [modalOpen, setModalOpen] = useState(false);
   const openModal = useCallback(() => setModalOpen(true), []);
@@ -174,13 +230,21 @@ export default function Projects() {
           </h2>
         </Reveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {projects.map((project, index) => (
-            <Reveal key={project.id} delay={(index % 3) * 90}>
-              <ProjectCard project={project} onOpenModal={openModal} />
-            </Reveal>
-          ))}
-        </div>
+        <ProjectGroup id="projects-enterprise" index="01" title="Enterprise" note="Production software for Queralt Solutions">
+          <Reveal>
+            <CaseStudySeries />
+          </Reveal>
+        </ProjectGroup>
+
+        <ProjectGroup id="projects-independent" index="02" title="Independent" note="Client sites and personal builds">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {projects.map((project, index) => (
+              <Reveal key={project.id} delay={(index % 3) * 90}>
+                <ProjectCard project={project} onOpenModal={openModal} />
+              </Reveal>
+            ))}
+          </div>
+        </ProjectGroup>
 
         <Reveal>
           <a

@@ -21,6 +21,11 @@
     <link rel="preload" href="%PUBLIC_URL%/media/hero/poster.jpg" as="image" fetchpriority="high" />
     <link rel="preload" href="%PUBLIC_URL%/fonts/DMSerifText-Italic.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="%PUBLIC_URL%/fonts/DMSerifText-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Rubik is only for the Queralt card (Queralt's web typeface), so it loads
+         without blocking the first paint. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&display=swap" media="print" onload="this.media='all'" />
     <style>
       @font-face {
         font-family: 'DM Serif Text';
@@ -48,13 +53,18 @@
       }
     </style>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W563QJ9RYQ"></script>
+    <!-- Google tag (gtag.js), loaded after the page so analytics never competes with first paint -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-W563QJ9RYQ');
+      window.addEventListener('load', function () {
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-W563QJ9RYQ';
+        document.head.appendChild(s);
+      });
     </script>
   </head>
   <body>

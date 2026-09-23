@@ -7,8 +7,35 @@
 
 :root {
   --font-display: 'DM Serif Text', Georgia, 'Times New Roman', serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Neutrals, as used by the hero (night) and the experience tuner (paper). */
+  --night: #06080c;
+  --night-2: #0d1117;
+  --night-3: #161b22;
+  --paper: #f1efea;
+  --paper-2: #fbfaf7;
+  --ink: #111111;
+  --ink-2: #3d3d3b;
+  --ink-3: #62605b; /* AA on --paper */
+  --rule: rgba(17, 17, 17, 0.14);
+  --rule-night: rgba(255, 255, 255, 0.12);
+  --accent: #2563eb;
+  --accent-2: #3b82f6;
+  --accent-3: #60a5fa; /* AA on --night */
+  --accent-ink: #1d4ed8; /* accent for text on --paper (AA) */
+
+  /* Fluid type scale for long-form editorial pages. */
+  --step-hero: clamp(3.25rem, 1.2rem + 9vw, 10.5rem);
+  --step-display: clamp(2.5rem, 1.2rem + 5.4vw, 6rem);
+  --step-h2: clamp(2rem, 1.1rem + 3.4vw, 4.25rem);
+  --step-h3: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+  --step-lede: clamp(1.1875rem, 1rem + 0.7vw, 1.5rem);
+  --step-body: 1.0625rem;
+  --step-label: 0.75rem;
 }
 
 html {

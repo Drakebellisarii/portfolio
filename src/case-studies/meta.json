@@ -1,0 +1,18 @@
+{
+  "/work/queralt": {
+    "title": "Queralt: building the internal platform · Drake Bellisari",
+    "description": "A case study series on the internal platforms Drake Bellisari designed and built as the sole developer at Queralt Solutions: a company hub, a channel sales portal, and an investor portal."
+  },
+  "/work/queralt/hub": {
+    "title": "Queralt Hub · Case study · Drake Bellisari",
+    "description": "A company-wide intranet that replaces scattered tools with one calm place for chat, calendars, tasks, projects, and every internal portal."
+  },
+  "/work/queralt/channel-portal": {
+    "title": "Channel Sales Portal · Case study · Drake Bellisari",
+    "description": "A partner relationship management portal where resellers and integration partners register deals, access sales resources, and talk to the Queralt team."
+  },
+  "/work/queralt/investor-portal": {
+    "title": "Investor Portal · Case study · Drake Bellisari",
+    "description": "Where it started: the secure investor portal built as an intern, and the lesson about keeping confidential documents inside the organization's security boundary."
+  }
+}

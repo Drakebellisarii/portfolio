@@ -79,6 +79,7 @@ build_projects() {
   shot public/Atlantic-companies.png atlantic 1200
   shot public/Flick-Findy.png        flickfinda 1200
   shot public/Mandel.png             mandel 1200
+  shot public/Luma-Valen.png         lumavalen 1200
   shot public/Trinav.png             trinnav 447
   clip public/CFAS-Hero.mp4 cfas
   clip public/Connie.mp4    gpp

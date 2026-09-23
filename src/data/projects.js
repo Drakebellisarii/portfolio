@@ -48,6 +48,15 @@ export const projects = [
     video: clip('cfas', { webm: false }),
   },
   {
+    id: 'lumavalen',
+    title: 'Luma Valen',
+    description:
+      'Built the official website for recording artist Luma Valen, bringing her music, videos, and merch together under one cinematic, star-field visual identity. Includes streaming links, an upcoming merch collection, and a newsletter signup to grow her fan list.',
+    tech: ['Next.js', 'React', 'Vercel'],
+    link: 'https://luma-valen-site.vercel.app',
+    image: media('lumavalen'),
+  },
+  {
     id: 'mandel',
     title: 'Mandel Moving',
     description:

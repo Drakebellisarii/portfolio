@@ -18,7 +18,7 @@ export default function Footer() {
           </a>
         </div>
 
-        <p className="text-gray-500 text-xs sm:text-sm">© 2026 Drake Bellisari.</p>
+        <p className="text-gray-400 text-xs sm:text-sm">© 2026 Drake Bellisari.</p>
       </div>
     </footer>
   );

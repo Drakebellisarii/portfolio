@@ -1,0 +1,523 @@
+/* ── Work Experience: a radio tuner ───────────────────────────────────────────
+   Two drums turn on one axis: the date drum (left) and the station drum that
+   carries each role (right). A spring in Experience.jsx drives both; scroll
+   snapping gives them detents at each station. Paper, ink and one blue needle. */
+
+.xp {
+  --paper: #f1efea;
+  --card: #fbfaf7;
+  --ink: #111111;
+  --ink-2: #3d3d3b;
+  --ink-3: #7a7873;
+  --rule: rgba(17, 17, 17, 0.14);
+  --needle: #2563eb;
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Film grain: static, generated once, a few percent strong. */
+.xp::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+.xp-heading {
+  color: var(--ink);
+}
+
+/* ── Tuner (desktop) ───────────────────────────────────────────────────────── */
+.xp-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1;
+}
+.xp-tuner {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 230px 56px minmax(0, 1fr);
+  column-gap: 28px;
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* Both drums: a perspective window with the edges fading into the paper, the
+   way a drum dial disappears into the radio's faceplate. */
+.xp-window {
+  position: relative;
+  height: 100%;
+  perspective: 1150px;
+  perspective-origin: 50% 50%;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 2%, #000 28%, #000 74%, transparent 98%);
+  mask-image: linear-gradient(to bottom, transparent 2%, #000 28%, #000 74%, transparent 98%);
+}
+.xp-drum {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.xp-drum > * {
+  position: absolute;
+  left: 0;
+  right: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Date drum ticks */
+.xp-tick {
+  top: 0;
+  height: var(--pitch);
+  margin-top: calc(var(--pitch) / -2);
+}
+.xp-tick::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: calc(50% - 0.5px);
+  height: 1px;
+  width: 14px;
+  background: rgba(17, 17, 17, 0.28);
+}
+.xp-tick--quarter::after {
+  width: 26px;
+  background: rgba(17, 17, 17, 0.45);
+}
+.xp-tick--year::after {
+  width: 54px;
+  height: 2px;
+  top: calc(50% - 1px);
+  background: var(--ink);
+}
+.xp-year {
+  top: 0;
+  height: 80px;
+  margin-top: -40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 68px;
+  font-family: var(--font-display);
+  font-size: 68px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: lining-nums;
+}
+.xp-tick__month {
+  position: absolute;
+  right: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  color: var(--ink-3);
+}
+.xp-tick--station .xp-tick__month {
+  color: var(--needle);
+  font-weight: 700;
+}
+.xp-tick--station::before {
+  content: '';
+  position: absolute;
+  right: 18px;
+  top: calc(50% - 3px);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--needle);
+}
+
+/* The needle: a slim tapered blade that pivots on a hub on the station rail
+   and rests its tip on the date ticks, like the pointer of a drum dial. */
+.xp-needle {
+  position: absolute;
+  top: 50%;
+  left: calc(40px + 230px - 20px);
+  width: 90px;
+  height: 14px;
+  margin-top: -7px;
+  pointer-events: none;
+  z-index: 3;
+  filter: drop-shadow(0 2px 3px rgba(17, 17, 17, 0.18));
+}
+.xp-needle svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Station presets: the progress rail between the drums. */
+.xp-presets {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.xp-presets__track {
+  position: relative;
+  width: 1px;
+  height: min(46vh, 360px);
+  background: var(--rule);
+}
+.xp-presets__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: top;
+  transform: scaleY(0);
+}
+.xp-preset {
+  position: absolute;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.xp-preset span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  transition:
+    transform 0.35s var(--ease-spring),
+    background-color 0.25s ease;
+}
+.xp-preset.is-passed span {
+  background: var(--ink);
+}
+.xp-preset.is-on span {
+  background: var(--needle);
+  border-color: var(--needle);
+  transform: scale(1.35);
+}
+.xp-preset:focus-visible {
+  outline: 2px solid var(--needle);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+/* Station cards on the drum. The shade layer darkens a face as it turns
+   away from the light, which is most of what sells the curvature. */
+.xp-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(17, 17, 17, 0.5), rgba(17, 17, 17, 0.08));
+  opacity: 0;
+  z-index: 2;
+}
+.xp-shade--below {
+  background: linear-gradient(to top, rgba(17, 17, 17, 0.5), rgba(17, 17, 17, 0.08));
+}
+
+/* Station cards on the drum: printed station log cards rather than UI panels.
+   Aged stock with grain, a letterpress double rule, a speaker-grille strip on
+   the left edge, and a tuning scale across the top. Blue appears only where a
+   radio would light it: the scale pointer and the employer's name. */
+.xp-face {
+  top: 0;
+  height: var(--face-h, 480px);
+  margin-top: calc(var(--face-h, 480px) / -2);
+}
+.xp-card {
+  --stock: #f7f3ea;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(120, 96, 52, 0.07) 100%),
+    var(--stock);
+  border: 1px solid rgba(17, 17, 17, 0.55);
+  border-radius: 2px;
+  padding: 30px 44px 34px 76px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 2px 0 rgba(17, 17, 17, 0.06),
+    0 22px 40px -26px rgba(17, 17, 17, 0.35);
+}
+/* Grain printed into the stock. */
+.xp-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.09;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* The inner rule of the letterpress frame. */
+.xp-card::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(17, 17, 17, 0.2);
+  pointer-events: none;
+}
+
+/* Speaker grille: a punched strip down the left edge, between two rules. */
+.xp-card__grille {
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 18px;
+  width: 34px;
+  border-left: 1px solid rgba(17, 17, 17, 0.22);
+  border-right: 1px solid rgba(17, 17, 17, 0.22);
+  background-image: radial-gradient(circle at 50% 50%, rgba(17, 17, 17, 0.42) 1.5px, transparent 2.1px);
+  background-size: 8px 8px;
+  background-position: 1px 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+}
+
+.xp-card__logo {
+  position: absolute;
+  top: 74px;
+  right: 44px;
+  height: 84px;
+  width: 28%;
+  object-fit: contain;
+  object-position: right top;
+  filter: grayscale(1) sepia(0.25) contrast(1.15);
+  mix-blend-mode: multiply;
+  opacity: 0.26;
+  transition:
+    filter 0.6s ease,
+    opacity 0.6s ease,
+    transform 0.9s var(--ease-out);
+  pointer-events: none;
+}
+.xp-card:hover .xp-card__logo {
+  filter: grayscale(0) contrast(1);
+  opacity: 0.95;
+  transform: scale(1.03);
+}
+.xp-card__body {
+  position: relative;
+}
+
+/* Tuning band */
+.xp-card__band {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 12px;
+  margin-bottom: 22px;
+  border-bottom: 3px double rgba(17, 17, 17, 0.55);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.xp-card__index {
+  font-weight: 700;
+}
+.xp-card__of {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+.xp-card__freq {
+  color: var(--ink-3);
+}
+.xp-card__scale {
+  position: relative;
+  flex: 1;
+  height: 14px;
+  background:
+    repeating-linear-gradient(to right, rgba(17, 17, 17, 0.55) 0 1px, transparent 1px 30px) left bottom / 100% 12px no-repeat,
+    repeating-linear-gradient(to right, rgba(17, 17, 17, 0.3) 0 1px, transparent 1px 6px) left bottom / 100% 6px no-repeat;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+/* The one lit element: a thin blue pointer with a soft lamp glow. */
+.xp-card__pointer {
+  position: absolute;
+  bottom: -3px;
+  left: calc(8% + var(--pos) * 0.84);
+  width: 2px;
+  height: 20px;
+  margin-left: -1px;
+  background: var(--needle);
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.45);
+}
+
+.xp-card__head {
+  max-width: calc(72% - 24px);
+}
+.xp-card__title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 2.6vw, 36px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.xp-card__meta {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+.xp-card__meta strong {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  letter-spacing: 0;
+  color: var(--needle);
+  font-weight: 400;
+}
+.xp-card__text {
+  margin-top: 18px;
+  font-size: 15px;
+  line-height: 1.72;
+  color: var(--ink-2);
+  max-width: 64ch;
+}
+
+/* Tags as preset keys on a hi-fi: square, inked, sitting slightly proud. */
+.xp-card__tags {
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.xp-key {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding: 6px 10px 5px;
+  background: linear-gradient(to bottom, #fffdf8, #ebe6da);
+  border: 1px solid rgba(17, 17, 17, 0.6);
+  border-radius: 1px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 2px 0 rgba(17, 17, 17, 0.55);
+}
+
+/* ── List (phones, short screens, reduced motion) ─────────────────────────── */
+.xp-list-rail {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+}
+.xp-list-dot {
+  position: absolute;
+  left: -5px;
+  top: 6px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--needle);
+  box-shadow: 0 0 0 4px var(--paper);
+}
+.xp-list .xp-card {
+  height: auto;
+  padding: 26px 26px 28px 64px;
+}
+.xp-list .xp-card__grille {
+  left: 16px;
+  width: 26px;
+}
+/* The timeline label above each card already carries the date. */
+.xp-list .xp-card__freq {
+  display: none;
+}
+.xp-list .xp-card__logo {
+  top: 66px;
+  right: 22px;
+  height: 56px;
+  width: 34%;
+}
+.xp-list .xp-card__title {
+  font-size: 26px;
+}
+
+/* Phones: each card rolls up off the drum as it arrives, tipping forward on
+   its top edge the way a station card turns into the dial window. */
+.xp-roll {
+  opacity: 0;
+  transform: perspective(900px) translate3d(0, 44px, 0) rotateX(-32deg);
+  transform-origin: 50% 0%;
+  transition:
+    opacity 0.7s ease,
+    transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.xp-roll.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.xp-list-date {
+  display: block;
+  margin-bottom: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--needle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xp-roll { opacity: 1; transform: none; }
+}
+
+@media (max-width: 640px) {
+  .xp-list .xp-card {
+    padding: 22px 20px 24px;
+  }
+  .xp-list .xp-card__grille {
+    display: none;
+  }
+  .xp-list .xp-card__logo {
+    position: static;
+    display: block;
+    height: 34px;
+    width: auto;
+    max-width: 62%;
+    margin-bottom: 18px;
+    object-position: left center;
+  }
+  .xp-list .xp-card__head {
+    max-width: none;
+  }
+}

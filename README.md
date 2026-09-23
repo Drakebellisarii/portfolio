@@ -1,8 +1,9 @@
 # Drake Bellisari — Portfolio
 
 Personal portfolio site. React 19 on Create React App, Tailwind for utility styling,
-plain CSS for the hero and nav choreography. No animation libraries: every effect
-is CSS transitions driven by a handful of small hooks.
+plain CSS for the hero and nav choreography. GSAP (loaded on demand) drives the
+Work Experience tuning dial; everything else is CSS transitions driven by a handful
+of small hooks.
 
 ## Scripts
 
@@ -23,7 +24,7 @@ src/
   hooks/             useInView, usePrefersReducedMotion
   lib/               observe (IntersectionObserver wrapper), scroll, contact (Formspree)
   data/              Copy and media references for projects, experience, education
-  styles/            globals.css, components.css, hero.css, nav.css
+  styles/            globals.css, components.css, hero.css, nav.css, experience.css
 scripts/
   build-media.sh     ffmpeg + cwebp + fonttools pipeline (see below)
 public/
@@ -47,6 +48,8 @@ public/
 - **Nothing re-renders on scroll.** The hero animation writes to the DOM inside a
   single `requestAnimationFrame` per frame; the nav tracks the active section with
   an `IntersectionObserver`.
+- **The experience dial** (GSAP + ScrollTrigger) is code-split and only fetched once
+  the section is within 800px of the viewport, so the hero never pays for it.
 - **The contact terminal** boots when it scrolls into view and never moves
   keyboard focus until the visitor clicks into it, so the page can never be
   yanked down to the form.

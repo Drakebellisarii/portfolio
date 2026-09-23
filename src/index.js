@@ -4,8 +4,14 @@ import './styles/globals.css';
 import './styles/components.css';
 import App from './App';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const container = document.getElementById('root');
+const app = (
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 );
+
+// Case study routes ship as prerendered HTML (scripts/prerender-meta.js):
+// adopt that markup instead of replacing it. Every other route renders here.
+if (container.hasChildNodes()) ReactDOM.hydrateRoot(container, app);
+else ReactDOM.createRoot(container).render(app);
