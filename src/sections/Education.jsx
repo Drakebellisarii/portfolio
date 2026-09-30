@@ -1,199 +1,153 @@
-import React, { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import Picture from '../components/Picture';
 import Reveal from '../components/Reveal';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { observe } from '../lib/observe';
 import { disciplines, achievements } from '../data/education';
+import '../styles/education.css';
 
-const serif = "'Georgia', 'Cambria', 'Times New Roman', serif";
+// Phones get the portrait painting; keep in step with src/styles/education.css.
+const PHONE = '(max-width: 767px)';
+const BACKDROP_SOURCES = [
+  { media: PHONE, type: 'image/webp', srcSet: '/media/backgrounds/trinity-watercolor-mobile.webp' },
+  { media: PHONE, srcSet: '/media/backgrounds/trinity-watercolor-mobile.jpg' },
+];
 
-function CourseRow({ course, index, open, onToggle }) {
-  const detailId = `course-${course.id}`;
-  return (
-    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.055)' }}>
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        aria-controls={detailId}
-        style={{
-          width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', gap: 18,
-          padding: '17px 0', textAlign: 'left',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'monospace', fontSize: 10, fontWeight: 600,
-            color: 'rgba(100,130,180,0.45)', flexShrink: 0,
-            minWidth: 20, lineHeight: 1, userSelect: 'none',
-          }}
-          aria-hidden="true"
-        >
-          {String(index + 1).padStart(2, '0')}
-        </span>
-        <span style={{ flex: 1, fontFamily: serif, fontSize: 14.5, color: 'oklch(87% 0.007 245)', lineHeight: 1.35 }}>
-          {course.name}
-        </span>
-        <ChevronRight
-          size={12}
-          aria-hidden="true"
-          style={{
-            flexShrink: 0, color: 'rgba(148,163,184,0.3)',
-            transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-            transition: 'transform 0.22s var(--ease-out)',
-          }}
-        />
-      </button>
+const COURSES = disciplines.flatMap((d, di) => d.courses.map((c) => ({ ...c, discipline: di })));
 
-      <div id={detailId} className={`course-detail${open ? ' is-open' : ''}`} aria-hidden={!open}>
-        <div className="course-detail__inner">
-          <p
-            style={{
-              margin: 0, paddingLeft: 38, paddingBottom: 18, paddingTop: 2,
-              fontFamily: serif, fontSize: 13, fontStyle: 'italic',
-              color: 'rgba(148,163,184,0.68)', lineHeight: 1.8,
-            }}
-          >
-            {course.detail}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+const Dot = () => <span className="edu-dot" aria-hidden="true" />;
+
+/**
+ * The painting drifts a little slower than the page, so the type seems to sit
+ * in front of it. Transform only, and only while the section is on screen.
+ */
+function useDrift(sectionRef, layerRef, off) {
+  useEffect(() => {
+    const section = sectionRef.current;
+    const layer = layerRef.current;
+    if (off || !section || !layer) return undefined;
+    let raf = 0;
+    let onScreen = false;
+    const paint = () => {
+      raf = 0;
+      const r = section.getBoundingClientRect();
+      const p = (window.innerHeight - r.top) / (window.innerHeight + r.height); // 0 as it enters, 1 as it leaves
+      layer.style.transform = `translate3d(0, ${((p - 0.5) * -7).toFixed(2)}%, 0)`;
+    };
+    const schedule = () => {
+      if (onScreen && !raf) raf = requestAnimationFrame(paint);
+    };
+    const stop = observe(section, (visible) => {
+      onScreen = visible;
+      schedule();
+    });
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      cancelAnimationFrame(raf);
+      stop();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      layer.style.transform = '';
+    };
+  }, [sectionRef, layerRef, off]);
 }
 
 export default function Education() {
-  const [activeTab, setActiveTab] = useState(disciplines[0].label);
-  const [expanded, setExpanded] = useState(null);
+  const [active, setActive] = useState(COURSES[0].id);
+  const sectionRef = useRef(null);
+  const driftRef = useRef(null);
+  const backdropRef = useRef(null);
+  const [backdropLoaded, setBackdropLoaded] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
+  useDrift(sectionRef, driftRef, reducedMotion);
 
-  const courses = disciplines.find((d) => d.label === activeTab)?.courses ?? [];
-  const selectTab = (label) => {
-    setActiveTab(label);
-    setExpanded(null);
-  };
+  // Covers a painting that was already cached and decoded before React listened for it.
+  useEffect(() => {
+    const img = backdropRef.current;
+    if (img && img.complete && img.naturalWidth) setBackdropLoaded(true);
+  }, []);
+
+  const course = COURSES.find((c) => c.id === active);
 
   return (
-    <section id="education" className="relative overflow-hidden" style={{ paddingTop: 130, paddingBottom: 140 }}>
-      {/* Campus photo, darkened and blurred at build time rather than with CSS filters */}
-      <div className="absolute inset-0" aria-hidden="true">
-        <Picture
-          webp="/media/backgrounds/trinity.webp"
-          src="/media/backgrounds/trinity.jpg"
-          className="w-full h-full object-cover"
-          style={{ objectPosition: 'center 30%' }}
-        />
-      </div>
-      <div
-        className="absolute inset-0"
-        style={{ background: 'radial-gradient(ellipse 110% 80% at 50% 55%, rgba(5,9,20,0.2) 0%, rgba(5,9,20,0.78) 100%)' }}
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-14 lg:gap-24 lg:items-center">
-          {/* Institution */}
-          <Reveal>
-            <p style={{ fontFamily: serif, fontSize: 12.5, color: 'rgba(148,163,184,0.55)', marginBottom: 18 }}>
-              Hartford, Connecticut
-            </p>
-
-            <h2
-              style={{
-                fontFamily: serif,
-                fontSize: 'clamp(42px, 6vw, 76px)',
-                fontWeight: 700,
-                lineHeight: 0.88,
-                letterSpacing: '-0.025em',
-                color: 'oklch(97% 0.004 245)',
-                marginBottom: 26,
-              }}
-            >
-              Trinity<br />College
-            </h2>
-
-            <div style={{ width: 34, height: 2, background: '#3b82f6', borderRadius: 1, marginBottom: 26 }} aria-hidden="true" />
-
-            <p style={{ fontFamily: serif, fontSize: 15, lineHeight: 1.65, color: 'oklch(80% 0.01 245)', marginBottom: 10, whiteSpace: 'nowrap' }}>
-              B.S. <span style={{ fontStyle: 'italic' }}>Computer Science</span>
-            </p>
-            <p style={{ fontFamily: serif, fontSize: 14, color: 'oklch(62% 0.012 245)', marginBottom: 36 }}>
-              Graduated May 2026
-            </p>
-
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', marginBottom: 30 }} aria-hidden="true" />
-
-            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {achievements.map(({ Icon, label }) => (
-                <li key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                  <span
-                    style={{
-                      width: 30, height: 30, borderRadius: '50%',
-                      background: 'rgba(59,130,246,0.11)',
-                      border: '1px solid rgba(59,130,246,0.2)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0, marginTop: 1,
-                    }}
-                    aria-hidden="true"
-                  >
-                    <Icon size={12} style={{ color: '#60a5fa' }} />
-                  </span>
-                  <span style={{ fontFamily: serif, fontSize: 13.5, lineHeight: 1.55, color: 'oklch(74% 0.01 245)' }}>
-                    {label}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
-
-          {/* Coursework */}
-          <Reveal delay={120}>
-            <p style={{ fontFamily: serif, fontSize: 13, color: 'rgba(148,163,184,0.6)', marginBottom: 22 }}>
-              Select a discipline to explore the coursework.
-            </p>
-
-            <div role="tablist" aria-label="Disciplines" style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 2 }}>
-              {disciplines.map((d) => {
-                const selected = activeTab === d.label;
-                return (
-                  <button
-                    key={d.label}
-                    type="button"
-                    role="tab"
-                    aria-selected={selected}
-                    onClick={() => selectTab(d.label)}
-                    style={{
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      paddingTop: 8, paddingBottom: 10, paddingLeft: 0, paddingRight: 20,
-                      fontFamily: serif, fontSize: 13.5,
-                      fontWeight: selected ? 600 : 400,
-                      color: selected ? 'oklch(95% 0.005 245)' : 'rgba(255,255,255,0.3)',
-                      borderBottom: selected ? '2px solid #3b82f6' : '2px solid transparent',
-                      marginBottom: -1,
-                      transition: 'color 0.17s, border-color 0.17s',
-                      letterSpacing: '0.01em',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {d.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Keyed by tab so switching disciplines crossfades the list in */}
-            <div key={activeTab} className="panel-in" role="tabpanel">
-              {courses.map((course, i) => (
-                <CourseRow
-                  key={course.id}
-                  course={course}
-                  index={i}
-                  open={expanded === course.id}
-                  onToggle={() => setExpanded((prev) => (prev === course.id ? null : course.id))}
-                />
-              ))}
-            </div>
-          </Reveal>
+    <section ref={sectionRef} id="education" className="edu">
+      {/* Watercolour of the Long Walk, dimmed at build time rather than with CSS filters.
+          A blurred copy holds its place (see education.css) until it fades in. */}
+      <div className="edu-bg" aria-hidden="true">
+        <div ref={driftRef} className="edu-bg__drift">
+          <Picture
+            ref={backdropRef}
+            sources={BACKDROP_SOURCES}
+            webp="/media/backgrounds/trinity-watercolor.webp"
+            src="/media/backgrounds/trinity-watercolor.jpg"
+            className={`edu-bg__img${backdropLoaded ? ' is-loaded' : ''}`}
+            onLoad={() => setBackdropLoaded(true)}
+          />
         </div>
+      </div>
+      <div className="edu-scrim" aria-hidden="true" />
+
+      <div className="edu-inner">
+        {/* The college */}
+        <Reveal className="edu-mark">
+          <img className="edu-seal" src="/media/education/trinity-seal.webp" alt="" width="85" height="92" loading="lazy" decoding="async" />
+          <p className="edu-place edu-sc">Hartford, Connecticut</p>
+        </Reveal>
+        <Reveal delay={80}>
+          <h2 className="edu-name">
+            <span className="sr-only">Education: </span>Trinity College
+          </h2>
+        </Reveal>
+        <Reveal delay={160} className="edu-degree">
+          <span>
+            <span className="edu-sc">B.S.</span> Computer Science
+          </span>
+          <Dot />
+          <span className="edu-sc">Graduated May 2026</span>
+        </Reveal>
+        <Reveal delay={220}>
+          <ul className="edu-honours" aria-label="Distinctions">
+            {achievements.map((label) => (
+              <li key={label}>{label}</li>
+            ))}
+          </ul>
+        </Reveal>
+
+        {/* The coursework: a column to each discipline, and the chosen course's
+            description in a caption beneath them. */}
+        <Reveal delay={120} className="edu-study" style={{ '--caption-row': course.discipline * 2 + 2 }}>
+          <h3 className="sr-only">Coursework</h3>
+          {disciplines.map((d, di) => (
+            <div key={d.label} className="edu-subject" style={{ '--row': di * 2 + 1 }}>
+              <h4 className="edu-subject__name">{d.label}</h4>
+              <ul className="edu-subject__courses">
+                {d.courses.map((c) => (
+                  <li key={c.id}>
+                    <button
+                      type="button"
+                      className="edu-course"
+                      aria-pressed={c.id === active}
+                      aria-controls="edu-caption"
+                      onClick={() => setActive(c.id)}
+                      onFocus={() => setActive(c.id)}
+                      onMouseEnter={() => setActive(c.id)}
+                    >
+                      {c.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <p id="edu-caption" className="edu-caption" aria-live="polite">
+            <span key={course.id} className="edu-caption__text">
+              <span className="edu-caption__name">{course.name}</span>
+              <Dot />
+              {course.detail}
+            </span>
+          </p>
+        </Reveal>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 import { AskHub, ChatChannel, CheckIn, CommandPalette, Directory, Discovery, GoalsScorecard, HubBefore, HubHome, MobileTabBar, PilotTimeline, ScatteredTools } from './HubVisuals';
 import { AssetLibrary, DealRegistration, DealThread, FigmaBoard, InvestorSignIn, PartnerDashboard, PartnerTypes } from './PortalVisuals';
-import { B2BFlow, EcosystemDiagram, IsolationDiagram, SignInFlow } from './Diagrams';
+import { B2BFlow, IsolationDiagram } from './Diagrams';
+import { CalendarMerge, OutboxDelivery, PortalsCrm, SecurityLayers, SignInAccess, SlackPipeline, SystemContext } from './flow';
 
 /**
  * Every visual the content file can name. `recreation` visuals are UI rebuilt
@@ -27,8 +28,13 @@ export const VISUALS = {
   DealThread: { C: DealThread, recreation: true },
   AssetLibrary: { C: AssetLibrary, recreation: true },
   InvestorSignIn: { C: InvestorSignIn, recreation: true },
-  EcosystemDiagram: { C: EcosystemDiagram },
-  SignInFlow: { C: SignInFlow },
   IsolationDiagram: { C: IsolationDiagram },
   B2BFlow: { C: B2BFlow },
+  SystemContext: { C: SystemContext },
+  SignInAccess: { C: SignInAccess },
+  SlackPipeline: { C: SlackPipeline },
+  CalendarMerge: { C: CalendarMerge },
+  PortalsCrm: { C: PortalsCrm },
+  OutboxDelivery: { C: OutboxDelivery },
+  SecurityLayers: { C: SecurityLayers },
 };

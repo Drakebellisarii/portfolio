@@ -1,0 +1,85 @@
+/* ══ Flow diagrams ══════════════════════════════════════════════════════════
+   Architecture diagrams for the case studies, drawn as SVG on the night tone.
+   At rest every connection is a grey hairline (≥3:1), so the diagram reads
+   without motion. As it scrolls into view each connection is drawn over in
+   --signal in data-flow order; a lit connection then carries a slow pulse.
+   Reduced motion shows the finished, lit state with no pulses. */
+
+.flow {
+  --flow-node: #0b0f16;
+  --flow-line: rgba(255, 255, 255, 0.36);
+  --flow-node-line: rgba(255, 255, 255, 0.22);
+  --flow-node-lit: rgba(186, 206, 255, 0.58);
+  --flow-ink: #f3f4f6;
+  --flow-ink-2: rgba(255, 255, 255, 0.68);
+  --flow-ink-3: rgba(255, 255, 255, 0.52);
+  container-type: inline-size;
+  margin: 0; width: 100%;
+}
+.flow__wide { display: none; }
+.flow__narrow { display: block; max-width: 420px; margin: 0 auto; }
+@container (min-width: 960px) {
+  .flow__wide { display: block; }
+  .flow__narrow { display: none; }
+}
+.flow__svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* type */
+.flow__svg text { font-family: var(--font-mono); fill: var(--flow-ink-2); }
+.flow__svg .flow-node__title { font-family: var(--font-sans); font-weight: 600; fill: var(--flow-ink); }
+.flow__svg .flow-node__hub { font-family: var(--font-display); fill: #fff; }
+.flow__svg .flow-node__item { font-family: var(--font-sans); fill: rgba(255, 255, 255, 0.74); }
+.flow__svg .flow-node__foot, .flow__svg .flow-group, .flow__svg .flow-note { fill: var(--flow-ink-3); }
+.flow__svg .flow-group { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; }
+
+/* nodes */
+.flow-node > rect { fill: var(--flow-node); stroke: var(--flow-node-line); stroke-width: 1; transition: stroke 0.6s var(--ease-out); }
+.flow-node--hub > rect { stroke-width: 1.5; }
+.flow-bullet { fill: var(--flow-ink-3); transition: fill 0.6s var(--ease-out); }
+.flow-place line { stroke: rgba(255, 255, 255, 0.08); stroke-width: 1; }
+.flow__svg .flow-place__name { font-family: var(--font-sans); font-weight: 500; fill: rgba(255, 255, 255, 0.88); }
+.flow__svg .flow-place__from { fill: var(--flow-ink-3); }
+.flow-box rect { fill: none; stroke: var(--flow-node-line); stroke-width: 1; stroke-dasharray: 3 4; transition: stroke 0.6s var(--ease-out); }
+
+/* connections */
+.flow-edge__base { fill: none; stroke: var(--flow-line); stroke-width: 1; }
+.flow-edge__lit { fill: none; stroke: var(--signal); stroke-width: 1.25; }
+.flow-halo { fill: none; stroke: var(--signal); stroke-width: 4; stroke-linecap: round; opacity: 0.32; }
+.flow-arrow { fill: var(--flow-line); transition: fill 0.35s var(--ease-out); }
+
+/* labels sit on the line; the chip is the page colour, so the line breaks around the text */
+.flow-label rect { fill: var(--night); stroke: rgba(255, 255, 255, 0.1); stroke-width: 1; transition: stroke 0.6s var(--ease-out); }
+.flow__svg .flow-label__what { fill: rgba(255, 255, 255, 0.74); transition: fill 0.6s var(--ease-out); }
+.flow__svg .flow-label__how { fill: var(--flow-ink-3); }
+
+/* pulses: a bright head with a short tail, travelling at a constant speed, then resting */
+.flow-pulse { visibility: hidden; }
+.flow-pulse path { fill: none; stroke-linecap: round; }
+.flow-pulse__tail { stroke: var(--signal); stroke-width: 1.5; opacity: 0.55; }
+.flow-pulse__head { stroke: #dbe7ff; stroke-width: 2.25; }
+@keyframes flow-pulse { from { stroke-dashoffset: var(--o0); } to { stroke-dashoffset: var(--o1); } }
+
+/* ── lit ── */
+.flow-edge[data-lit] .flow-arrow, .flow[data-all] .flow-arrow { fill: var(--signal); }
+.flow-node[data-lit] > rect, .flow[data-all] .flow-node > rect { stroke: var(--flow-node-lit); }
+.flow-node[data-lit] .flow-bullet, .flow[data-all] .flow-bullet { fill: var(--signal); }
+.flow-box[data-lit] rect, .flow[data-all] .flow-box rect { stroke: rgba(118, 164, 255, 0.5); }
+.flow-label[data-lit] rect, .flow[data-all] .flow-label rect { stroke: rgba(118, 164, 255, 0.3); }
+.flow-label[data-lit] .flow-label__what, .flow[data-all] .flow-label__what { fill: #fff; }
+.flow[data-all] .flow-edge__lit, .flow[data-all] .flow-halo { stroke-dashoffset: 0; }
+
+.flow-edge[data-lit] .flow-pulse { visibility: visible; }
+.flow-edge[data-lit] .flow-pulse path { animation: flow-pulse var(--pdur) linear var(--pdel) infinite; }
+.flow[data-offscreen] .flow-pulse path { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flow .flow-edge__lit, .flow .flow-halo { stroke-dashoffset: 0 !important; }
+  .flow .flow-arrow { fill: var(--signal); }
+  .flow .flow-node > rect { stroke: var(--flow-node-lit); }
+  .flow .flow-bullet { fill: var(--signal); }
+  .flow .flow-box rect { stroke: rgba(118, 164, 255, 0.5); }
+  .flow .flow-label rect { stroke: rgba(118, 164, 255, 0.3); }
+  .flow .flow__svg .flow-label__what { fill: #fff; }
+  .flow .flow-pulse { display: none; }
+  .flow .flow-node > rect, .flow .flow-arrow, .flow .flow-label rect, .flow .flow-label__what { transition: none; }
+}

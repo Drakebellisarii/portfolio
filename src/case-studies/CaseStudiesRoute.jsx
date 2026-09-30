@@ -3,7 +3,6 @@ import Reveal from '../components/Reveal';
 import { Link } from '../lib/router';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
 import { BLOCKS, NextStory, Visual } from './Blocks';
-import { EcosystemDiagram } from './visuals/Diagrams';
 import { SERIES, STUDIES } from './content';
 import META from './meta.json';
 import '../styles/case-study.css';
@@ -213,11 +212,11 @@ function SeriesPage() {
               How the systems connect
             </h2>
             <div className="cs-chapter__copy">
-              <p className="cs-body">The hub is at the centre. The channel sales, pilot support and investor portals each connect to it with their own API key and send webhooks, which appear in the hub as notifications. Microsoft Entra ID provides sign-in and the company directory for the hub.</p>
+              <p className="cs-body">The hub is at the centre. The channel sales, pilot support and investor portals each post events to it with their own scoped API key, and those events appear in the hub as notifications. Microsoft Entra ID provides sign-in and the company directory for the hub.</p>
             </div>
           </Reveal>
           <Reveal className="cs-chapter__visual" delay={120}>
-            <EcosystemDiagram />
+            <Visual name="SystemContext" />
           </Reveal>
         </div>
       </section>

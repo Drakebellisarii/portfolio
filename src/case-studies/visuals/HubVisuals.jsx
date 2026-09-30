@@ -99,8 +99,7 @@ function HomeScreen() {
           </div>
           <div className="ui-search">
             <Search size={14} strokeWidth={2} />
-            <span>Search or jump to</span>
-            <kbd>⌘K</kbd>
+            <span>Search</span>
           </div>
         </div>
         <section className="ui-panel ui-anim-rise" style={{ '--d': '80ms' }}>
@@ -154,7 +153,7 @@ function HomeScreen() {
 }
 
 export const HubHome = () => (
-  <Scaled width={1080} height={660} label="Recreation of the redesigned Hub home: eight navigation items, today's meetings first, then tasks, then messages, with a command palette shortcut. Fictional data.">
+  <Scaled width={1080} height={660} label="Recreation of the redesigned Hub home: eight navigation items, today's meetings first, then tasks, then messages. Fictional data.">
     <BrowserFrame title="Hub · Home">
       <HomeScreen />
     </BrowserFrame>
@@ -216,7 +215,7 @@ export const Discovery = () => (
 );
 
 export const CommandPalette = () => (
-  <Scaled width={1080} height={660} label="Recreation of the command palette: typing 'north' finds a partner deal, a task and a document at once. Fictional data.">
+  <Scaled width={1080} height={660} label="Recreation of the command palette: typing 'north' finds a company, a task and a document at once, alongside places, an action and the assistant. Fictional data.">
     <BrowserFrame title="Hub · Command palette">
       <div className="ui-app ui-app--dim">
         <Sidebar items={NAV_AFTER} />
@@ -229,9 +228,10 @@ export const CommandPalette = () => (
             north<span className="ui-caret" />
           </div>
           {[
-            ['Results', [['Northwind Security', 'Partner deal', true], ['Northwind onboarding checklist', 'Task'], ['Northwind proposal v3', 'Document']]],
-            ['Go to', [['Projects', 'g p'], ['Calendar', 'g c']]],
-            ['Actions', [['New task', 'c']]],
+            ['Results', [['Northwind Security', 'Company', true], ['Northwind onboarding checklist', 'Task'], ['Northwind proposal v3', 'Document']]],
+            ['Places', [['Contacts', 'Companies · people'], ['Calendar', 'Team']]],
+            ['Actions', [['Schedule a call', 'Calendar']]],
+            ['Assistant', [['Ask the assistant about “north”', 'Cited answer']]],
           ].map(([group, rows]) => (
             <div key={group}>
               <p className="ui-palette__group">{group}</p>
@@ -453,7 +453,7 @@ export const GoalsScorecard = () => (
 );
 
 export const Directory = () => (
-  <Scaled width={1000} height={450} label="Recreation of the company directory with profiles synced from Microsoft Entra ID, beside the document library. Fictional data.">
+  <Scaled width={1000} height={450} label="Recreation of the company directory with profiles synced from Microsoft Entra ID, above the document library mirrored from Google Drive. Fictional data.">
     <BrowserFrame title="Hub · People">
       <div className="ui-dir">
         <div className="ui-dir__head">
@@ -480,9 +480,12 @@ export const Directory = () => (
             </div>
           ))}
         </div>
-        <p className="ui-panel__title" style={{ marginTop: 24 }}>
-          Documents
-        </p>
+        <div className="ui-dir__head ui-dir__head--docs">
+          <p className="ui-panel__title">Documents</p>
+          <span className="ui-synced">
+            <i /> Mirrored from Google Drive
+          </span>
+        </div>
         <div className="ui-files">
           {[
             ['Partner program overview', 'PDF'],

@@ -106,11 +106,31 @@ build_projects() {
 # baked into the pixels here, so the browser never rasterizes a filter at runtime.
 build_backgrounds() {
   mkdir -p "$OUT/backgrounds"
-  $FF -i public/Trin.jpg \
-    -vf "gblur=sigma=1.6,eq=saturation=0.12,lutrgb=r=val*0.22:g=val*0.22:b=val*0.22" \
-    -pix_fmt yuvj420p -q:v 5 "$TMP/trinity.png"
-  cwebp -quiet -q 78 "$TMP/trinity.png" -o "$OUT/backgrounds/trinity.webp"
-  $FF -i "$TMP/trinity.png" -pix_fmt yuvj420p -q:v 5 "$OUT/backgrounds/trinity.jpg"
+  # Education: watercolours of Trinity's Long Walk, a landscape one for wide
+  # screens and a portrait one for phones (Education.jsx serves each only where it
+  # applies). Dimmed just enough to carry the section's white text, but kept sharp
+  # and in colour: the brushwork is the point. Paper grain hides compression well:
+  # under the dimming these settings look identical to near-lossless encodes on
+  # 2x and 3x screens, at a fraction of the bytes.
+  $FF -i public/Trin-wc.png \
+    -vf "scale=1600:-2:flags=lanczos,eq=saturation=0.9,lutrgb=r=val*0.58:g=val*0.58:b=val*0.58" \
+    "$TMP/trinity-watercolor.png"
+  # A phone only ever sees the middle of the portrait painting (the section is far
+  # narrower than it), so the outer strips are cropped off before encoding; the
+  # object-position in src/styles/education.css frames the lamppost in what's left.
+  $FF -i public/Trin-wc-mob.png \
+    -vf "crop=iw*0.70:ih:iw*0.08:0,scale=-2:1440:flags=lanczos,eq=saturation=0.9,lutrgb=r=val*0.62:g=val*0.62:b=val*0.62" \
+    "$TMP/trinity-watercolor-mobile.png"
+  cwebp -quiet -q 52 -m 6 -sharp_yuv "$TMP/trinity-watercolor.png" -o "$OUT/backgrounds/trinity-watercolor.webp"
+  cwebp -quiet -q 58 -m 6 -sharp_yuv "$TMP/trinity-watercolor-mobile.png" -o "$OUT/backgrounds/trinity-watercolor-mobile.webp"
+  for name in trinity-watercolor trinity-watercolor-mobile; do
+    $FF -i "$TMP/$name.png" -pix_fmt yuvj420p -q:v 5 "$OUT/backgrounds/$name.jpg"
+    # Blur-up placeholder: a few hundred bytes, inlined in src/styles/education.css.
+    # Paste what this prints there whenever a painting changes.
+    $FF -i "$TMP/$name.png" -vf "scale=24:-2:flags=area" "$TMP/$name-lqip.png"
+    cwebp -quiet -q 50 "$TMP/$name-lqip.png" -o "$TMP/$name-lqip.webp"
+    echo "$name placeholder: data:image/webp;base64,$(base64 < "$TMP/$name-lqip.webp" | tr -d '\n')"
+  done
 
   # Projects: a vector survey drawing, generated rather than traced from a photo.
   node scripts/build-topography.mjs
@@ -128,6 +148,12 @@ build_fonts() {
   local uni="U+0020-007E,U+00A0-00FF,U+2010-2027,U+2030-205E,U+20AC,U+2122"
   pyftsubset "$dir/DMSerifText-Regular.ttf" --unicodes="$uni" --layout-features='*' --flavor=woff2 --output-file=public/fonts/DMSerifText-Regular.woff2
   pyftsubset "$dir/DMSerifText-Italic.ttf"  --unicodes="$uni" --layout-features='*' --flavor=woff2 --output-file=public/fonts/DMSerifText-Italic.woff2
+  # EB Garamond, the Education section's book face (roman only). A static 400
+  # instance of the variable font, keeping only the features the section sets: kerning and
+  # ligatures, true small caps (smcp, c2sc) and the figure styles (onum, lnum).
+  local ebg="public/EB_Garamond"
+  local feat="kern,liga,clig,calt,ccmp,locl,mark,mkmk,smcp,c2sc,onum,lnum,pnum,tnum"
+  pyftsubset "$ebg/EBGaramond-Regular.ttf" --unicodes="$uni" --layout-features="$feat" --flavor=woff2 --output-file=public/fonts/EBGaramond-Regular.woff2
 }
 
 case "${1:-all}" in

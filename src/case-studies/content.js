@@ -5,16 +5,18 @@
  * Voice: informational. State what was built, how it works and why a choice
  * was made. No superlatives, no selling.
  *
- * Accuracy rules: only facts from the brief. No metrics, dates or outcomes
- * beyond those listed. UI shown in visuals is recreated with fictional data.
+ * Accuracy rules: only facts from the brief and the hub's own documentation.
+ * No metrics, dates or outcomes beyond those. Security is described by
+ * principle, never by mechanism. UI shown in visuals is recreated with
+ * fictional data.
  *
  * Block kinds
- *   chapter  { number, eyebrow, title, body[], visual?, tone?, flip?, wide?, aside? }
+ *   chapter  { number, eyebrow, title, body[], visual? | visuals[]?, tone?, flip?, wide?, aside? }
  *   pull     { text, tone? }
  *   sticky   { number, eyebrow, title, intro?, steps: [{ label, title, body, visual }] }
  *   numbers  { items: [{ value, label }] }
  *   decisions{ number, title, items: [{ title, choice, tradeoff }] }
- *   roadmap  { number, title, intro, items: [{ title, body }] }
+ *   roadmap  { number, eyebrow?, title, intro, items: [{ title, body }] }
  *   spec     { rows: [[label, value]] }
  */
 
@@ -45,7 +47,7 @@ export const STUDIES = {
       ['Role', 'Lead engineer'],
       ['Year', '2026'],
       ['Stack', 'Next.js · Supabase · Entra ID'],
-      ['Status', 'Company-wide; roadmap in progress'],
+      ['Status', 'In daily use by leadership; company-wide rollout in progress'],
     ],
     blocks: [
       {
@@ -69,17 +71,33 @@ export const STUDIES = {
         kind: 'chapter',
         number: '02',
         eyebrow: 'Conversation',
-        title: 'Real-time chat and channels',
+        title: 'Messaging, including Slack',
         body: [
-          'Chat and channels run on Supabase Realtime. They were designed to replace Teams chat for internal conversation.',
-          'Announcements and kudos are part of the same area.',
+          'Messages has two sides. Hub channels, project rooms and direct messages run on Supabase Realtime, broadcast from the database on private topics, with announcements and kudos alongside. Beside them, the company’s Slack workspace is mirrored both ways.',
+          'Each person connects Slack once. After that, a message, edit, reaction or pin sent from the hub happens in Slack from their own account, and the hub stores what Slack accepted.',
+          'Slack’s Events API delivers changes live. Each request’s signature is verified and acknowledged within Slack’s three-second window, the work happens after the reply, and an event log applies each event exactly once. A polling backup re-reads active conversations every minute or two, quiet ones every twelve minutes and any conversation someone opens, filling in missed messages, thread replies and edits.',
+          'Channels shared with outside companies are read only through connected people’s own access; the app’s bot never joins them. Tokens are encrypted at rest. A message deleted in Slack is hidden in the hub, never erased, and only after a complete, error-free read.',
         ],
-        visual: 'ChatChannel',
+        visuals: ['ChatChannel', 'SlackPipeline'],
         tone: 'night',
       },
       {
         kind: 'chapter',
         number: '03',
+        eyebrow: 'Calendar',
+        title: 'One calendar for the whole team',
+        body: [
+          'The calendar merges each person’s Outlook calendar, any other calendar they link (Google, or any calendar by its published link) and the hub’s own events into one team view. A meeting scheduled in the hub is also created in Outlook, with a Teams link, when the organizer has connected Outlook for it.',
+          'A meeting several teammates attend shows as one card. Copies are matched by the meeting’s calendar ID, normalized so a series and its single occurrences line up, with title, start and end as the fallback. A teammate’s busy-only copy of a meeting is folded into it, so they appear as an attendee; any other busy time is subtracted where they attend a visible meeting, and what is left stays with its owner.',
+          'Privacy is decided on the server, for each viewer. Private and busy-only items are redacted before anything is sent, so their titles never reach anyone else’s browser. In the time grid, overlapping meetings sit side by side, and nothing is drawn over anything else.',
+        ],
+        visual: 'CalendarMerge',
+        tone: 'night',
+        wide: true,
+      },
+      {
+        kind: 'chapter',
+        number: '04',
         eyebrow: 'Projects & delegation',
         title: 'Check-ins on request',
         body: [
@@ -92,7 +110,7 @@ export const STUDIES = {
       },
       {
         kind: 'chapter',
-        number: '04',
+        number: '05',
         eyebrow: 'Direction',
         title: 'Goals, vision and a scorecard',
         body: ['Company goals, personal goals, the company vision and a scorecard are part of the hub, next to the projects and tasks they relate to.'],
@@ -101,12 +119,12 @@ export const STUDIES = {
       },
       {
         kind: 'chapter',
-        number: '05',
+        number: '06',
         eyebrow: 'People & documents',
         title: 'Directory and document library',
         body: [
           'Profiles in the company directory are synced from Microsoft Entra ID, the same identity system people sign in with.',
-          'A unified document library gives files a single location inside the hub.',
+          'The document library mirrors the company’s Google Drive, so every file has one home and opens inside the hub without a Google sign-in. Sensitive folders are excluded from the hub by design.',
         ],
         visual: 'Directory',
         tone: 'paper',
@@ -114,16 +132,33 @@ export const STUDIES = {
       },
       {
         kind: 'chapter',
-        number: '06',
+        number: '07',
+        eyebrow: 'Contacts',
+        title: 'A lightweight CRM',
+        body: [
+          'Contacts keeps everyone Queralt works with outside the team. The portals push companies and contacts with their own scoped keys. Records merge on the portal’s own ID, then by email for people and by name or domain for companies. Outside people in members’ Outlook meetings are added too. Staff never are, and nothing is ever sent to a contact.',
+          'People are filed under their company by their email’s domain: never by a personal email provider, and never over a company someone chose by hand. Company logos are fetched from each company’s own website through an SSRF-protected fetcher and re-encoded as PNG before they are stored.',
+          'Each company has one timeline of notes, follow-ups, portal and pilot updates, and meetings. A meeting appears there only for people allowed to see its details.',
+        ],
+        visual: 'PortalsCrm',
+        tone: 'night',
+        wide: true,
+      },
+      {
+        kind: 'chapter',
+        number: '08',
         eyebrow: 'Assistant',
         title: 'An optional AI assistant',
-        body: ['“Ask the hub” is an assistant built on the Anthropic API. It is off by default and only runs once it has been configured.'],
+        body: [
+          '“Ask the hub” is an assistant built on the Anthropic API. It is off by default and only runs once it has been configured.',
+          'Answers cite their sources. The assistant searches as the person asking, so it only sees what they are allowed to see; private items are redacted before it sees them, and nothing is stored.',
+        ],
         visual: 'AskHub',
         tone: 'night',
       },
       {
         kind: 'sticky',
-        number: '07',
+        number: '09',
         eyebrow: 'The redesign',
         title: 'What does this person need right now?',
         intro: 'The first version worked, but it presented everything at once. The redesign was organized around that one question.',
@@ -143,13 +178,13 @@ export const STUDIES = {
           {
             label: 'After',
             title: 'Home, ordered by the morning',
-            body: 'Navigation went from sixteen items to eight. Home leads with today’s meetings, then tasks, then messages. Each person customizes Home, starting from defaults for their role.',
+            body: 'Navigation went from sixteen items to eight. Home leads with today’s meetings, then tasks, then messages. Each person can reorder or hide its sections.',
             visual: 'HubHome',
           },
           {
             label: 'Command palette',
             title: 'Command palette',
-            body: 'A ⌘K command palette was added for keyboard navigation.',
+            body: '⌘K opens one search across tasks, people, companies and documents, with places, a few actions and the assistant. It is the only keyboard shortcut: the hub is click-first by design.',
             visual: 'CommandPalette',
           },
           {
@@ -167,33 +202,58 @@ export const STUDIES = {
       },
       {
         kind: 'chapter',
-        number: '08',
-        eyebrow: 'Architecture',
-        title: 'How the portals connect',
-        body: [
-          'Each portal connects to the hub with its own API key and sends webhooks. A new partner deal or a pilot support ticket appears in the hub as a notification.',
-          'Background jobs run on Vercel Cron. Email and webhook deliveries use an outbox pattern: each delivery is recorded first and sent by a background job, which makes delivery reliable.',
-        ],
-        visual: 'EcosystemDiagram',
-        tone: 'night',
-        wide: true,
-      },
-      {
-        kind: 'chapter',
-        number: '09',
-        eyebrow: 'Identity & access',
-        title: 'Sign-in',
-        body: [
-          'People sign in with Microsoft: Entra ID, through Supabase Auth’s Azure provider.',
-          'People without a company Microsoft account use a magic link instead. Both paths are checked against an allowlist before access is granted.',
-        ],
-        visual: 'SignInFlow',
-        tone: 'night',
-        wide: true,
-      },
-      {
-        kind: 'chapter',
         number: '10',
+        eyebrow: 'Architecture',
+        title: 'How the systems connect',
+        body: [
+          'Each portal posts events to the hub with its own scoped API key, and an idempotency key makes a repeated event apply once. A new partner deal or a pilot update appears in the hub as a notification. The hub calls back into Pilot Support to read and update the pilot tracker, signing each request.',
+          'Microsoft Entra ID signs people in across the company’s two tenants. Slack, Microsoft Graph, Google and the Anthropic API are the hub’s integrations, and everything runs on Supabase and Vercel.',
+        ],
+        visual: 'SystemContext',
+        tone: 'night',
+        wide: true,
+      },
+      {
+        kind: 'chapter',
+        number: '11',
+        eyebrow: 'Delivery',
+        title: 'Delivery through an outbox',
+        body: [
+          'Email, web push and outbound webhooks are never sent inline. Each delivery is recorded first, email and webhooks in an outbox and push as an unsent notification, then sent right after the response; a scheduled job every five minutes picks up anything that was missed.',
+          'Webhooks are signed with a timestamp and retried with quadratic back-off, up to six attempts. An app never receives its own events back.',
+        ],
+        visual: 'OutboxDelivery',
+        tone: 'night',
+        wide: true,
+      },
+      {
+        kind: 'chapter',
+        number: '12',
+        eyebrow: 'Identity & access',
+        title: 'Sign-in and access',
+        body: [
+          'People sign in with Microsoft, across the company’s two tenants, or with a one-time email link if they have no company Microsoft account. Either way the database decides: invited people become active, an uninvited sign-in from a company tenant waits for an admin’s approval, and anyone else is refused before an account exists.',
+          'On first sign-in, a short setup runs once: profile, calendar, notifications and a tour, and a closed tab resumes where it stopped. Microsoft consent was granted once for the company, so Outlook calendars connect during sign-in, with no consent screen.',
+        ],
+        visual: 'SignInAccess',
+        tone: 'night',
+        wide: true,
+      },
+      {
+        kind: 'chapter',
+        number: '13',
+        eyebrow: 'Security',
+        title: 'Security by design',
+        body: [
+          'Security is designed in layers, from the page to the database. The rules that matter most, who may have an account and which rows a person may read, are enforced in the database itself.',
+        ],
+        visual: 'SecurityLayers',
+        tone: 'night',
+        wide: true,
+      },
+      {
+        kind: 'chapter',
+        number: '14',
         eyebrow: 'Connected system',
         title: 'Pilot Support Portal',
         body: [
@@ -209,7 +269,7 @@ export const STUDIES = {
       },
       {
         kind: 'decisions',
-        number: '11',
+        number: '15',
         title: 'Decisions and trade-offs',
         items: [
           {
@@ -219,26 +279,23 @@ export const STUDIES = {
           },
           {
             title: 'Connect portals through keys and webhooks',
-            choice: 'Each portal authenticates to the hub with its own API key and sends events as webhooks.',
+            choice: 'Each portal authenticates to the hub with its own scoped API key and posts events; the hub sends signed webhooks to apps that subscribe.',
             tradeoff: 'More integration code than a shared database would need. Each portal can be deployed on its own, and each key is limited to one system.',
           },
           {
             title: 'Deliver through an outbox',
-            choice: 'Email and webhook deliveries are queued in an outbox and sent by Vercel Cron jobs.',
+            choice: 'Every email, push and webhook delivery is recorded before it is sent, then sent right after the action, with a scheduled job as the catch-all.',
             tradeoff: 'Deliveries can lag the action slightly. A failure is retried instead of lost.',
           },
         ],
       },
       {
         kind: 'roadmap',
-        number: '12',
-        title: 'In progress',
-        intro: 'These are being built and have not shipped.',
-        items: [
-          { title: 'Calendar sync', body: 'Microsoft and Google calendar sync.' },
-          { title: 'Meeting notes', body: 'Live, collaborative meeting notes in which action items become tasks.' },
-          { title: 'Onboarding', body: 'A first-login flow in which admin consent is granted once, so employees do not configure connections themselves.' },
-        ],
+        number: '16',
+        eyebrow: 'In progress',
+        title: 'Where it stands',
+        intro: 'The hub is live. One thing is still under way.',
+        items: [{ title: 'Company-wide rollout', body: 'The hub is in daily use by leadership. Bringing the rest of the company onto it is under way.' }],
       },
       {
         kind: 'numbers',
@@ -254,12 +311,17 @@ export const STUDIES = {
           ['Role', 'Lead engineer: design, engineering and deployment'],
           ['Year', '2026'],
           ['Platforms', 'Web, on desktop and phone'],
-          ['Framework', 'Next.js (App Router), TypeScript, Tailwind'],
-          ['Data & realtime', 'Supabase: Postgres, Auth, Realtime'],
-          ['Identity', 'Microsoft Entra ID; magic-link fallback; allowlist'],
-          ['Hosting & jobs', 'Vercel, Vercel Cron, outbox'],
-          ['AI', 'Anthropic API; optional, off by default'],
-          ['Status', 'Built for company-wide daily use; calendar sync, meeting notes and onboarding in progress'],
+          ['Framework', 'Next.js 16 (App Router), TypeScript, Tailwind'],
+          ['Data & realtime', 'Supabase: Postgres with row-level security on every table, Auth, Realtime, Storage'],
+          ['Identity', 'Microsoft Entra ID across two company tenants; magic-link fallback; invitation-only, enforced in the database; no passwords'],
+          ['Messaging', 'Slack, mirrored both ways: Events API with a polling backup, writes made as each person'],
+          ['Microsoft 365', 'Microsoft Graph for calendars, mail and profile photos'],
+          ['Google', 'Drive (the document library) and Calendar'],
+          ['Notifications', 'In-app, email and web push; signed outbound webhooks; delivered through an outbox'],
+          ['Hosting & jobs', 'Vercel; scheduled jobs for delivery and sync'],
+          ['AI', 'Anthropic API; optional, off by default; cited answers, read with the asker’s permissions'],
+          ['Testing', 'Unit tests on the core rules (tasks, company matching, calendar merging and privacy); migrations rehearsed on an in-memory Postgres (PGlite) before production'],
+          ['Status', 'In daily use by leadership; company-wide rollout in progress'],
         ],
       },
     ],

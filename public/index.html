@@ -41,6 +41,14 @@
         font-style: italic;
         font-display: swap;
       }
+      /* The Education section's book face; below the fold, so not preloaded. */
+      @font-face {
+        font-family: 'EB Garamond';
+        src: url('%PUBLIC_URL%/fonts/EBGaramond-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
       html { background: #06080c; }
       /* Until React mounts, the preloaded hero poster fills the viewport behind
          the same tint the hero uses, so the first picture lands within the

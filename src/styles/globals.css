@@ -27,6 +27,7 @@
   --accent-2: #3b82f6;
   --accent-3: #60a5fa; /* AA on --night */
   --accent-ink: #1d4ed8; /* accent for text on --paper (AA) */
+  --signal: #4c8dff; /* lit connections in the case study diagrams; 6.3:1 on --night */
 
   /* Fluid type scale for long-form editorial pages. */
   --step-hero: clamp(3.25rem, 1.2rem + 9vw, 10.5rem);

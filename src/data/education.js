@@ -1,5 +1,3 @@
-import { Award, Trophy, Dumbbell } from 'lucide-react';
-
 export const disciplines = [
   {
     label: 'Core CS',
@@ -30,8 +28,4 @@ export const disciplines = [
   },
 ];
 
-export const achievements = [
-  { Icon: Award, label: 'Graduated with Honors' },
-  { Icon: Trophy, label: 'Experiential Certificate in Cybersecurity' },
-  { Icon: Dumbbell, label: '4 Year Varsity Athlete' },
-];
+export const achievements = ['Graduated with Honors', 'Experiential Certificate in Cybersecurity', '4 Year Varsity Athlete'];

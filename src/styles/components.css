@@ -71,14 +71,6 @@
   min-height: 0;
 }
 
-/* ── Education: tab panel crossfade ───────────────────────────────────────── */
-@keyframes panel-in {
-  from { opacity: 0; transform: translate3d(0, 6px, 0); }
-  to   { opacity: 1; transform: none; }
-}
-.panel-in {
-  animation: panel-in 0.28s var(--ease-out) both;
-}
 
 /* ── Modal ────────────────────────────────────────────────────────────────── */
 @keyframes modal-backdrop-in {

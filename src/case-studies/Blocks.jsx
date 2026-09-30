@@ -27,9 +27,9 @@ const Eyebrow = ({ number, children }) => (
 );
 
 export function Chapter({ block }) {
-  const { number, eyebrow, title, body, visual, tone = 'paper', aside, closing } = block;
-  // Every chapter with a visual uses the wide layout: text on top, the visual at full width below.
-  const layout = visual ? 'cs-chapter--wide' : 'cs-chapter--text';
+  const { number, eyebrow, title, body, visual, visuals = visual ? [visual] : [], tone = 'paper', aside, closing } = block;
+  // Every chapter with a visual uses the wide layout: text on top, the visuals at full width below.
+  const layout = visuals.length ? 'cs-chapter--wide' : 'cs-chapter--text';
   return (
     <section className={`cs-chapter cs-tone-${tone} ${layout}${closing ? ' cs-chapter--closing' : ''}`} aria-labelledby={`ch-${number}`}>
       <div className="cs-wrap cs-chapter__grid">
@@ -52,11 +52,11 @@ export function Chapter({ block }) {
             )}
           </div>
         </Reveal>
-        {visual && (
-          <Reveal className="cs-chapter__visual" delay={120}>
-            <Visual name={visual} />
+        {visuals.map((v) => (
+          <Reveal key={v} className="cs-chapter__visual" delay={120}>
+            <Visual name={v} />
           </Reveal>
-        )}
+        ))}
       </div>
     </section>
   );
@@ -198,7 +198,7 @@ export function Roadmap({ block }) {
       <div className="cs-wrap">
         <Reveal>
           <Eyebrow number={block.number}>
-            <span className="cs-live">In progress · not yet shipped</span>
+            <span className="cs-live">{block.eyebrow ?? 'In progress · not yet shipped'}</span>
           </Eyebrow>
           <h2 id={`ch-${block.number}`} className="cs-h2">
             {block.title}
